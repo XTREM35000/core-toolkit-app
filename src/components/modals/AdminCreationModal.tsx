@@ -1,0 +1,163 @@
+import { useState } from 'react';
+import { BaseModal } from './BaseModal';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { UserCog } from 'lucide-react';
+
+interface AdminCreationModalProps {
+  onSuccess: () => void;
+}
+
+export const AdminCreationModal = ({ onSuccess }: AdminCreationModalProps) => {
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 8 caractères",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: formData.fullName,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Update profile with admin role
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            role: 'admin',
+            permissions: ['manage_users', 'view_reports', 'manage_billing'],
+            full_name: formData.fullName,
+          })
+          .eq('id', data.user.id);
+
+        if (profileError) throw profileError;
+
+        toast({
+          title: "Succès",
+          description: "Administrateur créé avec succès",
+        });
+
+        onSuccess();
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <BaseModal open={true} onClose={() => {}} showClose={false}>
+      <div className="space-y-6 p-6">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 mx-auto rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
+            <UserCog className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <h2 className="text-2xl font-bold">Créer un Administrateur</h2>
+          <p className="text-sm text-muted-foreground">
+            Gérer les utilisateurs et les ressources de la plateforme
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Nom complet</Label>
+            <Input
+              id="fullName"
+              value={formData.fullName}
+              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+              required
+              placeholder="Marie Martin"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+              placeholder="admin@example.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Mot de passe</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+              placeholder="Min. 8 caractères"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              required
+              placeholder="Confirmer le mot de passe"
+            />
+          </div>
+
+          <Button 
+            type="submit" 
+            className="w-full gradient-primary text-primary-foreground font-semibold"
+            disabled={loading}
+          >
+            {loading ? 'Création...' : "Créer l'Administrateur"}
+          </Button>
+        </form>
+      </div>
+    </BaseModal>
+  );
+};
