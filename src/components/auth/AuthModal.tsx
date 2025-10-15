@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BaseModal } from '../modals/BaseModal';
+import { FormModal } from '@/components/ui/FormModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoginTab } from './LoginTab';
 import { SignupTab } from './SignupTab';
@@ -14,7 +14,7 @@ export const AuthModal = ({ open, onClose }: AuthModalProps) => {
   const [activeTab, setActiveTab] = useState('login');
 
   return (
-    <BaseModal open={open} onClose={onClose} className="max-w-md">
+    <FormModal isOpen={open} onClose={onClose} className="max-w-md">
       <div className="space-y-6 p-6">
         <div className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
@@ -31,16 +31,16 @@ export const AuthModal = ({ open, onClose }: AuthModalProps) => {
             <TabsTrigger value="login">Connexion</TabsTrigger>
             <TabsTrigger value="signup">Inscription</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="login" className="mt-6">
             <LoginTab />
           </TabsContent>
-          
+
           <TabsContent value="signup" className="mt-6">
             <SignupTab />
           </TabsContent>
         </Tabs>
       </div>
-    </BaseModal>
+    </FormModal>
   );
 };

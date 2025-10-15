@@ -26,7 +26,7 @@ import { ThematicLogo } from '@/components/ui/ThematicLogo';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
-import { DraggableModalWrapper } from '@/components/ui/draggable-modal-wrapper';
+import { FormModal } from '@/components/ui/FormModal';
 
 interface SuperAdminModalProps {
   isOpen: boolean;
@@ -367,24 +367,20 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
   };
 
   return (
-    <DraggableModalWrapper
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      allowCloseOnOutsideClick={false}
-      allowDragToClose={true}
-      dragConstraints={{ top: -300, bottom: 400 }} // Augmenté les limites
+      draggable={true}
+      hideHeader={true}
+      dragConstraints={{ top: -300, bottom: 400 }}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}
       onWheel={(e) => {
         e.stopPropagation();
-        // Scroll wheel moves modal up/down slightly when not over the scrollable content
         const nextY = dragY - Math.sign(e.deltaY) * 20;
-        const clamped = Math.max(-300, Math.min(400, nextY)); // Augmenté les limites
+        const clamped = Math.max(-300, Math.min(400, nextY));
         setDragY(clamped);
-      }}
-      style={{
-        transform: `translateY(${dragY}px)`
       }}
     >
       {/* Handle de drag */}
@@ -601,6 +597,6 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
           )}
         </div>
       </div>
-    </DraggableModalWrapper>
+    </FormModal>
   );
 };

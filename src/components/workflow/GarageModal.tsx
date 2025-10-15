@@ -22,7 +22,7 @@ import {
   Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DraggableModalWrapper } from '@/components/ui/draggable-modal-wrapper';
+import { FormModal } from '@/components/ui/FormModal';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { ThematicLogo } from '@/components/ui/ThematicLogo';
 
@@ -107,60 +107,6 @@ export const GarageModal = ({ isOpen, onClose, onSuccess }: GarageModalProps) =>
     };
   }, [isOpen, onClose]);
 
-  // Vérifier si l'utilisateur a déjà un garage
-  useEffect(() => {
-    const checkExistingGarage = async () => {
-      if (profile?.id) {
-        try {
-          console.log('🔍 Vérification du garage existant pour l\'utilisateur:', profile.id);
-          const { data: userOrgs, error } = await supabase
-            .from('user_organization')
-            .select(`
-              organization_id,
-              organizations (
-                id,
-                garages (
-                  id,
-                  name,
-                  status
-                )
-              )
-            `)
-            .eq('user_id', profile.id)
-            .eq('role', 'admin');
-
-          if (error) {
-            console.log('ℹ️ Erreur lors de la vérification des garages:', error.message);
-            return;
-          }
-
-          if (userOrgs && userOrgs.length > 0) {
-            console.log('🔍 Organisations trouvées:', userOrgs);
-            const hasActiveGarages = userOrgs.some(org =>
-              org.organizations?.garages &&
-              org.organizations.garages.length > 0 &&
-              org.organizations.garages.some((garage: any) => garage.status === 'active')
-            );
-
-            if (hasActiveGarages) {
-              console.log('✅ Garage actif trouvé, passage à l\'étape suivante');
-              onSuccess?.();
-            } else {
-              console.log('⚠️ Aucun garage actif trouvé, création nécessaire');
-            }
-          } else {
-            console.log('ℹ️ Aucune organisation trouvée, création nécessaire');
-          }
-        } catch (error) {
-          console.log('ℹ️ Erreur lors de la vérification des garages:', error);
-        }
-      }
-    };
-
-    if (isOpen) {
-      checkExistingGarage();
-    }
-  }, [profile?.id, isOpen, onSuccess]);
 
   // Ajuster la position du modal quand une erreur apparaît
   useEffect(() => {
@@ -202,25 +148,12 @@ export const GarageModal = ({ isOpen, onClose, onSuccess }: GarageModalProps) =>
     }
   };
 
+  // Modal principal aligné projet de base
   return (
-    <DraggableModalWrapper
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      allowCloseOnOutsideClick={false}
-      allowDragToClose={true}
-      dragConstraints={{ top: -300, bottom: 400 }} // Cohérent avec les autres modals
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onWheel={(e) => {
-        e.stopPropagation();
-        const nextY = dragY - Math.sign(e.deltaY) * 20;
-        const clamped = Math.max(-300, Math.min(400, nextY)); // Cohérent avec les autres modals
-        setDragY(clamped);
-      }}
-      style={{
-        transform: `translateY(${dragY}px)`
-      }}
+      draggable
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -384,6 +317,6 @@ export const GarageModal = ({ isOpen, onClose, onSuccess }: GarageModalProps) =>
           )}
         </div>
       </div>
-    </DraggableModalWrapper>
+    </FormModal>
   );
-};
+}

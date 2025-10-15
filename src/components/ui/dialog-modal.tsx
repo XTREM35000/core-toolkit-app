@@ -1,5 +1,5 @@
 import * as React from "react";
-import { WhatsAppModal } from "@/components/ui/whatsapp-modal";
+import { FormModal } from "@/components/ui/FormModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,7 @@ export function DialogModal({ trigger, title, description, children, open, onOpe
   return (
     <>
       <span onClick={() => onOpenChange?.(true)}>{trigger}</span>
-      <WhatsAppModal
+      <FormModal
         isOpen={!!open}
         onClose={() => onOpenChange?.(false)}
         title={title}
@@ -27,7 +27,7 @@ export function DialogModal({ trigger, title, description, children, open, onOpe
         size="md"
       >
         {children}
-      </WhatsAppModal>
+      </FormModal>
     </>
   );
 }

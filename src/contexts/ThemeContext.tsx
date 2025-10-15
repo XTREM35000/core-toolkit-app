@@ -1,34 +1,45 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { ThemeName } from '@/types';
+import { ThemeKey, resolveTheme } from '@/lib/themes';
 
 interface ThemeContextType {
-  theme: ThemeName;
+  theme: ThemeKey; // requested theme (can be 'system')
+  resolvedTheme: Exclude<ThemeKey, 'system'>; // concrete theme used
+  setTheme: (t: ThemeKey) => void;
   toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<ThemeName>('whatsapp');
+  const [theme, setThemeState] = useState<ThemeKey>('whatsapp');
 
   useEffect(() => {
-    const stored = localStorage.getItem('theme') as ThemeName;
-    if (stored && (stored === 'whatsapp' || stored === 'apple')) {
-      setTheme(stored);
+    const stored = localStorage.getItem('theme') as ThemeKey | null;
+    if (stored) {
+      setThemeState(stored);
     }
   }, []);
 
   useEffect(() => {
-    document.documentElement.className = `theme-${theme}`;
+    const resolved = resolveTheme(theme);
+    // apply class for styling, keep previous compatibility `theme-<name>`
+    document.documentElement.className = `theme-${resolved}`;
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'whatsapp' ? 'apple' : 'whatsapp');
+  const setTheme = (t: ThemeKey) => {
+    setThemeState(t);
   };
 
+  const toggleTheme = () => {
+    setThemeState(prev => (prev === 'whatsapp' ? 'apple' : 'whatsapp'));
+  };
+
+  const resolvedTheme = resolveTheme(theme);
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

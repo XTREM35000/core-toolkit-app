@@ -14,7 +14,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DraggableModalWrapper } from '@/components/ui/draggable-modal-wrapper';
+import { FormModal } from '@/components/ui/FormModal';
 import { whatsappService } from '@/services/whatsappService';
 
 interface SMSValidationModalProps {
@@ -103,20 +103,8 @@ export const SMSValidationModal = ({
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
-      if (!code.trim()) {
-        setError('Veuillez saisir le code OTP');
-        return;
-      }
-
-      if (!email.trim()) {
-        setError('Veuillez saisir votre email');
-        return;
-      }
-
-      const result = await whatsappService.verifyOTP(userId!, code.trim(), email.trim());
-
+      const result = await whatsappService.verifyOTP(userId!, code, email);
       if (result.success) {
         setSuccess(true);
         setTimeout(() => {
@@ -170,37 +158,29 @@ export const SMSValidationModal = ({
   if (!isOpen) return null;
 
   return (
-    <DraggableModalWrapper
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
+      draggable
+      className="max-w-md"
+      aria-label="Validation SMS WhatsApp"
     >
-      <div className="bg-white dark:bg-[hsl(var(--card))] rounded-t-3xl shadow-2xl max-w-md w-full mx-auto overflow-hidden">
-        {/* Header avec charte graphique WhatsApp */}
-        <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
-          {/* Indicateur WhatsApp */}
+      <div className="bg-white dark:bg-[hsl(var(--card))] rounded-t-3xl shadow-2xl w-full mx-auto overflow-hidden">
+        {/* Header custom WhatsApp */}
+        <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white relative">
           <div className="absolute top-3 right-3 flex items-center gap-2 bg-green-500 text-green-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
             <MessageCircle className="w-4 h-4" />
             WhatsApp
           </div>
-
           <div className="p-4 text-center">
             <div className="flex justify-center mb-3">
               <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
                 <Smartphone className="h-6 w-6 text-white" />
               </div>
             </div>
-            <h2 className="text-xl font-bold mb-1 text-white">
-              Validation SMS
-            </h2>
-            <p className="text-xs opacity-90 text-white/90">
-              Code envoyé au {formatPhoneNumber(phoneNumber || '')}
-            </p>
+            <h2 className="text-xl font-bold mb-1 text-white">Validation SMS</h2>
+            <p className="text-xs opacity-90 text-white/90">Code envoyé au {formatPhoneNumber(phoneNumber || '')}</p>
           </div>
-
-          {/* Bouton fermer */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white/80 hover:text-white hover:bg-white/20 focus:ring-white/50"
@@ -209,11 +189,9 @@ export const SMSValidationModal = ({
             <X className="w-5 h-5" />
           </button>
         </div>
-
         {/* Contenu */}
         <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
           <div className="p-4">
-            {/* Succès */}
             {success && (
               <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -222,8 +200,6 @@ export const SMSValidationModal = ({
                 </AlertDescription>
               </Alert>
             )}
-
-            {/* Messages d'erreur */}
             {error && (
               <Alert className="mb-4 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
                 <AlertDescription className="text-red-800 dark:text-red-200">
@@ -231,8 +207,6 @@ export const SMSValidationModal = ({
                 </AlertDescription>
               </Alert>
             )}
-
-            {/* Timer */}
             {timeLeft > 0 && (
               <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <div className="flex items-center justify-center text-sm text-blue-800 dark:text-blue-200">
@@ -241,13 +215,9 @@ export const SMSValidationModal = ({
                 </div>
               </div>
             )}
-
-            {/* Formulaire de validation */}
             <form onSubmit={handleVerifyCode} className="space-y-4">
               <div>
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Email Admin *
-                </Label>
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email Admin *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -259,11 +229,8 @@ export const SMSValidationModal = ({
                   className="mt-1"
                 />
               </div>
-
               <div>
-                <Label htmlFor="code" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Code OTP *
-                </Label>
+                <Label htmlFor="code" className="text-sm font-medium text-gray-700 dark:text-gray-300">Code OTP *</Label>
                 <Input
                   id="code"
                   type="text"
@@ -275,28 +242,11 @@ export const SMSValidationModal = ({
                   disabled={loading}
                   className="mt-1 text-center text-lg tracking-widest"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Saisissez le code à 6 chiffres reçu sur WhatsApp
-                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Saisissez le code à 6 chiffres reçu sur WhatsApp</p>
               </div>
-
-              {/* Boutons d'action */}
               <div className="flex gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  className="flex-1"
-                  disabled={loading}
-                >
-                  Annuler
-                </Button>
-
-                <Button
-                  type="submit"
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                  disabled={loading || !code.trim() || !email.trim()}
-                >
+                <Button type="button" variant="outline" onClick={onClose} className="flex-1" disabled={loading}>Annuler</Button>
+                <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 text-white" disabled={loading || !code.trim() || !email.trim()}>
                   {loading ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
@@ -311,17 +261,9 @@ export const SMSValidationModal = ({
                 </Button>
               </div>
             </form>
-
-            {/* Bouton renvoyer */}
             {canResend && (
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleResendCode}
-                  disabled={loading}
-                  className="w-full"
-                >
+                <Button type="button" variant="outline" onClick={handleResendCode} disabled={loading} className="w-full">
                   {loading ? (
                     <div className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" />
@@ -336,27 +278,16 @@ export const SMSValidationModal = ({
                 </Button>
               </div>
             )}
-
-            {/* Informations de sécurité */}
             <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-center space-x-6 text-xs text-gray-500 dark:text-gray-400">
-                <div className="flex items-center">
-                  <MessageCircle className="w-3 h-3 mr-1" />
-                  WhatsApp
-                </div>
-                <div className="flex items-center">
-                  <Clock className="w-3 h-3 mr-1" />
-                  15 min
-                </div>
-                <div className="flex items-center">
-                  <Key className="w-3 h-3 mr-1" />
-                  6 chiffres
-                </div>
+                <div className="flex items-center"><MessageCircle className="w-3 h-3 mr-1" />WhatsApp</div>
+                <div className="flex items-center"><Clock className="w-3 h-3 mr-1" />15 min</div>
+                <div className="flex items-center"><Key className="w-3 h-3 mr-1" />6 chiffres</div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </DraggableModalWrapper>
+    </FormModal>
   );
-};
+}

@@ -20,7 +20,7 @@ import {
   ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DraggableModalWrapper } from '@/components/ui/draggable-modal-wrapper';
+import { FormModal } from '@/components/ui/FormModal';
 
 interface TeamModalProps {
   isOpen: boolean;
@@ -171,24 +171,10 @@ export const TeamModal = ({ isOpen, onClose, onSuccess }: TeamModalProps) => {
   };
 
   return (
-    <DraggableModalWrapper
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      allowCloseOnOutsideClick={false}
-      allowDragToClose={true}
-      dragConstraints={{ top: -300, bottom: 400 }} // Cohérent avec les autres modals
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onWheel={(e) => {
-        e.stopPropagation();
-        const nextY = dragY - Math.sign(e.deltaY) * 20;
-        const clamped = Math.max(-300, Math.min(400, nextY)); // Cohérent avec les autres modals
-        setDragY(clamped);
-      }}
-      style={{
-        transform: `translateY(${dragY}px)`
-      }}
+      draggable
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -397,6 +383,6 @@ export const TeamModal = ({ isOpen, onClose, onSuccess }: TeamModalProps) => {
           )}
         </div>
       </div>
-    </DraggableModalWrapper>
+    </FormModal>
   );
 };

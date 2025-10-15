@@ -28,7 +28,7 @@ import AnimatedLogo from '@/components/AnimatedLogo';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
-import { DraggableModalWrapper } from '@/components/ui/draggable-modal-wrapper';
+import { FormModal } from '@/components/ui/FormModal';
 
 interface TenantAdminModalProps {
   isOpen: boolean;
@@ -237,7 +237,7 @@ export const TenantAdminModal = ({ isOpen, onClose, onSuccess, selectedPlan }: T
             last_name: formData.lastName,
             phone: formData.phone,
             avatar_url: avatarUrl,
-            role: 'tenant_admin',
+            role: 'tenant_admin' as any,
             selected_plan: selectedPlan?.type
           }
         }
@@ -259,7 +259,7 @@ export const TenantAdminModal = ({ isOpen, onClose, onSuccess, selectedPlan }: T
             role: 'tenant_admin',
             selected_plan: selectedPlan?.type,
             updated_at: new Date().toISOString()
-          }, {
+          } as any, {
             onConflict: 'id'
           })
           .select('*')
@@ -283,24 +283,13 @@ export const TenantAdminModal = ({ isOpen, onClose, onSuccess, selectedPlan }: T
   };
 
   return (
-    <DraggableModalWrapper
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      allowCloseOnOutsideClick={false}
-      allowDragToClose={true}
-      dragConstraints={{ top: -300, bottom: 400 }} // Cohérent avec SuperAdminModal
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onWheel={(e) => {
-        e.stopPropagation();
-        const nextY = dragY - Math.sign(e.deltaY) * 20;
-        const clamped = Math.max(-300, Math.min(400, nextY)); // Cohérent avec SuperAdminModal
-        setDragY(clamped);
-      }}
-      style={{
-        transform: `translateY(${dragY}px)`
-      }}
+      draggable
+
+      className=""
+    // style prop forwarded into WhatsAppModal - we use transform in children area below when needed
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -523,6 +512,6 @@ export const TenantAdminModal = ({ isOpen, onClose, onSuccess, selectedPlan }: T
           )}
         </div>
       </div>
-    </DraggableModalWrapper>
+    </FormModal>
   );
 };

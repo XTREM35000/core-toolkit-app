@@ -14,6 +14,15 @@ interface WhatsAppModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
   headerLogo?: React.ReactNode;
+  // Optional overrides / event forwards for draggable behavior
+  dragConstraints?: { top?: number; bottom?: number };
+  onDragStart?: () => void;
+  onDrag?: (event: any, info: PanInfo) => void;
+  onDragEnd?: (event: any, info: PanInfo) => void;
+  onWheel?: (e: React.WheelEvent) => void;
+  style?: React.CSSProperties;
+  hideHeader?: boolean; // If true, don't render the built-in header (allow custom header in children)
+  allowCloseOnOutsideClick?: boolean;
 }
 
 export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
@@ -25,20 +34,30 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   showSuperAdminIndicator = false,
   size = 'lg',
   className = '',
-  headerLogo
+  headerLogo,
+  dragConstraints,
+  onDragStart: externalOnDragStart,
+  onDrag: externalOnDrag,
+  onDragEnd: externalOnDragEnd,
+  onWheel: externalOnWheel,
+  style: externalStyle,
+  hideHeader = false,
+  allowCloseOnOutsideClick = true
 }) => {
   const [dragY, setDragY] = React.useState(0);
   const [isDragging, setIsDragging] = React.useState(false);
 
   // Hook responsive pour les limites de drag
-  // const dragConstraints = useBreakpointDragConstraints();
+  // const responsiveConstraints = useBreakpointDragConstraints();
 
-  // Valeurs de test fixes pour déboguer
-  const testConstraints = { top: -100, bottom: 300 };
+  // Valeurs de test / defaults
+  const defaultConstraints = { top: -150, bottom: 100 };
+  const effectiveConstraints = dragConstraints ? { top: dragConstraints.top ?? defaultConstraints.top, bottom: dragConstraints.bottom ?? defaultConstraints.bottom } : defaultConstraints;
 
   // Gestion du drag vertical
   const handleDragStart = () => {
     setIsDragging(true);
+    externalOnDragStart?.();
   };
 
   const handleDrag = (event: any, info: PanInfo) => {
@@ -51,10 +70,12 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
     const maxDragY = 100;
     const clampedY = Math.max(-maxDragY, Math.min(maxDragY, info.offset.y));
     setDragY(clampedY);
+    externalOnDrag?.(event, info);
   };
 
   const handleDragEnd = (event: any, info: PanInfo) => {
     setIsDragging(false);
+    externalOnDragEnd?.(event, info);
 
     // Empêcher la fermeture accidentelle lors du drag horizontal
     if (Math.abs(info.offset.x) > 100) {
@@ -109,7 +130,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
         className="fixed inset-0 z-50 flex items-start justify-center p-2 sm:p-4 pt-10 sm:pt-16"
-        onClick={(e) => e.target === e.currentTarget && onClose()}
+        onClick={allowCloseOnOutsideClick ? (e) => e.target === e.currentTarget && onClose() : undefined}
       >
         {/* Overlay avec backdrop blur */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
@@ -139,7 +160,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           }}
           // Drag avec limites responsives - RESTRICTIF sur l'axe horizontal
           drag="y"
-          dragConstraints={{ top: -150, bottom: 100 }}
+          dragConstraints={effectiveConstraints}
           dragElastic={0.1}
           dragMomentum={false}
           dragTransition={{ bounceStiffness: 800, bounceDamping: 30 }}
@@ -148,9 +169,10 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           onDragEnd={handleDragEnd}
           onWheel={(e) => {
             e.stopPropagation();
+            externalOnWheel?.(e);
             // Scroll wheel moves modal up/down slightly when not over the scrollable content
             const nextY = dragY - Math.sign(e.deltaY) * 20;
-            const clamped = Math.max(-150, Math.min(100, nextY));
+            const clamped = Math.max(effectiveConstraints.top ?? -150, Math.min(effectiveConstraints.bottom ?? 100, nextY));
             setDragY(clamped);
           }}
           className={cn(
@@ -159,58 +181,67 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
             className
           )}
           style={{
+            ...(externalStyle || {}),
             y: dragY
           }}
         >
-          {/* Handle de drag */}
-          <div className="flex justify-center pt-3 pb-2 bg-white">
-            <div className="w-12 h-1.5 rounded-full bg-[#128C7E]/30" />
-          </div>
-
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
-            {/* Indicateur Super Admin */}
-            {showSuperAdminIndicator && (
-              <div className="absolute top-3 right-3 flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
-                <Crown className="w-4 h-4" />
-                Super Admin
+          {/* Optionally render header (if the children already include a custom header, hideHeader can be true) */}
+          {!hideHeader && (
+            <>
+              {/* Handle de drag */}
+              <div className="flex justify-center pt-3 pb-2 bg-white">
+                <div className="w-12 h-1.5 rounded-full bg-[#128C7E]/30" />
               </div>
-            )}
 
-            <div className="p-6 text-center">
-              {headerLogo && (
-                <div className="flex justify-center mb-3">
-                  {headerLogo}
+              {/* Header */}
+              <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
+                {/* Indicateur Super Admin */}
+                {showSuperAdminIndicator && (
+                  <div className="absolute top-3 right-3 flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
+                    <Crown className="w-4 h-4" />
+                    Super Admin
+                  </div>
+                )}
+
+                <div className="p-6 text-center">
+                  {headerLogo && (
+                    <div className="flex justify-center mb-3">
+                      {headerLogo}
+                    </div>
+                  )}
+                  {title && (
+                    <h2 className="text-2xl font-bold mb-2 text-white">
+                      {title}
+                    </h2>
+                  )}
+                  {description && (
+                    <p className="text-sm opacity-90 text-white/90">
+                      {description}
+                    </p>
+                  )}
                 </div>
-              )}
-              {title && (
-                <h2 className="text-2xl font-bold mb-2 text-white">
-                  {title}
-                </h2>
-              )}
-              {description && (
-                <p className="text-sm opacity-90 text-white/90">
-                  {description}
-                </p>
-              )}
-            </div>
 
-            {/* Bouton fermer */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white/80 hover:text-white hover:bg-white/20 focus:ring-white/50"
-              aria-label="Fermer la modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+                {/* Bouton fermer */}
+                <button
+                  onClick={onClose}
+                  className="absolute top-4 right-4 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white/80 hover:text-white hover:bg-white/20 focus:ring-white/50"
+                  aria-label="Fermer la modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-          {/* Contenu avec zone scroll augmentée */}
-          <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
-            <div className="p-6 max-h-[calc(100vh-180px)] overflow-y-auto">
-              {children}
-            </div>
-          </div>
+              {/* Contenu avec zone scroll augmentée */}
+              <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
+                <div className="p-6 max-h-[calc(100vh-180px)] overflow-y-auto">
+                  {children}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* If hideHeader is true, just render children as-is (children expected to include header/handle) */}
+          {hideHeader && <>{children}</>}
         </motion.div>
       </motion.div>
     </AnimatePresence>

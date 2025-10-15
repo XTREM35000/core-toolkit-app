@@ -5,6 +5,8 @@ import { DeveloperModal } from '../modals/DeveloperModal';
 import { SuperAdminCreationModal } from '../modals/SuperAdminCreationModal';
 import { AdminCreationModal } from '../modals/AdminCreationModal';
 import { AuthModal } from '../auth/AuthModal';
+import { FormModal } from '@/components/ui/FormModal';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 export const AppInitialization = () => {
   const { status, update, check } = useAppInitialization();
@@ -18,11 +20,17 @@ export const AppInitialization = () => {
 
   if (status.step === 'checking') {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="text-muted-foreground">Initialisation...</p>
-        </div>
+      <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
+        <FormModal isOpen={true} onClose={() => { }} draggable className="max-w-md">
+          <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
+            <div className="flex flex-col items-center justify-center pt-6 pb-4">
+              <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />
+              <h2 className="text-xl font-bold mb-1">Initialisation de l'application</h2>
+              <p className="text-xs opacity-90 mb-2">Veuillez patienter pendant la configuration...</p>
+              <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mt-2" />
+            </div>
+          </div>
+        </FormModal>
       </div>
     );
   }
@@ -30,44 +38,44 @@ export const AppInitialization = () => {
   return (
     <>
       {status.showDevModal && (
-        <DeveloperModal 
-          onClose={() => update({ 
-            showDevModal: false, 
-            showSuperAdminModal: true 
-          })} 
+        <DeveloperModal
+          onClose={() => update({
+            showDevModal: false,
+            showSuperAdminModal: true
+          })}
         />
       )}
 
       {status.showSuperAdminModal && (
-        <SuperAdminCreationModal 
+        <SuperAdminCreationModal
           onSuccess={() => {
-            update({ 
-              hasSuperAdmin: true, 
+            update({
+              hasSuperAdmin: true,
               showSuperAdminModal: false,
-              showAdminModal: true 
+              showAdminModal: true
             });
             check();
-          }} 
+          }}
         />
       )}
 
       {status.showAdminModal && (
-        <AdminCreationModal 
+        <AdminCreationModal
           onSuccess={() => {
-            update({ 
-              hasAdmin: true, 
+            update({
+              hasAdmin: true,
               showAdminModal: false,
-              showAuthModal: true 
+              showAuthModal: true
             });
             check();
-          }} 
+          }}
         />
       )}
 
       {status.showAuthModal && !user && (
-        <AuthModal 
-          open={true} 
-          onClose={() => {}} 
+        <AuthModal
+          open={true}
+          onClose={() => { }}
         />
       )}
     </>

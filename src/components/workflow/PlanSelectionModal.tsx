@@ -16,7 +16,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DraggableModalWrapper } from '@/components/ui/draggable-modal-wrapper';
+import { FormModal } from '@/components/ui/FormModal';
 import { ThematicLogo } from '@/components/ui/ThematicLogo';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -72,6 +72,7 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
   // Charger les plans depuis la base de données
   useEffect(() => {
     loadPlansFromDatabase();
+    // ...existing code...
   }, []);
 
   const loadPlansFromDatabase = async () => {
@@ -79,7 +80,7 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
       setLoading(true);
       console.log('🔄 Chargement des plans...');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('subscription_plans')
         .select('id, name, type, price, duration_days, features, created_at, is_active')
         .order('price', { ascending: true });
@@ -87,8 +88,6 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
       if (error) throw error;
 
       let rawPlans = data || [];
-      console.log('📦 Plans bruts:', rawPlans);
-
       if (!rawPlans.length) {
         console.log('⚠️ Aucun plan trouvé, création des plans par défaut...');
         const seed = [
@@ -151,10 +150,10 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
           }
         ];
 
-        await supabase.from('subscription_plans').insert(seed);
+        await (supabase as any).from('subscription_plans').insert(seed);
         console.log('✅ Plans par défaut créés');
 
-        const { data: reloaded, error: reloadError } = await supabase
+        const { data: reloaded, error: reloadError } = await (supabase as any)
           .from('subscription_plans')
           .select('id, name, type, price, duration_days, features, created_at, is_active')
           .order('price', { ascending: true });
@@ -291,45 +290,18 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
   };
 
   return (
-    <DraggableModalWrapper
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      allowCloseOnOutsideClick={false}
-      allowDragToClose={true}
-      dragConstraints={{ top: -300, bottom: 400 }} // Cohérent avec les autres modals
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onWheel={(e) => {
-        e.stopPropagation();
-        const nextY = dragY - Math.sign(e.deltaY) * 20;
-        const clamped = Math.max(-300, Math.min(400, nextY)); // Cohérent avec les autres modals
-        setDragY(clamped);
-      }}
-      style={{
-        transform: `translateY(${dragY}px)`
-      }}
+      draggable
+      aria-label="Sélection du plan d'abonnement"
+      className="max-w-2xl"
     >
-      {/* Handle de drag */}
-      <div className="flex justify-center pt-3 pb-2 bg-white">
-        <div className="w-12 h-1.5 rounded-full bg-[#128C7E]/30" />
-      </div>
-
-      {/* Header compact */}
-      <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
-        <div className="p-4 text-center">
-          <div className="flex justify-center mb-2">
-            <ThematicLogo
-              theme="plan"
-              size={40}
-              className="text-white"
-            />
-          </div>
-          <h2 className="text-lg font-bold mb-1">Choisissez votre Plan</h2>
-          <p className="text-xs opacity-90">Sélectionnez l'abonnement adapté</p>
-        </div>
-
-        {/* Bouton fermer */}
+      {/* Header compact WhatsApp */}
+      <div className="flex flex-col items-center justify-center pt-4 pb-2 bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white rounded-t-xl">
+        <ThematicLogo theme="plan" size={40} className="mb-2" />
+        <h2 className="text-lg font-bold mb-1">Choisissez votre Plan</h2>
+        <p className="text-xs opacity-90">Sélectionnez l'abonnement adapté</p>
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white/80 hover:text-white hover:bg-white/20 focus:ring-white/50"
@@ -345,28 +317,16 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
           {/* Cartes des plans ultra-compactes */}
           <div className="grid grid-cols-3 gap-2 mb-3">
             {plans.map((plan) => {
-              // Log pour debug
-              console.log('Plan features:', {
-                name: plan.name,
-                features: plan.features,
-                type: typeof plan.features,
-                rawData: JSON.stringify(plan.features, null, 2)
-              });
-
-              // Parsing sécurisé des features
               let features: any = {};
               try {
                 features = typeof plan.features === 'string'
                   ? JSON.parse(plan.features)
                   : plan.features || {};
-              } catch (error) {
-                console.error('❌ Erreur parsing features pour le plan:', plan.name, error);
+              } catch {
                 features = {};
               }
-
               const isSelected = selectedPlan === plan.id;
               const isPopular = plan.type === 'monthly';
-
               return (
                 <Card
                   key={plan.id}
@@ -376,6 +336,9 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
                     getPlanColor(plan.type)
                   )}
                   onClick={() => setSelectedPlan(plan.id)}
+                  tabIndex={0}
+                  aria-label={`Sélectionner le plan ${plan.name}`}
+                  role="button"
                 >
                   <CardHeader className="pb-2">
                     {isPopular && (
@@ -388,7 +351,6 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
                     )}
                     <CardTitle className="text-sm font-bold">{plan.name}</CardTitle>
                   </CardHeader>
-
                   <CardContent className="p-2">
                     <div className="mb-2">
                       <p className="text-lg font-bold">
@@ -398,7 +360,6 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
                         {plan.type === 'free' ? '1 semaine' : plan.type === 'monthly' ? '/mois' : '/an'}
                       </p>
                     </div>
-
                     <ul className="space-y-1 text-xs">
                       <li>• {features.max_organizations || 1} org</li>
                       <li>• {features.max_garages_per_org || 1} garage</li>
@@ -410,7 +371,6 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
               );
             })}
           </div>
-
           {/* Boutons d'action compacts */}
           <div className="flex gap-2">
             <Button
@@ -440,7 +400,7 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
           </div>
         </div>
       </div>
-    </DraggableModalWrapper>
+    </FormModal>
   );
 };
 

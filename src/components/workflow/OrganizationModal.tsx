@@ -23,7 +23,7 @@ import {
   Hash
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DraggableModalWrapper } from '@/components/ui/draggable-modal-wrapper';
+import { FormModal } from '@/components/ui/FormModal';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
 import { ThematicLogo } from '@/components/ui/ThematicLogo';
@@ -109,57 +109,6 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
     };
   }, [isOpen, onClose]);
 
-  // Vérifier si l'utilisateur a déjà une organisation
-  useEffect(() => {
-    const checkExistingOrganization = async () => {
-      if (profile?.id) {
-        try {
-          console.log('🔍 Vérification de l\'organisation existante pour l\'utilisateur:', profile.id);
-          const { data: userOrgs, error } = await supabase
-            .from('user_organization')
-            .select(`
-              organization_id,
-              organizations (
-                id,
-                name,
-                slug,
-                status
-              )
-            `)
-            .eq('user_id', profile.id)
-            .eq('role', 'admin');
-
-          if (error) {
-            console.log('ℹ️ Erreur lors de la vérification des organisations:', error.message);
-            return;
-          }
-
-          if (userOrgs && userOrgs.length > 0) {
-            console.log('✅ Organisation(s) existante(s) trouvée(s):', userOrgs);
-            // Vérifier si au moins une organisation est active
-            const activeOrg = userOrgs.find(org =>
-              org.organizations && org.organizations.status === 'active'
-            );
-
-            if (activeOrg) {
-              console.log('✅ Organisation active trouvée, passage à l\'étape suivante');
-              onSuccess?.();
-            } else {
-              console.log('⚠️ Aucune organisation active, création nécessaire');
-            }
-          } else {
-            console.log('ℹ️ Aucune organisation existante, création nécessaire');
-          }
-        } catch (error) {
-          console.log('ℹ️ Erreur lors de la vérification des organisations:', error);
-        }
-      }
-    };
-
-    if (isOpen) {
-      checkExistingOrganization();
-    }
-  }, [profile?.id, isOpen, onSuccess]);
 
   // Ajuster la position du modal quand une erreur apparaît
   useEffect(() => {
@@ -239,7 +188,7 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
       };
 
       // Créer l'organisation
-      const { data: orgData, error: orgError } = await supabase
+      const { data: orgData, error: orgError } = await (supabase as any)
         .from('organizations')
         .insert(organizationData)
         .select()
@@ -248,7 +197,7 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
       if (orgError) throw orgError;
 
       // Créer la relation user_organization
-      const { error: userOrgError } = await supabase
+      const { error: userOrgError } = await (supabase as any)
         .from('user_organization')
         .insert({
           user_id: profile.id,
@@ -267,25 +216,12 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
     }
   };
 
+  // Modal principal aligné projet de base
   return (
-    <DraggableModalWrapper
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      allowCloseOnOutsideClick={false}
-      allowDragToClose={true}
-      dragConstraints={{ top: -300, bottom: 400 }} // Cohérent avec les autres modals
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onWheel={(e) => {
-        e.stopPropagation();
-        const nextY = dragY - Math.sign(e.deltaY) * 20;
-        const clamped = Math.max(-300, Math.min(400, nextY)); // Cohérent avec les autres modals
-        setDragY(clamped);
-      }}
-      style={{
-        transform: `translateY(${dragY}px)`
-      }}
+      draggable
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -454,6 +390,6 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
           )}
         </div>
       </div>
-    </DraggableModalWrapper>
+    </FormModal>
   );
-};
+}
