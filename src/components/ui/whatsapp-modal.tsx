@@ -147,11 +147,11 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           style={{ ...externalStyle, transform: `translateY(${dragY}px)` }}
           className={cn(
             'relative bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full',
-            'max-w-4xl max-h-[90vh]',
-            size === 'sm' && 'max-w-sm',
-            size === 'md' && 'max-w-md',
-            size === 'lg' && 'max-w-2xl',
-            size === 'xl' && 'max-w-4xl',
+            'max-w-4xl',
+            size === 'sm' && 'max-w-sm max-h-[85vh]',
+            size === 'md' && 'max-w-md max-h-[85vh]',
+            size === 'lg' && 'max-w-2xl max-h-[90vh]',
+            size === 'xl' && 'max-w-4xl max-h-[95vh]',
             size === 'full' && 'max-w-full h-full',
             'overflow-hidden',
             className
@@ -202,7 +202,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
               </div>
               {/* Contenu sans scroll interne */}
               <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
-                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+                <div className="p-6">
                   {children}
                 </div>
               </div>
