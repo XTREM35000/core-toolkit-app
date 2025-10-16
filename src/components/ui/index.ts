@@ -23,7 +23,7 @@ export * from './dialog';
 export * from './base-modal';
 export * from './dialog-modal';
 export * from './whatsapp-modal';
-export { WorkflowProgressBar } from '@/app/components/ui/WorkflowProgressBar';
+export * from './workflow-progress-bar';
 
 // Utility re-exports
 export { cn } from '@/lib/utils';

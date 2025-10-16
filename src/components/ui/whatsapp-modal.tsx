@@ -129,7 +129,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 flex items-start justify-center p-2 sm:p-4 pt-10 sm:pt-16"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={allowCloseOnOutsideClick ? (e) => e.target === e.currentTarget && onClose() : undefined}
       >
         {/* Overlay avec backdrop blur */}
@@ -146,14 +146,14 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           onDragEnd={handleDragEnd}
           style={{ ...externalStyle, transform: `translateY(${dragY}px)` }}
           className={cn(
-            'relative bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-full',
-            'max-w-4xl min-h-[600px]',
+            'relative bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full',
+            'max-w-4xl max-h-[90vh]',
             size === 'sm' && 'max-w-sm',
             size === 'md' && 'max-w-md',
             size === 'lg' && 'max-w-2xl',
             size === 'xl' && 'max-w-4xl',
             size === 'full' && 'max-w-full h-full',
-            'overflow-visible',
+            'overflow-hidden',
             className
           )}
           onWheel={externalOnWheel}
@@ -162,7 +162,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           {!hideHeader && (
             <>
               {/* Handle de drag */}
-              <div className="flex justify-center pt-3 pb-2 bg-white">
+              <div className="flex justify-center pt-3 pb-2 bg-white rounded-t-2xl">
                 <div className="w-12 h-1.5 rounded-full bg-[#128C7E]/30" />
               </div>
               {/* Header */}
@@ -200,9 +200,9 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              {/* Contenu avec zone scroll augmentée */}
-              <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
-                <div className="p-6 max-h-[calc(100vh-180px)] overflow-y-auto">
+              {/* Contenu sans scroll interne */}
+              <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
+                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
                   {children}
                 </div>
               </div>

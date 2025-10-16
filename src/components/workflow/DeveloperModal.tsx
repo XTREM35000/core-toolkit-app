@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FormModal } from '@/components/ui/FormModal';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Button } from '@/components/ui/button';
 import { Github, Linkedin, Globe } from 'lucide-react';
@@ -28,7 +28,13 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
   }, [isOpen, onClose]);
 
   return (
-    <FormModal isOpen={isOpen} onClose={onClose} draggable className="max-w-md">
+    <WhatsAppModal 
+      isOpen={isOpen} 
+      onClose={onClose}
+      size="md"
+      className="rounded-2xl"
+      hideHeader={true}
+    >
       <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
         <div className="flex flex-col items-center justify-center pt-6 pb-4">
           <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />
@@ -68,12 +74,12 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
           </div>
           <Button
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white font-semibold"
+            className="w-full bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white font-semibold rounded-lg"
           >
             Commencer maintenant
           </Button>
         </div>
       </div>
-    </FormModal>
+    </WhatsAppModal>
   );
 };
