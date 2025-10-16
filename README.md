@@ -71,3 +71,18 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+---
+
+## AquaManager Pro (init)
+
+Ce dépôt contient maintenant des artefacts initiaux pour transformer le projet en "AquaManager Pro" — un SaaS professionnel pour la gestion d'élevages aquacoles.
+
+Fichiers ajoutés:
+
+- `docs/AquaManagerPro_Cursor_Prompt.md` — prompt optimisé pour guider un agent dans la génération de composants et logique métier.
+- `src/types/aquaculture.ts` — types métier (rôles, alertes, UPA, cohortes).
+- `src/lib/aquaTheme.ts` — thème aquacole corporate (tokens couleurs).
+- `docs/ROADMAP_AquaManagerPro.md` — roadmap initiale pour les phases de développement.
+
+Consultez ces fichiers pour démarrer la migration vers une solution SaaS complète pour l'aquaculture.
