@@ -154,6 +154,7 @@ export const GarageModal = ({ isOpen, onClose, onSuccess }: GarageModalProps) =>
       isOpen={isOpen}
       onClose={onClose}
       draggable
+      className="min-h-[700px] rounded-2xl"
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -319,4 +320,4 @@ export const GarageModal = ({ isOpen, onClose, onSuccess }: GarageModalProps) =>
       </div>
     </FormModal>
   );
-}
+};

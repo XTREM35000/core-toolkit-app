@@ -287,9 +287,7 @@ export const TenantAdminModal = ({ isOpen, onClose, onSuccess, selectedPlan }: T
       isOpen={isOpen}
       onClose={onClose}
       draggable
-
-      className=""
-    // style prop forwarded into WhatsAppModal - we use transform in children area below when needed
+      className="min-h-[700px] rounded-2xl"
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -512,6 +510,8 @@ export const TenantAdminModal = ({ isOpen, onClose, onSuccess, selectedPlan }: T
           )}
         </div>
       </div>
+
     </FormModal>
   );
 };
+

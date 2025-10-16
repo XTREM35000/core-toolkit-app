@@ -69,6 +69,9 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Constante utilisée pour représenter une durée illimitée dans la logique des plans
+  const UNLIMITED_DAYS = 9999;
+
   // Charger les plans depuis la base de données
   useEffect(() => {
     loadPlansFromDatabase();
@@ -404,7 +407,6 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
   );
 };
 
-// Types pour les features
 type FeatureKey =
   | 'max_organizations'
   | 'max_garages_per_org'
@@ -420,11 +422,8 @@ const FEATURE_LABELS: Record<FeatureKey, (value: any) => string> = {
   max_users_per_org: (value) => `${value} Utilisateur(s)`,
   max_vehicles_per_garage: (value) => `Jusqu'à ${value} Véhicules`,
   support_level: (value) => `Support ${value}`,
-  analytics: (value) => value ? 'Analytics Avancées' : 'Analytics Basiques'
+  analytics: (value) => (value ? 'Analytics Avancées' : 'Analytics Basiques')
 };
-
-// Constantes
-const UNLIMITED_DAYS = 9999;
 
 const formatFeatures = (features: any): string[] => {
   try {
@@ -442,17 +441,23 @@ const formatFeatures = (features: any): string[] => {
 
 const getGradientByType = (type: string): string => {
   switch (type) {
-    case 'free': return 'from-gray-500 to-gray-600';
-    case 'monthly': return 'from-blue-500 to-blue-600';
-    default: return 'from-purple-500 to-purple-600';
+    case 'free':
+      return 'from-gray-500 to-gray-600';
+    case 'monthly':
+      return 'from-blue-500 to-blue-600';
+    default:
+      return 'from-purple-500 to-purple-600';
   }
 };
 
 const getColorByType = (type: string): string => {
   switch (type) {
-    case 'free': return 'gray';
-    case 'monthly': return 'blue';
-    default: return 'purple';
+    case 'free':
+      return 'gray';
+    case 'monthly':
+      return 'blue';
+    default:
+      return 'purple';
   }
 };
 
@@ -463,7 +468,7 @@ const calculateSavings = (plan: Plan): number => {
   return 0;
 };
 
-// Ajoutez d'abord un composant FeatureItem pour la réutilisabilité
+// Composant réutilisable pour afficher une feature
 const FeatureItem = ({ text }: { text: string }) => (
   <li className="flex items-center text-xs">
     <Check className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
@@ -474,8 +479,11 @@ const FeatureItem = ({ text }: { text: string }) => (
 // Fonction utilitaire pour obtenir la couleur du plan
 const getPlanColor = (type: string): string => {
   switch (type) {
-    case 'free': return 'bg-gray-50 hover:bg-gray-100';
-    case 'monthly': return 'bg-blue-50 hover:bg-blue-100';
-    default: return 'bg-purple-50 hover:bg-purple-100';
+    case 'free':
+      return 'bg-gray-50 hover:bg-gray-100';
+    case 'monthly':
+      return 'bg-blue-50 hover:bg-blue-100';
+    default:
+      return 'bg-purple-50 hover:bg-purple-100';
   }
 };

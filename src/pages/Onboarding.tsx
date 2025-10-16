@@ -1,5 +1,5 @@
 import React from 'react';
-import { WorkflowProgressBar } from '@/app/components/ui/WorkflowProgressBar';
+import { WorkflowProgressBar } from '@/components/ui/WorkflowProgressBar';
 import { ThematicLogo } from '@/components/ui/ThematicLogo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';

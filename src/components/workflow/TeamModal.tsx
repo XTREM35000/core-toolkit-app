@@ -383,6 +383,5 @@ export const TeamModal = ({ isOpen, onClose, onSuccess }: TeamModalProps) => {
           )}
         </div>
       </div>
-    </FormModal>
-  );
+    </FormModal>);
 };

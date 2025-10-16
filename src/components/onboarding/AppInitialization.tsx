@@ -21,7 +21,7 @@ export const AppInitialization = () => {
   if (status.step === 'checking') {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-        <FormModal isOpen={true} onClose={() => { }} draggable className="max-w-md">
+        <FormModal isOpen={true} onClose={() => { }} draggable className="max-w-4xl rounded-2xl">
           <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
             <div className="flex flex-col items-center justify-center pt-6 pb-4">
               <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />

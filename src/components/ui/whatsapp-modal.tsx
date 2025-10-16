@@ -32,7 +32,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   title,
   description,
   showSuperAdminIndicator = false,
-  size = 'lg',
+  size = 'xl',
   className = '',
   headerLogo,
   dragConstraints,
@@ -134,56 +134,29 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
       >
         {/* Overlay avec backdrop blur */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-
-        {/* Modal - Positionné correctement avec limites de drag */}
         <motion.div
-          initial={{
-            scale: 0.98,
-            opacity: 0,
-            y: 20
-          }}
-          animate={{
-            scale: 1,
-            opacity: 1,
-            y: 0
-          }}
-          exit={{
-            scale: 0.98,
-            opacity: 0,
-            y: 20
-          }}
-          transition={{
-            type: "spring",
-            damping: 25,
-            stiffness: 300,
-            duration: 0.3
-          }}
-          // Drag avec limites responsives - RESTRICTIF sur l'axe horizontal
-          drag="y"
+          initial={{ scale: 0.98, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.98, opacity: 0, y: 20 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          drag={true}
           dragConstraints={effectiveConstraints}
-          dragElastic={0.1}
-          dragMomentum={false}
-          dragTransition={{ bounceStiffness: 800, bounceDamping: 30 }}
           onDragStart={handleDragStart}
           onDrag={handleDrag}
           onDragEnd={handleDragEnd}
-          onWheel={(e) => {
-            e.stopPropagation();
-            externalOnWheel?.(e);
-            // Scroll wheel moves modal up/down slightly when not over the scrollable content
-            const nextY = dragY - Math.sign(e.deltaY) * 20;
-            const clamped = Math.max(effectiveConstraints.top ?? -150, Math.min(effectiveConstraints.bottom ?? 100, nextY));
-            setDragY(clamped);
-          }}
+          style={{ ...externalStyle, transform: `translateY(${dragY}px)` }}
           className={cn(
-            "relative w-full bg-white rounded-2xl shadow-2xl overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing",
-            sizeClasses[size],
+            'relative bg-white dark:bg-neutral-900 rounded-xl shadow-xl w-full',
+            'max-w-4xl min-h-[600px]',
+            size === 'sm' && 'max-w-sm',
+            size === 'md' && 'max-w-md',
+            size === 'lg' && 'max-w-2xl',
+            size === 'xl' && 'max-w-4xl',
+            size === 'full' && 'max-w-full h-full',
+            'overflow-visible',
             className
           )}
-          style={{
-            ...(externalStyle || {}),
-            y: dragY
-          }}
+          onWheel={externalOnWheel}
         >
           {/* Optionally render header (if the children already include a custom header, hideHeader can be true) */}
           {!hideHeader && (
@@ -192,7 +165,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
               <div className="flex justify-center pt-3 pb-2 bg-white">
                 <div className="w-12 h-1.5 rounded-full bg-[#128C7E]/30" />
               </div>
-
               {/* Header */}
               <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
                 {/* Indicateur Super Admin */}
@@ -202,7 +174,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                     Super Admin
                   </div>
                 )}
-
                 <div className="p-6 text-center">
                   {headerLogo && (
                     <div className="flex justify-center mb-3">
@@ -220,7 +191,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                     </p>
                   )}
                 </div>
-
                 {/* Bouton fermer */}
                 <button
                   onClick={onClose}
@@ -230,7 +200,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-
               {/* Contenu avec zone scroll augmentée */}
               <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
                 <div className="p-6 max-h-[calc(100vh-180px)] overflow-y-auto">
@@ -239,7 +208,6 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
               </div>
             </>
           )}
-
           {/* If hideHeader is true, just render children as-is (children expected to include header/handle) */}
           {hideHeader && <>{children}</>}
         </motion.div>

@@ -170,13 +170,16 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
     setError(null);
 
     try {
+      console.log('[SuperAdmin] handleSubmit: start', formData);
       // Validation des données
       if (!formData.email || !formData.password || !formData.firstName || !formData.lastName) {
+        console.error('[SuperAdmin] Champs manquants', formData);
         setError('Tous les champs obligatoires doivent être remplis');
         return;
       }
 
       if (formData.password.length < 8) {
+        console.error('[SuperAdmin] Mot de passe trop court', formData.password);
         setError('Le mot de passe doit contenir au moins 8 caractères');
         return;
       }
@@ -187,10 +190,12 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
         .select('id')
         .eq('role', 'super_admin')
         .limit(1);
+      console.log('[SuperAdmin] Vérification super admin existant', { existingAdmins, checkError });
 
       if (checkError) throw checkError;
 
       if (existingAdmins && existingAdmins.length > 0) {
+        console.warn('[SuperAdmin] Un super admin existe déjà', existingAdmins);
         setError('Un super administrateur existe déjà dans le système');
         return;
       }
@@ -202,6 +207,7 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
           const fileExt = formData.avatar.name.split('.').pop();
           const fileName = `super-admin-${Date.now()}.${fileExt}`;
           const filePath = `avatars/${fileName}`;
+          console.log('[SuperAdmin] Upload avatar', filePath);
 
           const { error: uploadError } = await supabase.storage
             .from('avatars')
@@ -212,16 +218,17 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
               .from('avatars')
               .getPublicUrl(filePath);
             avatarUrl = publicUrl;
+            console.log('[SuperAdmin] Avatar upload OK', avatarUrl);
           } else {
-            console.warn('Erreur upload avatar, utilisation sans avatar:', uploadError);
+            console.warn('[SuperAdmin] Erreur upload avatar, utilisation sans avatar:', uploadError);
           }
         } catch (uploadError) {
-          console.warn('Erreur upload avatar, utilisation sans avatar:', uploadError);
+          console.warn('[SuperAdmin] Erreur upload avatar, utilisation sans avatar:', uploadError);
         }
       }
 
       // Créer le super admin avec la même approche que TenantAdminModal
-      console.log('🔐 Création du Super Admin...');
+      console.log('[SuperAdmin] Création du compte auth...', formData.email);
 
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -232,15 +239,18 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
             last_name: formData.lastName,
             phone: formData.phone,
             avatar_url: avatarUrl,
-            role: 'super_admin'
+            role: 'super_admin',
+            email_verified: true,
+            onboarding_completed: true
           }
         }
       });
+      console.log('[SuperAdmin] Résultat signUp', { authData, authError });
 
       if (authError) throw authError;
 
       if (authData.user) {
-        console.log('✅ Compte auth créé, mise à jour du profil...');
+        console.log('[SuperAdmin] Compte auth créé, mise à jour du profil...', authData.user.id);
 
         // Mettre à jour le profil existant avec le rôle super_admin
         const { error: profileError } = await supabase
@@ -255,13 +265,15 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
             role: 'super_admin',
             email_verified: true,
             onboarding_completed: true,
+            full_name: `${formData.firstName} ${formData.lastName}`,
             updated_at: new Date().toISOString()
           }, {
             onConflict: 'id'
           });
+        console.log('[SuperAdmin] Résultat upsert profil', { profileError });
 
         if (profileError) {
-          console.error('Erreur mise à jour profil:', profileError);
+          console.error('[SuperAdmin] Erreur mise à jour profil:', profileError);
           // Si c'est un conflit, essayer une mise à jour simple
           const { error: updateError } = await supabase
             .from('profiles')
@@ -273,37 +285,38 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
               role: 'super_admin',
               email_verified: true,
               onboarding_completed: true,
+              full_name: `${formData.firstName} ${formData.lastName}`,
               updated_at: new Date().toISOString()
             })
             .eq('id', authData.user.id);
-
+          console.log('[SuperAdmin] Résultat update profil', { updateError });
           if (updateError) throw updateError;
         }
 
-        console.log('✅ Profil Super Admin mis à jour, initialisation des plans...');
+        console.log('[SuperAdmin] Profil Super Admin mis à jour, initialisation des plans...');
 
         // Initialiser les plans d'abonnement
         await initializeSubscriptionPlans();
 
-        console.log('🎉 Super Admin créé avec succès!');
+        console.log('[SuperAdmin] Super Admin créé avec succès!');
         setStep(2);
 
         // Appeler onSuccess automatiquement après un délai pour permettre à l'utilisateur de voir le message de succès
         setTimeout(() => {
-          console.log('🔄 SuperAdminModal: Appel de onSuccess...');
+          console.log('[SuperAdmin] Appel de onSuccess...');
           onSuccess?.();
           // Ne pas fermer le modal ici, laisser le parent gérer la fermeture
         }, 2000); // 2 secondes pour voir le message de succès
       }
     } catch (error: any) {
-      console.error('❌ Erreur création super admin:', error);
+      console.error('[SuperAdmin] Erreur création super admin:', error);
 
       // Gestion d'erreurs spécifiques
-      if (error.message.includes('already exists') || error.message.includes('existe déjà')) {
+      if (error.message && (error.message.includes('already exists') || error.message.includes('existe déjà'))) {
         setError('Un super administrateur existe déjà dans le système');
-      } else if (error.message.includes('email')) {
+      } else if (error.message && error.message.includes('email')) {
         setError('Erreur avec l\'adresse email. Vérifiez le format.');
-      } else if (error.message.includes('password')) {
+      } else if (error.message && error.message.includes('password')) {
         setError('Le mot de passe ne respecte pas les critères de sécurité');
       } else {
         setError(error.message || 'Une erreur est survenue lors de la création');
@@ -360,7 +373,9 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
     ];
 
     for (const plan of plans) {
-      await supabase.from('subscription_plans').upsert(plan, {
+      // supabase client typings may not include 'subscription_plans' in the generated schema,
+      // so cast to any for this specific call to avoid the TypeScript overload error.
+      await (supabase as any).from('subscription_plans').upsert(plan, {
         onConflict: 'type'
       });
     }
@@ -368,20 +383,23 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
 
   return (
     <FormModal
-      isOpen={isOpen}
-      onClose={onClose}
-      draggable={true}
-      hideHeader={true}
-      dragConstraints={{ top: -300, bottom: 400 }}
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onWheel={(e) => {
-        e.stopPropagation();
-        const nextY = dragY - Math.sign(e.deltaY) * 20;
-        const clamped = Math.max(-300, Math.min(400, nextY));
-        setDragY(clamped);
-      }}
+      key={isOpen ? 'superadmin-open' : 'superadmin-closed'}
+      {...({
+        isOpen,
+        onClose,
+        draggable: true,
+        dragConstraints: { top: -600, bottom: 600 },
+        onDragStart: handleDragStart,
+        onDrag: handleDrag,
+        onDragEnd: handleDragEnd,
+        onWheel: (e: any) => {
+          e.stopPropagation();
+          const nextY = dragY - Math.sign(e.deltaY) * 20;
+          const clamped = Math.max(-600, Math.min(600, nextY));
+          setDragY(clamped);
+        },
+        className: "min-h-[700px] rounded-2xl"
+      } as any)}
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -389,7 +407,7 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
       </div>
 
       {/* Header avec charte graphique WhatsApp */}
-      <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
+      <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white rounded-t-2xl">
         {/* Indicateur Super Admin */}
         <div className="absolute top-3 right-3 flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
           <Crown className="w-4 h-4" />
@@ -419,7 +437,7 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
       </div>
 
       {/* Contenu sans barre de défilement (afficher tous les champs) */}
-      <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
+      <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl min-h-[600px]">
         <div className="p-4">
           {step === 1 ? (
             <form onSubmit={handleSubmit} className="space-y-4">

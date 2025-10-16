@@ -57,41 +57,12 @@ export const SMSValidationModal = ({
       setDragY(0);
       return;
     }
-    if (info.offset.y > 250 && info.velocity.y > 500) {
-      onClose();
-    } else {
-      setDragY(0);
-    }
+    // Keep the final dragged position within allowed bounds
+    const maxDragY = 300;
+    const clampedY = Math.max(-maxDragY, Math.min(maxDragY, info.offset.y));
+    setDragY(clampedY);
   };
 
-  // Gestion de la touche Escape
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, onClose]);
-
-  // Timer pour l'expiration
-  useEffect(() => {
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setCanResend(true);
-    }
-  }, [timeLeft]);
-
-  // Formatage du temps restant
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -290,4 +261,4 @@ export const SMSValidationModal = ({
       </div>
     </FormModal>
   );
-}
+};
