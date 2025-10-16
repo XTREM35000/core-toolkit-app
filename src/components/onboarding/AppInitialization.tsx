@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { useAuth } from '@/contexts/AuthContext';
-import { DeveloperModal } from '../modals/DeveloperModal';
-import { SuperAdminCreationModal } from '../modals/SuperAdminCreationModal';
-import { AdminCreationModal } from '../modals/AdminCreationModal';
+import { DeveloperModal } from '../workflow/DeveloperModal';
+import { SuperAdminModal as SuperAdminCreationModal } from '../workflow/SuperAdminModal';
+import { AdminCreationModal } from '../workflow/AdminCreationModal';
 import { AuthModal } from '../auth/AuthModal';
 import { FormModal } from '@/components/ui/FormModal';
 import AnimatedLogo from '@/components/AnimatedLogo';
@@ -39,6 +39,7 @@ export const AppInitialization = () => {
     <>
       {status.showDevModal && (
         <DeveloperModal
+          isOpen={status.showDevModal}
           onClose={() => update({
             showDevModal: false,
             showSuperAdminModal: true
@@ -48,6 +49,8 @@ export const AppInitialization = () => {
 
       {status.showSuperAdminModal && (
         <SuperAdminCreationModal
+          isOpen={status.showSuperAdminModal}
+          onClose={() => update({ showSuperAdminModal: false })}
           onSuccess={() => {
             update({
               hasSuperAdmin: true,
@@ -61,6 +64,8 @@ export const AppInitialization = () => {
 
       {status.showAdminModal && (
         <AdminCreationModal
+          isOpen={status.showAdminModal}
+          onClose={() => update({ showAdminModal: false })}
           onSuccess={() => {
             update({
               hasAdmin: true,

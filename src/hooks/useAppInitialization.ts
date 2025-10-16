@@ -15,23 +15,23 @@ export const useAppInitialization = () => {
 
   const check = async () => {
     try {
-      // Check for Super Admin
+      // Check for Super Admin using secure user_roles table
       const { data: superAdmin } = await supabase
-        .from('profiles')
+        .from('user_roles' as any)
         .select('id')
         .eq('role', 'super_admin')
-        .limit(1);
+        .limit(1) as any;
 
       const hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
       let hasAdmin = false;
 
       if (hasSuperAdmin) {
-        // Check for Admin
+        // Check for Admin using secure user_roles table
         const { data: admin } = await supabase
-          .from('profiles')
+          .from('user_roles' as any)
           .select('id')
           .eq('role', 'admin')
-          .limit(1);
+          .limit(1) as any;
 
         hasAdmin = (admin?.length ?? 0) > 0;
       }

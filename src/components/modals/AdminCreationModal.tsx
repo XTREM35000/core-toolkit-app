@@ -58,17 +58,27 @@ export const AdminCreationModal = ({ onSuccess }: AdminCreationModalProps) => {
       if (error) throw error;
 
       if (data.user) {
-        // Update profile with admin role
+        // Update profile
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
-            role: 'admin',
             permissions: ['manage_users', 'view_reports', 'manage_billing'],
             full_name: formData.fullName,
+            is_active: true,
           })
           .eq('id', data.user.id);
 
         if (profileError) throw profileError;
+
+        // Add admin role in secure user_roles table
+        const { error: roleError } = await supabase
+          .from('user_roles' as any)
+          .insert([{
+            user_id: data.user.id,
+            role: 'admin'
+          }]) as any;
+
+        if (roleError) throw roleError;
 
         toast({
           title: "Succès",

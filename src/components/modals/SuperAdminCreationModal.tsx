@@ -58,17 +58,27 @@ export const SuperAdminCreationModal = ({ onSuccess }: SuperAdminCreationModalPr
       if (error) throw error;
 
       if (data.user) {
-        // Update profile with super_admin role
+        // Update profile
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
-            role: 'super_admin',
             permissions: ['*'],
             full_name: formData.fullName,
+            is_active: true,
           })
           .eq('id', data.user.id);
 
         if (profileError) throw profileError;
+
+        // Add super_admin role in secure user_roles table
+        const { error: roleError } = await supabase
+          .from('user_roles' as any)
+          .insert([{
+            user_id: data.user.id,
+            role: 'super_admin'
+          }]) as any;
+
+        if (roleError) throw roleError;
 
         toast({
           title: "Succès",

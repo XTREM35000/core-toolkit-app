@@ -8,7 +8,7 @@ export interface Profile {
   id: string;
   email: string;
   full_name: string | null;
-  role: AppRole;
+  roles?: AppRole[]; // Roles from user_roles table (secure)
   permissions: any; // Json type from Supabase
   tenant_id: string | null;
   is_active: boolean;

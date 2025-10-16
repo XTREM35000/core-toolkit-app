@@ -24,14 +24,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch profile
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
-      setProfile(data);
+      if (profileError) throw profileError;
+
+      // Fetch roles from user_roles table (secure)
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles' as any)
+        .select('role')
+        .eq('user_id', userId) as any;
+
+      if (rolesError) {
+        console.error('Error fetching roles:', rolesError);
+      }
+
+      // Combine profile with roles
+      setProfile({
+        ...profileData,
+        roles: rolesData?.map((r: any) => r.role) || []
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
       setProfile(null);
@@ -78,8 +94,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const isSuperAdmin = profile?.role === 'super_admin';
-  const isAdmin = profile?.role === 'admin' || isSuperAdmin;
+  const isSuperAdmin = profile?.roles?.includes('super_admin') || false;
+  const isAdmin = profile?.roles?.includes('admin') || isSuperAdmin;
   
   const hasPermission = (permission: string): boolean => {
     if (!profile) return false;

@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Github, Linkedin, Globe } from 'lucide-react';
 
 interface DeveloperModalProps {
+  isOpen: boolean;
   onClose: () => void;
 }
 
-export const DeveloperModal = ({ onClose }: DeveloperModalProps) => {
+export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
   const [countdown, setCountdown] = useState(15);
 
   useEffect(() => {
+    if (!isOpen) return;
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
@@ -22,12 +24,11 @@ export const DeveloperModal = ({ onClose }: DeveloperModalProps) => {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   return (
-    <FormModal isOpen={true} onClose={onClose} draggable className="max-w-md">
+    <FormModal isOpen={isOpen} onClose={onClose} draggable className="max-w-md">
       <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
         <div className="flex flex-col items-center justify-center pt-6 pb-4">
           <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />
