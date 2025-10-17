@@ -1,10 +1,14 @@
-// Thème aquacole corporate pour AquaManager Pro
+// Thème fusionné (AquaManager Pro + inspiration WhatsApp / Apple)
+// Objectif : préserver l'identité aquatique tout en exploitant
+// des tons verts WhatsApp et des accents Apple pour une UI familière.
 
 export const aquaTheme = {
   primary: {
-    marine: '#0066CC',
-    aqua: '#00A896',
-    deep: '#0047AB'
+    marine: '#0066CC',      // bleu aquatique (héritage)
+    aqua: '#00A896',        // vert aquatique
+    deep: '#0047AB',        // bleu marine profond
+    whatsapp: '#25D366',    // vert WhatsApp
+    appleBlue: '#007AFF'    // accent iOS
   },
   analytics: {
     success: '#10B981',
@@ -13,10 +17,12 @@ export const aquaTheme = {
     info: '#3B82F6'
   },
   neutral: {
-    100: '#F3F4F6',
-    200: '#E5E7EB',
-    300: '#D1D5DB',
-    400: '#9CA3AF'
+    50: '#FAFAFA',
+    100: '#F2F2F5',
+    200: '#E5E5EA',
+    300: '#D1D1D6',
+    400: '#8E8E93', // apple system gray
+    500: '#6E6E73'
   }
 };
 

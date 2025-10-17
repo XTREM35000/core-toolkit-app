@@ -1,3 +1,51 @@
+// Utilitaires zootechniques : calculs TCQ (taux de croissance quotidien moyen) et ICA (indice de conversion alimentaire)
+
+export function calculateTCQ(initialWeightKg: number, finalWeightKg: number, days: number): number {
+  if (days <= 0) throw new Error('days must be > 0');
+  if (initialWeightKg <= 0) throw new Error('initialWeightKg must be > 0');
+  const tcq = Math.pow(finalWeightKg / initialWeightKg, 1 / days) - 1;
+  return tcq;
+}
+
+export function calculateICA(feedKg: number, biomassGainKg: number): number {
+  if (biomassGainKg <= 0) throw new Error('biomassGainKg must be > 0');
+  return feedKg / biomassGainKg;
+}
+
+// helper: format as percentage (e.g., TCQ * 100)
+export function formatPercentage(value: number, decimals = 2): string {
+  return (value * 100).toFixed(decimals) + '%';
+}
+
+export default {
+  calculateTCQ,
+  calculateICA,
+  formatPercentage
+};
+// Utilitaires zootechniques : calculs TCQ (taux de croissance quotidien) et ICA
+
+export function dailyGrowthRate(previousKg: number, currentKg: number, days: number): number {
+  if (days <= 0) throw new Error('days must be > 0');
+  if (previousKg <= 0) return 0;
+  // taux de croissance moyen quotidien (TCQ) approximatif
+  return Math.pow(currentKg / previousKg, 1 / days) - 1;
+}
+
+export function feedConversionRatio(feedKg: number, biomassGainKg: number): number {
+  if (biomassGainKg <= 0) return Infinity;
+  return feedKg / biomassGainKg;
+}
+
+export function costPerKg(totalCost: number, biomassKg: number): number {
+  if (biomassKg <= 0) return Infinity;
+  return totalCost / biomassKg;
+}
+
+export default {
+  dailyGrowthRate,
+  feedConversionRatio,
+  costPerKg
+};
 import { Cohort } from '../types/aquaculture';
 
 /**

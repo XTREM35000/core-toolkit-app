@@ -95,14 +95,16 @@ export const BaseModal: React.FC<BaseModalProps> = ({
           className={cn(
             "relative w-full bg-white rounded-2xl shadow-2xl",
             maxWidth,
-            "mx-4 max-h-[80vh]",
+            "mx-4",
+            // Reserve space for header (approx 160px) and compute available height
+            "max-h-[calc(100vh-3.5rem)]",
             draggable && "touch-pan-y",
             className
           )}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header avec logo animé et dégradé */}
-          <div className={`bg-gradient-to-r ${headerGradient} p-6 text-center relative overflow-hidden`}>
+          <div className={`bg-gradient-to-r ${headerGradient} p-6 text-center relative overflow-hidden` }>
             {/* Effet de brillance */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 animate-pulse-glow" />
 
@@ -134,7 +136,7 @@ export const BaseModal: React.FC<BaseModalProps> = ({
           </div>
 
           {/* Contenu avec scroll interne si nécessaire */}
-          <div className="p-6 overflow-y-auto max-h-[calc(80vh-160px)]">
+          <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
             {children}
           </div>
         </motion.div>

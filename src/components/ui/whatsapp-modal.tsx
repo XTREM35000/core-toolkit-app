@@ -134,7 +134,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
       >
         {/* Overlay avec backdrop blur */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-        <motion.div
+  <motion.div
           initial={{ scale: 0.98, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.98, opacity: 0, y: 20 }}
@@ -148,12 +148,15 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           className={cn(
             'relative bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full',
             'max-w-4xl',
-            size === 'sm' && 'max-w-sm max-h-[85vh]',
-            size === 'md' && 'max-w-md max-h-[85vh]',
-            size === 'lg' && 'max-w-2xl max-h-[90vh]',
-            size === 'xl' && 'max-w-4xl max-h-[95vh]',
+            // Use consistent max-height calc to avoid cutting content on desktop
+            size === 'sm' && 'max-w-sm',
+            size === 'md' && 'max-w-md',
+            size === 'lg' && 'max-w-2xl',
+            size === 'xl' && 'max-w-4xl',
             size === 'full' && 'max-w-full h-full',
-            'overflow-hidden',
+            // Ensure the modal doesn't exceed viewport and allow internal scrolling
+            'mx-4',
+            'max-h-[calc(100vh-3.5rem)]',
             className
           )}
           onWheel={externalOnWheel}
@@ -200,9 +203,9 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              {/* Contenu sans scroll interne */}
+              {/* Contenu avec scroll interne pour préserver l'header et shifters */}
               <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
-                <div className="p-6">
+                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
                   {children}
                 </div>
               </div>

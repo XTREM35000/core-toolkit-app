@@ -86,3 +86,25 @@ Fichiers ajoutés:
 - `docs/ROADMAP_AquaManagerPro.md` — roadmap initiale pour les phases de développement.
 
 Consultez ces fichiers pour démarrer la migration vers une solution SaaS complète pour l'aquaculture.
+
+### Try it — lancer les tests et le dev server
+
+1. Installer les dépendances si ce n'est pas déjà fait:
+
+```powershell
+npm install
+```
+
+2. Lancer les tests unitaires (Vitest):
+
+```powershell
+npm test
+```
+
+3. Démarrer le serveur de développement:
+
+```powershell
+npm run dev
+```
+
+Extras: éditez `.env` à partir de `.env.example` pour configurer Supabase / Twilio / SendGrid.

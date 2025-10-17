@@ -1,27 +1,26 @@
-import { AlertDefinition } from '../types/aquaculture';
+import { ALERT_SYSTEM, type AlertDefinition } from '../types/aquaculture';
 
-export interface NotificationChannels {
-  sms?: boolean;
-  email?: boolean;
-  inApp?: boolean;
+export type Channel = 'inapp' | 'email' | 'sms';
+
+export interface AlertPayload {
+  level: AlertDefinition['level'];
+  message: string;
+  code?: string;
+  unitId?: string;
+  cohortId?: string;
 }
 
-export async function sendAlert(alert: AlertDefinition, channels: NotificationChannels = { inApp: true }) {
-  // Abstraction simple : log + simulate async envoi
-  const payload = { level: alert.level, message: alert.message, code: alert.code };
-  if (channels.inApp) {
-    // ici on pousserait vers un store websocket / DB
-    console.info('[alertService] in-app', payload);
+export class AlertService {
+  // Mock send: in real world bind Twilio/SendGrid here
+  async send(payload: AlertPayload, channels: Channel[] = ['inapp']): Promise<void> {
+    channels.forEach((c) => console.log(`[AlertService] ${c.toUpperCase()}: ${payload.level} - ${payload.message}`));
+    return Promise.resolve();
   }
-  if (channels.email) {
-    // Intégrer SendGrid/Resend
-    console.info('[alertService] email (simulated)', payload);
+
+  getDefinitions(level: AlertDefinition['level']) {
+    return ALERT_SYSTEM[level] ?? [];
   }
-  if (channels.sms) {
-    // Intégrer Twilio
-    console.info('[alertService] sms (simulated)', payload);
-  }
-  return Promise.resolve({ ok: true, payload });
 }
 
-export default { sendAlert };
+export const alertService = new AlertService();
+export default alertService;

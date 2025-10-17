@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, PanInfo } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
+import { createRecord } from '@/services/supabaseCrud';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -187,25 +187,18 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
         created_by: profile.id
       };
 
-      // Créer l'organisation
-      const { data: orgData, error: orgError } = await (supabase as any)
-        .from('organizations')
-        .insert(organizationData)
-        .select()
-        .single();
+      // Créer l'organisation via utilitaire CRUD
+      const orgData = await createRecord('organizations', organizationData);
 
-      if (orgError) throw orgError;
+      // Si orgData est un tableau, récupérer le premier élément
+      const createdOrg = Array.isArray(orgData) ? orgData[0] : orgData;
 
       // Créer la relation user_organization
-      const { error: userOrgError } = await (supabase as any)
-        .from('user_organization')
-        .insert({
-          user_id: profile.id,
-          organization_id: orgData.id,
-          role: 'admin'
-        });
-
-      if (userOrgError) throw userOrgError;
+      await createRecord('user_organization', {
+        user_id: profile.id,
+        organization_id: createdOrg?.id,
+        role: 'admin'
+      });
 
       setStep(2);
     } catch (error: any) {
@@ -222,7 +215,7 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
       isOpen={isOpen}
       onClose={onClose}
       draggable
-      className="min-h-[700px] rounded-2xl"
+      className="rounded-2xl"
     >
       {/* Handle de drag */}
       <div className="flex justify-center pt-3 pb-2 bg-white">
@@ -263,81 +256,81 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
         </button>
       </div>
 
-      {/* Contenu compact SANS SCROLL */}
+      {/* Contenu avec scroll si nécessaire */}
       <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
-        <div className="p-3">
+        <div className="p-4">
           {step === 1 ? (
-            <form onSubmit={handleSubmit} className="space-y-2">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <Alert variant="destructive" className="animate-shake">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              {/* Informations de base compactes */}
-              <div className="space-y-2">
+              {/* Informations de base (alignées, champs visibles) */}
+              <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <Building className="h-4 w-4 text-[#128C7E]" />
+                  <Building className="h-5 w-5 text-[#128C7E]" />
                   <h3 className="text-sm font-semibold">Informations de base</h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label htmlFor="name" className="text-xs">Nom organisation *</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1 w-full">
+                    <Label htmlFor="name" className="text-sm">Nom organisation *</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
-                      className="h-7 text-xs"
-                      placeholder="Garage Auto Excellence"
+                      className="h-10 w-full"
+                      placeholder="Nom de l'organisation"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="city" className="text-xs">Ville</Label>
+                  <div className="space-y-1 w-full">
+                    <Label htmlFor="city" className="text-sm">Ville</Label>
                     <Input
                       id="city"
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="h-7 text-xs"
-                      placeholder="Abidjan"
+                      className="h-10 w-full"
+                      placeholder="Ville"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Contact & Adresse ultra-compact */}
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-2">
+              {/* Contact & Adresse plus lisibles */}
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <EmailInput
                     value={formData.email}
                     onChange={(email) => setFormData({ ...formData, email })}
                     label="Email"
                     required
-                    className="col-span-1"
+                    className="w-full"
                   />
                   <PhoneInput
                     value={formData.phone}
                     onChange={(phone) => setFormData({ ...formData, phone })}
                     label="Téléphone"
-                    className="col-span-1"
+                    className="w-full"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="address" className="text-xs">Adresse</Label>
+                <div className="space-y-1 w-full">
+                  <Label htmlFor="address" className="text-sm">Adresse</Label>
                   <Input
                     id="address"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="h-7 text-xs"
+                    className="h-10 w-full"
                     placeholder="Rue, quartier, ville"
                   />
                 </div>
               </div>
 
-              {/* Actions compactes */}
-              <div className="flex justify-end space-x-2 pt-2">
+              {/* Actions */}
+              <div className="flex flex-col md:flex-row md:justify-end md:items-center gap-2 pt-3">
                 <Button type="button" variant="outline" size="sm" onClick={onClose}>
                   Annuler
                 </Button>
