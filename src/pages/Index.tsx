@@ -2,7 +2,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, UserCog, Users, Palette, LogOut } from 'lucide-react';
+import { Shield, UserCog, Users, Palette, LogOut, Fish, Shell } from 'lucide-react';
+import { AnimatedLogo } from '@/components/AnimatedLogo';
+import heroImage from '@/assets/hero-aquahelix.jpg';
+import piscicultureImage from '@/assets/pisciculture-feature.jpg';
+import helicicultureImage from '@/assets/heliciculture-feature.jpg';
 
 const Index = () => {
   const { user, profile, loading, isSuperAdmin, isAdmin } = useAuth();
@@ -41,24 +45,30 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
-              {getRoleIcon()}
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">{profile?.full_name || 'Utilisateur'}</h1>
-              <p className="text-sm text-muted-foreground">{getRoleLabel()}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
+      {/* Hero Section */}
+      <div className="relative h-[60vh] overflow-hidden">
+        <img 
+          src={heroImage} 
+          alt="AquaHelix Manager Pro - Pisciculture et Héliciculture"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background" />
+        
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+          <AnimatedLogo size={120} className="mb-6" useImage={true} />
+          <h1 className="text-5xl md:text-6xl font-bold mb-4 text-center">
+            AquaHelix Manager Pro
+          </h1>
+          <p className="text-xl md:text-2xl text-center max-w-2xl px-4 opacity-90">
+            Gestion intelligente de votre pisciculture et héliciculture
+          </p>
+          
+          <div className="mt-8 flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
               onClick={toggleTheme}
-              className="rounded-full"
+              className="rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
             >
               <Palette className="h-5 w-5" />
             </Button>
@@ -66,30 +76,80 @@ const Index = () => {
               variant="outline"
               size="icon"
               onClick={handleLogout}
-              className="rounded-full"
+              className="rounded-full bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
             >
               <LogOut className="h-5 w-5" />
             </Button>
           </div>
         </div>
+      </div>
+
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
+              {getRoleIcon()}
+            </div>
+            <div>
+              <h2 className="text-lg font-bold">{profile?.full_name || 'Utilisateur'}</h2>
+              <p className="text-xs text-muted-foreground">{getRoleLabel()}</p>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground hidden md:block">
+            Thème : <span className="font-semibold">{theme === 'whatsapp' ? 'WhatsApp' : 'Apple'}</span>
+          </p>
+        </div>
       </header>
 
       <main className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Bienvenue sur votre Dashboard
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Thème actuel : <span className="font-semibold">{theme === 'whatsapp' ? 'WhatsApp' : 'Apple'}</span>
-            </p>
+        <div className="max-w-6xl mx-auto space-y-12">
+          {/* Activités Section */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="glass rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="relative h-48">
+                <img src={piscicultureImage} alt="Pisciculture" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-4 left-4 text-white">
+                  <Fish className="w-10 h-10 mb-2" />
+                  <h3 className="text-2xl font-bold">Pisciculture</h3>
+                </div>
+              </div>
+              <div className="p-6 space-y-3">
+                <p className="text-muted-foreground">
+                  Gérez vos bassins, suivez la croissance de vos poissons, et optimisez la qualité de l'eau en temps réel.
+                </p>
+                <Button className="w-full gradient-primary">
+                  Accéder au module
+                </Button>
+              </div>
+            </div>
+
+            <div className="glass rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow">
+              <div className="relative h-48">
+                <img src={helicicultureImage} alt="Héliciculture" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-4 left-4 text-white">
+                  <Shell className="w-10 h-10 mb-2" />
+                  <h3 className="text-2xl font-bold">Héliciculture</h3>
+                </div>
+              </div>
+              <div className="p-6 space-y-3">
+                <p className="text-muted-foreground">
+                  Contrôlez vos parcs d'escargots, surveillez l'hygrométrie et optimisez les conditions de reproduction.
+                </p>
+                <Button className="w-full gradient-primary">
+                  Accéder au module
+                </Button>
+              </div>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="glass p-6 rounded-xl space-y-3">
+          {/* Informations Section */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="glass p-6 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Shield className="h-5 w-5 text-primary" />
-                Informations du compte
+                Compte
               </h3>
               <div className="space-y-2 text-sm">
                 <p><span className="text-muted-foreground">Email:</span> {profile?.email}</p>
@@ -98,20 +158,24 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="glass p-6 rounded-xl space-y-3">
+            <div className="glass p-6 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Palette className="h-5 w-5 text-primary" />
-                Personnalisation
+                <Fish className="h-5 w-5 text-primary" />
+                Poissons
               </h3>
               <p className="text-sm text-muted-foreground">
-                Basculez entre les thèmes WhatsApp (vert sombre) et Apple (bleu clair) pour personnaliser votre expérience.
+                Suivez vos cohortes, analysez la croissance et optimisez l'alimentation.
               </p>
-              <Button
-                onClick={toggleTheme}
-                className="w-full gradient-primary text-primary-foreground"
-              >
-                Changer de thème
-              </Button>
+            </div>
+
+            <div className="glass p-6 rounded-xl space-y-3 hover:shadow-lg transition-shadow">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Shell className="h-5 w-5 text-primary" />
+                Escargots
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Gérez la reproduction, contrôlez l'environnement et planifiez les récoltes.
+              </p>
             </div>
           </div>
 

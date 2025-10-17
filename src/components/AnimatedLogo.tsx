@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+import logoImage from '@/assets/logo-aquahelix.png';
 import {
   Car,
   Wrench,
@@ -28,6 +30,7 @@ interface AnimatedLogoProps {
   waterDrop?: boolean;
   animation?: keyof typeof carAnimations;
   className?: string;
+  useImage?: boolean; // Nouveau prop pour utiliser l'image
 }
 
 export function AnimatedLogo({
@@ -37,8 +40,56 @@ export function AnimatedLogo({
   mainColor = "text-white",
   secondaryColor = "text-yellow-300",
   waterDrop = true,
-  className = ""
+  className = "",
+  useImage = false // Par défaut, utiliser les icônes lucide
 }: AnimatedLogoProps) {
+  // Si useImage est true, afficher le logo animé avec l'image
+  if (useImage) {
+    return (
+      <motion.div
+        className={`relative ${className}`}
+        animate={{
+          y: [0, -10, 0],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      >
+        <motion.img
+          src={logoImage}
+          alt="AquaHelix Manager Pro"
+          style={{ width: size, height: size }}
+          className="drop-shadow-lg"
+          animate={{
+            rotate: [0, 5, -5, 0],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.1, 0.3],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{
+            background: 'radial-gradient(circle, rgba(18,140,126,0.4) 0%, transparent 70%)',
+          }}
+        />
+      </motion.div>
+    );
+  }
+
   // Calculer les tailles relatives
   const mainIconSize = Math.round(size * 0.71); // ~10/14 de la taille totale
   const secondaryIconSize = Math.round(size * 0.43); // ~6/14 de la taille totale

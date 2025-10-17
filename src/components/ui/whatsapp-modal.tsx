@@ -115,11 +115,11 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-sm max-h-[90vh]',
-    md: 'max-w-md max-h-[92vh]',
-    lg: 'max-w-2xl max-h-[94vh]',
-    xl: 'max-w-4xl max-h-[96vh]',
-    full: 'max-w-6xl max-h-[98vh]'
+    sm: 'max-w-sm h-[95vh]',
+    md: 'max-w-md h-[95vh]',
+    lg: 'max-w-2xl h-[95vh]',
+    xl: 'max-w-4xl h-[95vh]',
+    full: 'max-w-6xl h-[95vh]'
   };
 
   return (
@@ -148,11 +148,11 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           className={cn(
             'relative bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full',
             'flex flex-col',
-            size === 'sm' && 'max-w-sm max-h-[90vh]',
-            size === 'md' && 'max-w-md max-h-[92vh]',
-            size === 'lg' && 'max-w-2xl max-h-[94vh]',
-            size === 'xl' && 'max-w-4xl max-h-[96vh]',
-            size === 'full' && 'max-w-full h-full',
+            size === 'sm' && 'max-w-sm h-[95vh]',
+            size === 'md' && 'max-w-md h-[95vh]',
+            size === 'lg' && 'max-w-2xl h-[95vh]',
+            size === 'xl' && 'max-w-4xl h-[95vh]',
+            size === 'full' && 'max-w-full h-[95vh]',
             'mx-4',
             className
           )}
