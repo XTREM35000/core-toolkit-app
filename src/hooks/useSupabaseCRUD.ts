@@ -28,7 +28,7 @@ export function useSupabaseCRUD<T = any>(table: string) {
   const update = async (id: string|number, payload: Partial<T>) => {
     setLoading(true); setError(null);
     try {
-      const res = await updateRecord<T>(table, id, payload);
+      const res = await updateRecord<T>(table, String(id), payload);
       return res;
     } catch (err) { setError(err); throw err; } finally { setLoading(false); }
   };
@@ -36,7 +36,7 @@ export function useSupabaseCRUD<T = any>(table: string) {
   const remove = async (id: string|number) => {
     setLoading(true); setError(null);
     try {
-      const res = await deleteRecord(table, id);
+      const res = await deleteRecord(table, String(id));
       return res;
     } catch (err) { setError(err); throw err; } finally { setLoading(false); }
   };

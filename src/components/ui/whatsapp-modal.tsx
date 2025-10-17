@@ -115,11 +115,11 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-    full: 'max-w-6xl'
+    sm: 'max-w-sm max-h-[90vh]',
+    md: 'max-w-md max-h-[92vh]',
+    lg: 'max-w-2xl max-h-[94vh]',
+    xl: 'max-w-4xl max-h-[96vh]',
+    full: 'max-w-6xl max-h-[98vh]'
   };
 
   return (
@@ -147,16 +147,13 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           style={{ ...externalStyle, transform: `translateY(${dragY}px)` }}
           className={cn(
             'relative bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full',
-            'max-w-4xl',
-            // Use consistent max-height calc to avoid cutting content on desktop
-            size === 'sm' && 'max-w-sm',
-            size === 'md' && 'max-w-md',
-            size === 'lg' && 'max-w-2xl',
-            size === 'xl' && 'max-w-4xl',
+            'flex flex-col',
+            size === 'sm' && 'max-w-sm max-h-[90vh]',
+            size === 'md' && 'max-w-md max-h-[92vh]',
+            size === 'lg' && 'max-w-2xl max-h-[94vh]',
+            size === 'xl' && 'max-w-4xl max-h-[96vh]',
             size === 'full' && 'max-w-full h-full',
-            // Ensure the modal doesn't exceed viewport and allow internal scrolling
             'mx-4',
-            'max-h-[calc(100vh-3.5rem)]',
             className
           )}
           onWheel={externalOnWheel}
@@ -203,9 +200,9 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              {/* Contenu avec scroll interne pour préserver l'header et shifters */}
-              <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
-                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+              {/* Contenu avec scroll interne pour préserver l'header */}
+              <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl flex-1 overflow-y-auto">
+                <div className="p-6">
                   {children}
                 </div>
               </div>
