@@ -40,9 +40,11 @@ export const useAppInitialization = () => {
         step: 'checked',
         hasSuperAdmin,
         hasAdmin,
+        // If there's no super admin, show the dev / super admin modal.
+        // If there is a super admin but no admin, show the admin creation modal.
         showDevModal: !hasSuperAdmin,
-        showSuperAdminModal: false,
-        showAdminModal: false,
+        showSuperAdminModal: !hasSuperAdmin,
+        showAdminModal: hasSuperAdmin && !hasAdmin,
         showAuthModal: hasSuperAdmin && hasAdmin,
       });
     } catch (error) {

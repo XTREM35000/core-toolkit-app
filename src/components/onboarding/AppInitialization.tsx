@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { DeveloperModal } from '../workflow/DeveloperModal';
 import { SuperAdminModal as SuperAdminCreationModal } from '../workflow/SuperAdminModal';
 import { AdminCreationModal } from '../workflow/AdminCreationModal';
@@ -10,7 +12,9 @@ import AnimatedLogo from '@/components/AnimatedLogo';
 
 export const AppInitialization = () => {
   const { status, update, check } = useAppInitialization();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -51,13 +55,27 @@ export const AppInitialization = () => {
         <SuperAdminCreationModal
           isOpen={status.showSuperAdminModal}
           onClose={() => update({ showSuperAdminModal: false })}
-          onSuccess={() => {
+          onSuccess={async () => {
             update({
               hasSuperAdmin: true,
               showSuperAdminModal: false,
               showAdminModal: true
             });
-            check();
+
+            // Prefer a targeted profile refresh when the user is signed in,
+            // otherwise fallback to the global check after a small delay.
+            if (user) {
+              try {
+                await refreshProfile();
+              } catch (e) {
+                // If refresh fails, fallback to check()
+                setTimeout(() => check(), 800);
+              }
+            } else {
+              setTimeout(() => {
+                check();
+              }, 800);
+            }
           }}
         />
       )}
@@ -66,13 +84,29 @@ export const AppInitialization = () => {
         <AdminCreationModal
           isOpen={status.showAdminModal}
           onClose={() => update({ showAdminModal: false })}
-          onSuccess={() => {
+          onSuccess={async () => {
             update({
               hasAdmin: true,
               showAdminModal: false,
               showAuthModal: true
             });
-            check();
+
+            // Refresh profile if possible, otherwise fallback to check
+            if (user) {
+              try {
+                await refreshProfile();
+              } catch (e) {
+                setTimeout(() => check(), 800);
+              }
+            } else {
+              setTimeout(() => check(), 800);
+            }
+
+            // Notify and redirect to root (AuthModal is controlled by state)
+            toast({ title: 'Succès', description: 'Administrateur créé. Redirection...', });
+            setTimeout(() => {
+              navigate('/');
+            }, 900);
           }}
         />
       )}
