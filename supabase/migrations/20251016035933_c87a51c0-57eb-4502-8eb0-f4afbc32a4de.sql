@@ -26,6 +26,16 @@ CREATE POLICY "Super admins can manage all roles"
     )
   );
 
+-- Allow newly created users to be assigned the default 'user' role during signup
+-- This policy permits INSERTs when the authenticated uid equals the target user_id
+-- and the role being inserted is exactly 'user'. It is intentionally narrow to
+-- avoid allowing arbitrary role assignment by clients.
+DROP POLICY IF EXISTS "Allow default user role insert on signup" ON public.user_roles;
+CREATE POLICY "Allow default user role insert on signup"
+  ON public.user_roles
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id AND role = 'user');
+
 -- Update has_role function to use user_roles table
 CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
 RETURNS boolean

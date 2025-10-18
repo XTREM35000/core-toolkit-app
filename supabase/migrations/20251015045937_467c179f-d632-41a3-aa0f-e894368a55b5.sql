@@ -65,6 +65,15 @@ CREATE POLICY "Users can update their own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
 
+-- Allow the signup flow to create a profile for the newly registered user
+-- This policy permits INSERT where the new profile's id equals the
+-- authenticated user's uid. It's intentionally narrow so users can only
+-- create their own profile record during signup.
+CREATE POLICY "Users can create their own profile"
+  ON public.profiles
+  FOR INSERT
+  WITH CHECK (id = auth.uid());
+
 -- Create function to check if user has role
 CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
 RETURNS BOOLEAN

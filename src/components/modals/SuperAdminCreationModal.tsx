@@ -70,15 +70,9 @@ export const SuperAdminCreationModal = ({ onSuccess }: SuperAdminCreationModalPr
 
         if (profileError) throw profileError;
 
-        // Add super_admin role in secure user_roles table
-        const { error: roleError } = await supabase
-          .from('user_roles' as any)
-          .insert([{
-            user_id: data.user.id,
-            role: 'super_admin'
-          }]) as any;
-
-        if (roleError) throw roleError;
+        // Ask the DB to perform the privileged assignment of the super_admin role
+        const { error: rpcError } = await (supabase as any).rpc('assign_initial_super_admin', { user_uuid: data.user.id });
+        if (rpcError) throw rpcError;
 
         toast({
           title: "Succès",

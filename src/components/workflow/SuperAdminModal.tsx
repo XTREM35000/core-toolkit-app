@@ -57,16 +57,11 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
         return;
       }
 
-      // Vérifier si un super admin existe déjà via user_roles
-      const { data: existingRoles, error: checkError } = await supabase
-        .from('user_roles' as any)
-        .select('user_id')
-        .eq('role', 'super_admin')
-        .limit(1) as any;
-
-      if (checkError) throw checkError;
-
-      if (existingRoles && existingRoles.length > 0) {
+      // Vérifier si un super admin existe déjà via RPC sécurisé
+      const { data: hasSuperAdminData, error: hasError } = await (supabase as any).rpc('has_super_admin');
+      if (hasError) throw hasError;
+      const hasSuperAdmin = Array.isArray(hasSuperAdminData) ? hasSuperAdminData[0] : hasSuperAdminData;
+      if (hasSuperAdmin === true) {
         setError('Un super administrateur existe déjà dans le système');
         return;
       }
@@ -125,15 +120,12 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
 
         if (profileError) throw profileError;
 
-        // Ajouter le rôle super_admin dans user_roles
-        const { error: roleError } = await supabase
-          .from('user_roles' as any)
-          .insert([{
-            user_id: authData.user.id,
-            role: 'super_admin'
-          }]) as any;
-
-        if (roleError) throw roleError;
+        // Demander au serveur (RPC) d'assigner le rôle super_admin de façon sécurisée
+                // L'appel RPC exécute la logique avec des droits suffisants (SECURITY DEFINER)
+                const { data: rpcData, error: rpcError } = await (supabase as any)
+                  .rpc('assign_initial_super_admin', { user_uuid: authData.user.id });
+        
+                if (rpcError) throw rpcError;
 
         setStep(2);
         setTimeout(() => {
