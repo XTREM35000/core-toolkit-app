@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, X } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
+import { ModalHeader } from './shared/ModalHeader';
+import { FormField } from './shared/FormField';
 
 interface AdminCreationModalProps {
   isOpen: boolean;
@@ -91,22 +91,12 @@ export const AdminCreationModal = ({ isOpen, onClose, onSuccess }: AdminCreation
       className="rounded-2xl"
       hideHeader={true}
     >
-      <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white rounded-t-2xl relative">
-        <div className="p-6 text-center">
-          <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 flex items-center justify-center">
-            <Shield className="h-8 w-8 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold mb-2">Créer un Admin</h2>
-          <p className="text-sm opacity-90">Ajouter un administrateur à la plateforme</p>
-        </div>
-
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full text-white/80 hover:text-white hover:bg-white/20"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+      <ModalHeader
+        title="Créer un Admin"
+        subtitle="Ajouter un administrateur à la plateforme"
+        icon={Shield}
+        onClose={onClose}
+      />
 
       <div className="p-6 bg-white dark:bg-[hsl(var(--card))] rounded-b-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -116,52 +106,41 @@ export const AdminCreationModal = ({ isOpen, onClose, onSuccess }: AdminCreation
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Nom complet</Label>
-            <Input
-              id="fullName"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              required
-              className="rounded-lg"
-            />
-          </div>
+          <FormField
+            id="fullName"
+            label="Nom complet"
+            value={formData.fullName}
+            onChange={(fullName) => setFormData({ ...formData, fullName })}
+            required
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
-              className="rounded-lg"
-            />
-          </div>
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            value={formData.email}
+            onChange={(email) => setFormData({ ...formData, email })}
+            required
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-              className="rounded-lg"
-            />
-          </div>
+          <FormField
+            id="password"
+            label="Mot de passe"
+            type="password"
+            value={formData.password}
+            onChange={(password) => setFormData({ ...formData, password })}
+            required
+            placeholder="Min. 8 caractères"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              required
-              className="rounded-lg"
-            />
-          </div>
+          <FormField
+            id="confirmPassword"
+            label="Confirmer le mot de passe"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={(confirmPassword) => setFormData({ ...formData, confirmPassword })}
+            required
+          />
 
           <Button 
             type="submit" 

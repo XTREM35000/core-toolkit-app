@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
-import AnimatedLogo from '@/components/AnimatedLogo';
 import { Button } from '@/components/ui/button';
-import { Github, Linkedin, Globe } from 'lucide-react';
+import { Github, Linkedin, Globe, Code } from 'lucide-react';
+import { ModalHeader } from './shared/ModalHeader';
 
 interface DeveloperModalProps {
   isOpen: boolean;
@@ -35,13 +35,12 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
       className="rounded-2xl"
       hideHeader={true}
     >
-      <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
-        <div className="flex flex-col items-center justify-center pt-6 pb-4">
-          <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />
-          <h2 className="text-2xl font-bold mb-1">Bienvenue sur cette Plateforme</h2>
-          <p className="text-xs opacity-90 mb-2">Développée avec passion et expertise</p>
-        </div>
-      </div>
+      <ModalHeader
+        title="Bienvenue sur AquaHelix Manager Pro"
+        subtitle="Plateforme de gestion piscicole et hélicicole"
+        icon={Code}
+        onClose={onClose}
+      />
       <div className="space-y-3 p-6 bg-white dark:bg-[hsl(var(--card))] rounded-b-2xl">
         <div className="glass p-4 rounded-lg space-y-2">
           <h3 className="font-semibold text-lg">🚀 Technologies</h3>

@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, Eye, EyeOff, Crown, X, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Crown, CheckCircle } from 'lucide-react';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
-import { ThematicLogo } from '@/components/ui/ThematicLogo';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
+import { ModalHeader } from './shared/ModalHeader';
+import { FormField } from './shared/FormField';
 
 interface SuperAdminModalProps {
   isOpen: boolean;
@@ -166,30 +166,20 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
       size="lg"
       className="rounded-2xl"
       allowCloseOnOutsideClick={false}
+      hideHeader={true}
     >
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white rounded-t-2xl relative">
-        <div className="absolute top-3 right-3 flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
-          <Crown className="w-4 h-4" />
-          Super Admin
-        </div>
-
-        <div className="p-6 text-center">
-          <div className="flex justify-center mb-3">
-            <ThematicLogo theme="superAdmin" size={48} />
+      <ModalHeader
+        title="Configuration Super Admin"
+        subtitle="Initialisation de la plateforme"
+        icon={Crown}
+        badge={
+          <div className="flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
+            <Crown className="w-4 h-4" />
+            Super Admin
           </div>
-          <h2 className="text-2xl font-bold mb-2 text-white">Configuration Super Admin</h2>
-          <p className="text-sm opacity-90 text-white/90">Initialisation de la plateforme</p>
-        </div>
-
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full transition-colors duration-200 text-white/80 hover:text-white hover:bg-white/20"
-          aria-label="Fermer"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+        }
+        onClose={onClose}
+      />
 
       {/* Contenu */}
       <div className="p-6 bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
@@ -207,26 +197,20 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
           />
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Prénom *</Label>
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                required
-                className="rounded-lg"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Nom *</Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                required
-                className="rounded-lg"
-              />
-            </div>
+            <FormField
+              id="firstName"
+              label="Prénom"
+              value={formData.firstName}
+              onChange={(firstName) => setFormData({ ...formData, firstName })}
+              required
+            />
+            <FormField
+              id="lastName"
+              label="Nom"
+              value={formData.lastName}
+              onChange={(lastName) => setFormData({ ...formData, lastName })}
+              required
+            />
           </div>
 
           <EmailInput
@@ -242,8 +226,13 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
             label="Téléphone"
           />
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe *</Label>
+          <FormField
+            id="password"
+            label="Mot de passe"
+            value={formData.password}
+            onChange={(password) => setFormData({ ...formData, password })}
+            required
+          >
             <div className="relative">
               <Input
                 id="password"
@@ -262,7 +251,7 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-          </div>
+          </FormField>
 
           <Button 
             type="submit" 
