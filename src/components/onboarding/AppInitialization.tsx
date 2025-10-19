@@ -6,7 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import { DeveloperModal } from '../workflow/DeveloperModal';
 import { SuperAdminModal as SuperAdminCreationModal } from '../workflow/SuperAdminModal';
 import { AdminCreationModal } from '../workflow/AdminCreationModal';
+import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '../auth/AuthModal';
+import { PlanSelectionModal } from '../workflow/PlanSelectionModal';
+import { SMSValidationModal } from '../workflow/SmsValidationModal';
+import { useState } from 'react';
 import { FormModal } from '@/components/ui/FormModal';
 import AnimatedLogo from '@/components/AnimatedLogo';
 
@@ -15,12 +19,34 @@ export const AppInitialization = () => {
   const { user, refreshProfile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showSmsModal, setShowSmsModal] = useState(false);
 
   useEffect(() => {
     if (user) {
       check();
     }
   }, [user]);
+
+  // On mount, verify whether a super_admin already exists to avoid showing the SuperAdminModal unnecessarily
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { data: hasSuperAdminData, error } = await (supabase as any).rpc('has_super_admin');
+        if (!mounted) return;
+        if (error) return;
+        const hasSuperAdmin = Array.isArray(hasSuperAdminData) ? hasSuperAdminData[0] : hasSuperAdminData;
+        if (hasSuperAdmin === true) {
+          // Ensure state reflects that a super admin exists so the modal won't show
+          update({ hasSuperAdmin: true, showSuperAdminModal: false });
+        }
+      } catch (e) {
+        // ignore RPC errors here; fallback to normal flow
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   if (status.step === 'checking') {
     return (
@@ -44,10 +70,10 @@ export const AppInitialization = () => {
       {status.showDevModal && (
         <DeveloperModal
           isOpen={status.showDevModal}
-          onClose={() => update({
+          onClose={() => setTimeout(() => update({
             showDevModal: false,
             showSuperAdminModal: true
-          })}
+          }), 0)}
         />
       )}
 
@@ -102,14 +128,34 @@ export const AppInitialization = () => {
               setTimeout(() => check(), 800);
             }
 
-            // Notify and redirect to root (AuthModal is controlled by state)
-            toast({ title: 'Succès', description: 'Administrateur créé. Redirection...', });
+            // Close modal and open plan selection next
+            toast({ title: 'Succès', description: 'Administrateur créé. Veuillez choisir un plan.', });
             setTimeout(() => {
-              navigate('/');
-            }, 900);
+              setShowPlanModal(true);
+            }, 300);
           }}
         />
       )}
+
+      <PlanSelectionModal
+        isOpen={showPlanModal}
+        onClose={() => setShowPlanModal(false)}
+        onSuccess={(selectedPlan) => {
+          setShowPlanModal(false);
+          // After plan selected, open SMS validation
+          setShowSmsModal(true);
+        }}
+      />
+
+      <SMSValidationModal
+        isOpen={showSmsModal}
+        onClose={() => setShowSmsModal(false)}
+        onSuccess={() => {
+          setShowSmsModal(false);
+          // After SMS validated, navigate to admin dashboard
+          navigate('/admin');
+        }}
+      />
 
       {status.showAuthModal && !user && (
         <AuthModal

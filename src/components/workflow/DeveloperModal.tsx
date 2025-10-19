@@ -13,8 +13,10 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
   const [countdown, setCountdown] = useState(15);
 
   useEffect(() => {
+    let mounted = true;
     if (!isOpen) return;
     const timer = setInterval(() => {
+      if (!mounted) return;
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(timer);
@@ -24,7 +26,7 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
         return prev - 1;
       });
     }, 1000);
-    return () => clearInterval(timer);
+    return () => { mounted = false; clearInterval(timer); };
   }, [isOpen, onClose]);
 
   return (
@@ -35,7 +37,7 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
       className="rounded-2xl"
       hideHeader={true}
     >
-      <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
+  <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
         <div className="flex flex-col items-center justify-center pt-6 pb-4">
           <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />
           <h2 className="text-2xl font-bold mb-1">Bienvenue sur cette Plateforme</h2>
@@ -69,7 +71,7 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
         <div className="space-y-3">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              Fermeture automatique dans <span className="font-bold text-primary">{countdown}s</span>
+              Fermeture automatique dans <span className="font-bold text-green-600">{countdown}s</span>
             </p>
           </div>
           <Button

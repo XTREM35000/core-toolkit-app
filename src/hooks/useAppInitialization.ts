@@ -15,14 +15,25 @@ export const useAppInitialization = () => {
 
   const check = async () => {
     try {
-      // Check for Super Admin using secure user_roles table
-      const { data: superAdmin } = await supabase
-        .from('user_roles' as any)
+      // First, fast check on profiles.role for a quick answer
+      const { data: profilesWithSuper } = await supabase
+        .from('profiles')
         .select('id')
         .eq('role', 'super_admin')
         .limit(1) as any;
 
-      const hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
+      let hasSuperAdmin = (profilesWithSuper?.length ?? 0) > 0;
+
+      // If profiles didn't indicate a super_admin (possible if roles stored in user_roles), fallback to checking user_roles
+      if (!hasSuperAdmin) {
+        const { data: superAdmin } = await supabase
+          .from('user_roles' as any)
+          .select('id')
+          .eq('role', 'super_admin')
+          .limit(1) as any;
+
+        hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
+      }
       let hasAdmin = false;
 
       if (hasSuperAdmin) {

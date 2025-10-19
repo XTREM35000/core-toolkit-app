@@ -154,6 +154,10 @@ BEGIN
     new.email,
     COALESCE(new.raw_user_meta_data->>'full_name', '')
   );
+  -- Ensure a default role is set on profile for quick checks
+  UPDATE public.profiles
+  SET role = 'user'
+  WHERE id = new.id;
   RETURN new;
 END;
 $$;
