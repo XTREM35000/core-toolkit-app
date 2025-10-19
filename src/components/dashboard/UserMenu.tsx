@@ -1,25 +1,20 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export const UserMenu = () => {
   const { profile } = useAuth();
-
-  const initials = profile?.full_name
-    ?.split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase() || profile?.email?.[0].toUpperCase() || 'U';
 
   return (
     <div className="relative">
       <div className="flex items-center gap-2">
         <div className="inline-flex items-center gap-2 cursor-pointer">
           <Avatar>
-            <AvatarFallback>
-              {initials}
-            </AvatarFallback>
+            {(profile as any)?.avatar_url ? (
+              <AvatarImage src={(profile as any).avatar_url} alt={profile?.full_name || profile?.email || 'User'} />
+            ) : (
+              <AvatarFallback>{(profile?.full_name || profile?.email || 'U').charAt(0).toUpperCase()}</AvatarFallback>
+            )}
           </Avatar>
           <div className="hidden sm:block text-sm">
             <div className="font-medium">{profile?.full_name || profile?.email}</div>

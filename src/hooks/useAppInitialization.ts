@@ -15,25 +15,70 @@ export const useAppInitialization = () => {
 
   const check = async () => {
     try {
-      // Check for Super Admin using secure user_roles table
-      const { data: superAdmin } = await supabase
-        .from('user_roles' as any)
-        .select('id')
-        .eq('role', 'super_admin')
-        .limit(1) as any;
-
-      const hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
+      // Prefer calling RPCs which are SECURITY DEFINER and safe to call from client
+      let hasSuperAdmin = false;
       let hasAdmin = false;
 
-      if (hasSuperAdmin) {
-        // Check for Admin using secure user_roles table
-        const { data: admin } = await supabase
-          .from('user_roles' as any)
-          .select('id')
-          .eq('role', 'admin')
-          .limit(1) as any;
+      try {
+        const { data: superRes, error: superErr } = await supabase.rpc('has_super_admin') as any;
+        if (!superErr && superRes !== undefined) {
+          // supabase.rpc returns value in `data` for single scalar functions
+          hasSuperAdmin = Boolean(superRes);
+        }
+      } catch (rpcErr) {
+        // RPC might not exist yet — we'll fallback below
+        // console.debug('has_super_admin rpc not available, falling back to selects');
+      }
 
-        hasAdmin = (admin?.length ?? 0) > 0;
+      try {
+        const { data: adminRes, error: adminErr } = await supabase.rpc('exists_admin') as any;
+        if (!adminErr && adminRes !== undefined) {
+          hasAdmin = Boolean(adminRes);
+        }
+      } catch (rpcErr) {
+        // RPC missing — fallback later
+      }
+
+      // Fallback: if RPCs weren't available or returned undefined, perform direct selects
+      if (!hasSuperAdmin) {
+        try {
+          const { data: profilesWithSuper } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'super_admin')
+            .limit(1) as any;
+          hasSuperAdmin = (profilesWithSuper?.length ?? 0) > 0;
+        } catch (err) {
+          // ignore and keep false
+        }
+
+        if (!hasSuperAdmin) {
+          try {
+            const { data: superAdmin } = await supabase
+              .from('user_roles' as any)
+              .select('id')
+              .eq('role', 'super_admin')
+              .limit(1) as any;
+
+            hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
+          } catch (err) {
+            // ignore
+          }
+        }
+      }
+
+      if (!hasAdmin) {
+        try {
+          const { data: admin } = await supabase
+            .from('user_roles' as any)
+            .select('id')
+            .eq('role', 'admin')
+            .limit(1) as any;
+
+          hasAdmin = (admin?.length ?? 0) > 0;
+        } catch (err) {
+          // ignore
+        }
       }
 
       setStatus({

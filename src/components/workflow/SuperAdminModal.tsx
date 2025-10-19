@@ -127,6 +127,14 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
         
                 if (rpcError) throw rpcError;
 
+                // Also synchronize profile.role for quick checks
+                const { error: profileRoleError } = await supabase
+                  .from('profiles')
+                  .update({ role: 'super_admin' })
+                  .eq('id', authData.user.id);
+
+                if (profileRoleError) console.warn('Failed to update profile.role for super_admin:', profileRoleError);
+
         setStep(2);
         setTimeout(() => {
           onSuccess?.();
