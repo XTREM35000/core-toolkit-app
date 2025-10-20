@@ -57,14 +57,52 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
         return;
       }
 
-      // Vérifier si un super admin existe déjà via RPC sécurisé
-      const { data: hasSuperAdminData, error: hasError } = await (supabase as any).rpc('has_super_admin');
-      if (hasError) throw hasError;
-      const hasSuperAdmin = Array.isArray(hasSuperAdminData) ? hasSuperAdminData[0] : hasSuperAdminData;
-      if (hasSuperAdmin === true) {
-        setError('Un super administrateur existe déjà dans le système');
-        return;
-      }
+         // Vérifier si un super admin existe d\u00e9j\u00e0 via RPC s\u00e9curis\u00e9.
+         // If the RPC is not available (404 / PGRST202), fall back to direct selects.
+         let hasSuperAdmin = false;
+ 
+         try {
+           const { data: hasSuperAdminData, error: hasError } = await (supabase as any).rpc('has_super_admin');
+           if (!hasError && hasSuperAdminData !== undefined) {
+             hasSuperAdmin = Array.isArray(hasSuperAdminData) ? hasSuperAdminData[0] : hasSuperAdminData;
+           }
+         } catch (rpcErr) {
+           // RPC missing or network error — we'll fallback to selects below.
+           console.warn('has_super_admin rpc unavailable, falling back to selects:', rpcErr);
+         }
+ 
+         // Fallback: check profiles and user_roles directly if RPC didn't report true.
+         if (!hasSuperAdmin) {
+           try {
+             const { data: profilesWithSuper } = await supabase
+               .from('profiles')
+               .select('id')
+               .eq('role', 'super_admin')
+               .limit(1) as any;
+             hasSuperAdmin = (profilesWithSuper?.length ?? 0) > 0;
+           } catch (err) {
+             // ignore and try next fallback
+           }
+ 
+           if (!hasSuperAdmin) {
+             try {
+               const { data: superAdmin } = await supabase
+                 .from('user_roles' as any)
+                 .select('id')
+                 .eq('role', 'super_admin')
+                 .limit(1) as any;
+ 
+               hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
+             } catch (err) {
+               // ignore
+             }
+           }
+         }
+ 
+         if (hasSuperAdmin === true) {
+           setError('Un super administrateur existe d\u00e9j\u00e0 dans le syst\u00e8me');
+           return;
+         }
 
       // Upload de l'avatar si présent
       let avatarUrl = null;

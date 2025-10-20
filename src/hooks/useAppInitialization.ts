@@ -27,7 +27,7 @@ export const useAppInitialization = () => {
         }
       } catch (rpcErr) {
         // RPC might not exist yet — we'll fallback below
-        // console.debug('has_super_admin rpc not available, falling back to selects');
+        console.warn('has_super_admin rpc unavailable, falling back to selects:', rpcErr);
       }
 
       try {
@@ -37,6 +37,7 @@ export const useAppInitialization = () => {
         }
       } catch (rpcErr) {
         // RPC missing — fallback later
+        console.warn('exists_admin rpc unavailable, falling back to selects:', rpcErr);
       }
 
       // Fallback: if RPCs weren't available or returned undefined, perform direct selects
