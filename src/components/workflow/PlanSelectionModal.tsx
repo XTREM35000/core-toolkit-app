@@ -68,6 +68,7 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
   const [loading, setLoading] = useState(false);
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [business, setBusiness] = useState<'sees' | 'other'>('sees');
 
   // Constante utilisée pour représenter une durée illimitée dans la logique des plans
   const UNLIMITED_DAYS = 9999;
@@ -77,6 +78,16 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
     loadPlansFromDatabase();
     // ...existing code...
   }, []);
+
+  // Ensure selection stays valid when plans or business filter changes
+  useEffect(() => {
+    if (!plans.length) return;
+    const visible = plans.filter(p => business === 'sees' ? p.type.startsWith('sees') || p.type === 'free' : !p.type.startsWith('sees') || p.type === 'free');
+    if (!visible.length) return;
+    if (!selectedPlan || !visible.find(v => v.id === selectedPlan)) {
+      setSelectedPlan(visible[0].id);
+    }
+  }, [plans, business]);
 
   const loadPlansFromDatabase = async () => {
     try {
@@ -93,6 +104,8 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
       let rawPlans = data || [];
       if (!rawPlans.length) {
         console.log('⚠️ Aucun plan trouvé, création des plans par défaut...');
+        // Create seed plans tuned for two business types.
+        // Note: SeeS pricing: 10 000 F / month, 100 000 F / year (paiement initial: 2 x 50 000 F non remboursable)
         const seed = [
           {
             name: 'Gratuit',
@@ -113,8 +126,52 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
             },
             is_active: true
           },
+          // SeeS monthly
           {
-            name: 'Mensuel Pro',
+            name: 'SeeS Mensuel',
+            type: 'sees_monthly',
+            price: 10000,
+            duration_days: 30,
+            features: {
+              max_organizations: 1,
+              max_garages_per_org: 1,
+              max_users_per_org: 10,
+              max_vehicles_per_garage: 200,
+              support_level: 'priority',
+              analytics: true,
+              setup_days: 1,
+              caution_amount: 0,
+              additional_activities: 1,
+              additional_instances: 0
+            },
+            is_active: true,
+            gradient: 'from-emerald-400 to-emerald-600'
+          },
+          // SeeS annual
+          {
+            name: 'SeeS Annuel',
+            type: 'sees_annual',
+            price: 100000,
+            duration_days: 365,
+            features: {
+              max_organizations: 2,
+              max_garages_per_org: 2,
+              max_users_per_org: 50,
+              max_vehicles_per_garage: 1000,
+              support_level: 'premium',
+              analytics: true,
+              setup_days: 2,
+              caution_amount: 50000,
+              startup_payment: { count: 2, amount: 50000, refundable: false },
+              additional_activities: 0,
+              additional_instances: 2
+            },
+            is_active: true,
+            gradient: 'from-yellow-400 to-amber-600'
+          },
+          // Other business - monthly
+          {
+            name: 'Pro Mensuel',
             type: 'monthly',
             price: 15000,
             duration_days: 30,
@@ -132,8 +189,9 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
             },
             is_active: true
           },
+          // Other business - annual
           {
-            name: 'Annuel Pro',
+            name: 'Pro Annuel',
             type: 'annual',
             price: 150000,
             duration_days: 365,
@@ -165,7 +223,7 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
         rawPlans = reloaded || [];
       }
 
-      console.log('🔄 Formatage des plans...');
+  console.log('🔄 Formatage des plans...');
       const formattedPlans: Plan[] = (rawPlans as any[]).map((plan: any) => {
         console.log(`📝 Formatage du plan ${plan.name}:`, {
           id: plan.id,
@@ -174,15 +232,21 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
           features: plan.features
         });
 
+        // Normalize price to a number (fallback to 0) and ensure features is an object
+        const priceNumber = plan.price != null ? Number(plan.price) : 0;
+        const featuresObj = plan.features && typeof plan.features === 'object' ? plan.features : (() => {
+          try { return JSON.parse(plan.features); } catch { return {}; }
+        })();
+
         return {
           id: plan.id,
           name: plan.name,
           type: plan.type,
-          price: typeof plan.price === 'string' ? Number(plan.price) : plan.price,
+          price: priceNumber,
           duration: plan.duration_days === UNLIMITED_DAYS ? 'Illimité' : `${plan.duration_days} jours`,
-          features: plan.features as any,
+          features: featuresObj as any,
           popular: plan.type === 'monthly',
-          gradient: getGradientByType(plan.type),
+          gradient: plan.gradient || getGradientByType(plan.type),
           color: getColorByType(plan.type)
         };
       });
@@ -206,7 +270,7 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
   // Nouvelle fonction pour sauvegarder le plan
   const saveSelectedPlan = async (plan: Plan) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Utilisateur non connecté');
 
       const { error: profileError } = await supabase
@@ -219,23 +283,45 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
 
       if (profileError) throw profileError;
 
-      if (plan.type === 'free') {
-        const { error: subscriptionError } = await (supabase as any)
-          .from('subscriptions' as any)
-          .upsert({
-            user_id: user.id,
-            plan_id: plan.id,
-            status: 'active',
-            current_period_start: new Date().toISOString(),
-            current_period_end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'user_id,plan_id'
-          });
+      // Build subscription payload for all non-free plans and free plan as well
+      const days = plan.duration === 'Illimité' ? UNLIMITED_DAYS : (plan.duration.includes('jours') ? Number(plan.duration.split(' ')[0]) : (plan.duration.includes('30') ? 30 : 365));
+      const now = new Date();
+      const periodEnd = new Date(now.getTime() + (Number((plan as any).duration_days || (days === UNLIMITED_DAYS ? 0 : days)) * 24 * 60 * 60 * 1000)).toISOString();
 
-        if (subscriptionError) throw subscriptionError;
+      // Fetch profile to provide tenant_id for subscription if available
+      let tenant_id: string | null = null;
+      try {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('tenant_id')
+          .eq('id', user.id)
+          .single();
+        tenant_id = (profileData as any)?.tenant_id ?? null;
+      } catch (err) {
+        // ignore, tenant_id remains null
       }
+
+      const payload: any = {
+        user_id: user.id,
+        plan: plan.type, // required non-null column
+        plan_id: plan.id,
+        status: plan.type === 'free' ? 'active' : 'trial',
+        price: plan.price,
+        billing_period: plan.type === 'monthly' || plan.type === 'sees_monthly' ? 'monthly' : (plan.type === 'annual' || plan.type === 'sees_annual' ? 'annual' : 'monthly'),
+        tenant_id,
+        current_period_start: now.toISOString(),
+        current_period_end: periodEnd,
+        created_at: now.toISOString(),
+        updated_at: now.toISOString()
+      };
+
+      const { error: subscriptionError } = await (supabase as any)
+        .from('subscriptions')
+        .upsert(payload, {
+          onConflict: 'user_id,plan_id'
+        });
+
+      if (subscriptionError) throw subscriptionError;
 
       return true;
     } catch (error) {
@@ -316,10 +402,31 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
 
       {/* Contenu compact SANS SCROLL */}
       <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))]">
-        <div className="p-3">
+          <div className="p-3">
+            {/* Business selector */}
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <button
+                onClick={() => setBusiness('sees')}
+                className={cn('flex items-center gap-2 px-3 py-1 rounded-full transition-all', business === 'sees' ? 'bg-emerald-100 ring-2 ring-emerald-300' : 'bg-white/60')}
+                aria-pressed={business === 'sees'}
+              >
+                <motion.span animate={{ y: business === 'sees' ? [-4, 0, -4] : [0] }} transition={{ duration: 1.5, repeat: Infinity }} className="text-lg">🐟</motion.span>
+                <span className="text-sm font-semibold">SeeS</span>
+              </button>
+              <button
+                onClick={() => setBusiness('other')}
+                className={cn('flex items-center gap-2 px-3 py-1 rounded-full transition-all', business === 'other' ? 'bg-amber-100 ring-2 ring-amber-300' : 'bg-white/60')}
+                aria-pressed={business === 'other'}
+              >
+                <motion.span animate={{ y: business === 'other' ? [-3, 0, -3] : [0] }} transition={{ duration: 1.8, repeat: Infinity }} className="text-lg">🐌</motion.span>
+                <span className="text-sm font-semibold">Autre Business</span>
+              </button>
+            </div>
           {/* Cartes des plans ultra-compactes */}
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            {plans.map((plan) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+            {plans
+              .filter(p => business === 'sees' ? p.type.startsWith('sees') || p.type === 'free' : !p.type.startsWith('sees') || p.type === 'free')
+              .map((plan) => {
               let features: any = {};
               try {
                 features = typeof plan.features === 'string'
@@ -355,20 +462,32 @@ export const PlanSelectionModal = ({ isOpen, onClose, onSuccess }: PlanSelection
                     <CardTitle className="text-sm font-bold">{plan.name}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-2">
-                    <div className="mb-2">
-                      <p className="text-lg font-bold">
-                        {plan.price === 0 ? 'Gratuit' : `${plan.price.toLocaleString('fr-FR')}`}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {plan.type === 'free' ? '1 semaine' : plan.type === 'monthly' ? '/mois' : '/an'}
-                      </p>
+                    <div className="mb-2 flex items-baseline justify-between">
+                      <div>
+                        <p className="text-lg font-bold">{plan.price === 0 ? 'Gratuit' : `${plan.price.toLocaleString('fr-FR')} F`}</p>
+                        <p className="text-xs text-muted-foreground">{plan.type === 'free' ? '1 semaine' : plan.type.includes('monthly') ? '/mois' : '/an'}</p>
+                      </div>
+                      <div className="text-right text-xs">
+                        {renderStartupText(features)}
+                      </div>
                     </div>
-                    <ul className="space-y-1 text-xs">
-                      <li>• {features.max_organizations || 1} org</li>
-                      <li>• {features.max_garages_per_org || 1} garage</li>
-                      <li>• {features.max_users_per_org || 5} users</li>
-                      <li>• Support {features.support_level || 'email'}</li>
+
+                    <ul className="space-y-1 text-xs mb-2">
+                      {formatFeatures(features).slice(0, 4).map((f, idx) => (
+                        <FeatureItem key={idx} text={f} />
+                      ))}
                     </ul>
+                    {/* Short advantages list */}
+                    <div className="text-xs text-gray-600">
+                      <p className="font-semibold text-sm mb-1">Avantages</p>
+                      <ul className="list-inside list-disc">
+                        <li>Intégration rapide et support prioritaire</li>
+                        <li>Sauvegarde et analytics</li>
+                        <li>Accès multi-utilisateurs</li>
+                        {plan.type === 'sees_annual' && <li>Économie annuelle: ~20% (paiement unique)</li>}
+                        {plan.type === 'sees_monthly' && <li>Flexibilité mensuelle, activation immédiate</li>}
+                      </ul>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -439,6 +558,20 @@ const formatFeatures = (features: any): string[] => {
   }
 };
 
+// Helper to render startup payment text safely
+const renderStartupText = (features: any) => {
+  try {
+    const startup = features?.startup_payment;
+    if (!startup) return null;
+    const count = typeof startup === 'object' && startup.count ? startup.count : (typeof startup === 'number' ? 1 : undefined);
+    const amount = typeof startup === 'object' ? (startup.amount ?? null) : (typeof startup === 'number' ? startup : (typeof startup === 'string' ? Number(startup) : null));
+    const amountDisplay = amount != null ? amount.toLocaleString('fr-FR') : String(startup);
+    return (<p className="text-amber-700">Démarrage: {count ? `${count} × ` : ''}{amountDisplay} F (non remboursable)</p>);
+  } catch (e) {
+    return null;
+  }
+};
+
 const getGradientByType = (type: string): string => {
   switch (type) {
     case 'free':
@@ -482,7 +615,7 @@ const getPlanColor = (type: string): string => {
     case 'free':
       return 'bg-gray-50 hover:bg-gray-100';
     case 'monthly':
-      return 'bg-blue-50 hover:bg-blue-100';
+  return 'bg-emerald-50 hover:bg-emerald-100';
     default:
       return 'bg-purple-50 hover:bg-purple-100';
   }

@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { FormModal } from '@/components/ui/FormModal';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
+import AnimatedLogo from '@/components/AnimatedLogo';
+import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoginTab } from './LoginTab';
 import { SignupTab } from './SignupTab';
@@ -15,15 +18,14 @@ export const AuthModal = ({ open, onClose }: AuthModalProps) => {
 
   return (
     <FormModal isOpen={open} onClose={onClose} className="max-w-md">
-      <div className="space-y-6 p-6">
-        <div className="text-center space-y-2">
-          <div className="w-16 h-16 mx-auto rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
-            <LogIn className="h-8 w-8 text-primary-foreground" />
+      <div className="space-y-4 p-6">
+        {/* Compact header so the form fields fit fully inside the modal */}
+        <div className="flex items-center gap-4">
+          <AnimatedLogo size={32} mainColor="text-emerald-600" secondaryColor="text-emerald-300" />
+          <div>
+            <h2 className="text-xl font-bold">Bienvenue</h2>
+            <p className="text-sm text-muted-foreground">Connectez-vous ou créez votre compte</p>
           </div>
-          <h2 className="text-2xl font-bold">Bienvenue</h2>
-          <p className="text-sm text-muted-foreground">
-            Connectez-vous ou créez votre compte
-          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -32,11 +34,11 @@ export const AuthModal = ({ open, onClose }: AuthModalProps) => {
             <TabsTrigger value="signup">Inscription</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="login" className="mt-6">
+          <TabsContent value="login" className="mt-4">
             <LoginTab />
           </TabsContent>
 
-          <TabsContent value="signup" className="mt-6">
+          <TabsContent value="signup" className="mt-4">
             <SignupTab />
           </TabsContent>
         </Tabs>

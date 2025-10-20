@@ -225,7 +225,7 @@ export const OrganizationModal = ({ isOpen, onClose, onSuccess }: OrganizationMo
       {/* Header avec charte graphique WhatsApp */}
       <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
         {/* Indicateur Organisation */}
-        <div className="absolute top-3 right-3 flex items-center gap-2 bg-blue-500 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
+  <div className="absolute top-3 right-3 flex items-center gap-2 bg-emerald-500 text-emerald-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
           <Building className="w-4 h-4" />
           Organisation
         </div>

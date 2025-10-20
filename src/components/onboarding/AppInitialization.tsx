@@ -21,6 +21,10 @@ export const AppInitialization = () => {
   const navigate = useNavigate();
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [showSmsModal, setShowSmsModal] = useState(false);
+  // For simulation we can prefill an admin email here; in real flow this should come
+  // from the created admin payload. Using a fixed email enables OTP simulation and
+  // avoids calling the Edge Function (CORS failures) during local testing.
+  const [smsTenantAdmin, setSmsTenantAdmin] = useState<{ email?: string } | null>({ email: 'admin@automaster.ci' });
 
   useEffect(() => {
     if (user) {
@@ -150,10 +154,12 @@ export const AppInitialization = () => {
       <SMSValidationModal
         isOpen={showSmsModal}
         onClose={() => setShowSmsModal(false)}
+        tenantAdminData={smsTenantAdmin || undefined}
         onSuccess={() => {
           setShowSmsModal(false);
-          // After SMS validated, navigate to admin dashboard
-          navigate('/admin');
+          // In simulation we want to proceed to the auth flow (registration/login)
+          // instead of navigating to /admin. Use update() to show the AuthModal.
+          update({ showAuthModal: true });
         }}
       />
 

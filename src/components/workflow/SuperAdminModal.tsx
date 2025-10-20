@@ -3,13 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Crown, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Crown, CheckCircle, UserCheck } from 'lucide-react';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
 import { ModalHeader } from './shared/ModalHeader';
 import { FormField } from './shared/FormField';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 interface SuperAdminModalProps {
   isOpen: boolean;
@@ -146,15 +147,26 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
       if (authError) throw authError;
 
       if (authData.user) {
-        // Mettre à jour le profil
+        // Upsert the profile with all expected columns so the profiles table has the correct fields.
+        // Use upsert to handle the case where the profile row does not exist yet.
+        const profilePayload = {
+          id: authData.user.id,
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          avatar_url: avatarUrl,
+          phone: formData.phone,
+          full_name: `${formData.firstName} ${formData.lastName}`,
+          permissions: ['*'],
+          is_active: true,
+          // Provide sane defaults so UI checks and DB rows have expected values
+          selected_plan: 'free',
+          onboarding_completed: true
+        } as any;
+
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({
-            full_name: `${formData.firstName} ${formData.lastName}`,
-            permissions: ['*'],
-            is_active: true
-          })
-          .eq('id', authData.user.id);
+          .upsert(profilePayload, { onConflict: 'id' });
 
         if (profileError) throw profileError;
 
@@ -217,7 +229,7 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
       <ModalHeader
         title="Configuration Super Admin"
         subtitle="Initialisation de la plateforme"
-        icon={Crown}
+        headerLogo={<AnimatedLogo size={56} mainIcon={UserCheck} mainColor="text-white" secondaryColor="text-yellow-300" waterDrop />}
         badge={
           <div className="flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
             <Crown className="w-4 h-4" />

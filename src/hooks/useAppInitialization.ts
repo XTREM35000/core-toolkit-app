@@ -20,7 +20,7 @@ export const useAppInitialization = () => {
       let hasAdmin = false;
 
       try {
-        const { data: superRes, error: superErr } = await supabase.rpc('has_super_admin') as any;
+  const { data: superRes, error: superErr } = await (supabase as any).rpc('has_super_admin') as any;
         if (!superErr && superRes !== undefined) {
           // supabase.rpc returns value in `data` for single scalar functions
           hasSuperAdmin = Boolean(superRes);
@@ -31,7 +31,7 @@ export const useAppInitialization = () => {
       }
 
       try {
-        const { data: adminRes, error: adminErr } = await supabase.rpc('exists_admin') as any;
+  const { data: adminRes, error: adminErr } = await (supabase as any).rpc('exists_admin') as any;
         if (!adminErr && adminRes !== undefined) {
           hasAdmin = Boolean(adminRes);
         }

@@ -2,10 +2,16 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, CheckCircle } from 'lucide-react';
+import { Shield, CheckCircle, Eye, EyeOff, Cog } from 'lucide-react';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
-import { ModalHeader } from './shared/ModalHeader';
 import { FormField } from './shared/FormField';
+import { AvatarUpload } from '@/components/ui/avatar-upload';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { EmailInput } from '@/components/ui/email-input';
+import { Input } from '@/components/ui/input';
+import AnimatedLogo from '@/components/AnimatedLogo';
+import { ModalHeader } from './shared/ModalHeader';
+import { PlanSelectionModal } from './PlanSelectionModal';
 
 type AppRole = 'admin' | 'user';
 
@@ -22,163 +28,172 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const { profile } = useAuth();
+  const [showPlanModal, setShowPlanModal] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    // support both separated names and a single fullName field (the form uses fullName)
     firstName: '',
     lastName: '',
-    fullName: '',
-    confirmPassword: '',
     phone: '',
-    avatar: null as File | null,
-    role: 'admin' as string, // default role for created user (admin or lower)
-    tenantName: '',
-    plan: 'free'
+    avatar: null as File | null
   });
-  // Auto-générer l'email
+  // Auto-générer l'email à partir du prénom/nom
   useEffect(() => {
-    // prefer explicit firstName/lastName, otherwise derive from fullName
-    const rawFirst = formData.firstName || (formData.fullName ? formData.fullName.trim().split(/\s+/)[0] : '');
-    const rawLast = formData.lastName || (formData.fullName ? formData.fullName.trim().split(/\s+/).slice(1).join(' ') : '');
-    const first = (rawFirst || '').trim().toLowerCase().replace(/\s+/g, '.');
-    const last = (rawLast || '').trim().toLowerCase().replace(/\s+/g, '.');
+    const first = (formData.firstName || '').trim().toLowerCase().replace(/\s+/g, '.');
+    const last = (formData.lastName || '').trim().toLowerCase().replace(/\s+/g, '.');
     if (first && last && (!formData.email || /@automaster\.ci$/i.test(formData.email))) {
       setFormData(prev => ({ ...prev, email: `${first}.${last}@automaster.ci` }));
     }
-  }, [formData.firstName, formData.lastName, formData.fullName, formData.email]);
+  }, [formData.firstName, formData.lastName]);
+
+  // When step becomes 2, open the plan modal shortly after — keep hooks unconditionally at top-level
+  useEffect(() => {
+    if (step === 2) {
+      const t = setTimeout(() => setShowPlanModal(true), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [step]);
 
   if (step === 2) {
     return (
-      <WhatsAppModal 
-        isOpen={isOpen} 
-        onClose={onClose}
-        size="md"
-        className="rounded-2xl"
-      >
-        <div className="flex flex-col items-center justify-center py-12 px-6">
-          <CheckCircle className="w-20 h-20 text-green-500 mb-4 animate-bounce" />
-          <h2 className="text-2xl font-bold mb-2">Admin créé !</h2>
-          <p className="text-muted-foreground text-center">
-            Le compte administrateur du tenant a été créé avec succès.
-          </p>
-        </div>
-      </WhatsAppModal>
+      <>
+        <WhatsAppModal 
+          isOpen={isOpen} 
+          onClose={onClose}
+          size="md"
+          className="rounded-2xl"
+        >
+          <div className="flex flex-col items-center justify-center py-12 px-6">
+            <CheckCircle className="w-20 h-20 text-green-500 mb-4 animate-bounce" />
+            <h2 className="text-2xl font-bold mb-2">Administrateur créé !</h2>
+            <p className="text-muted-foreground text-center">
+              Le compte administrateur du tenant a été créé avec succès.
+            </p>
+          </div>
+        </WhatsAppModal>
+
+        <PlanSelectionModal isOpen={showPlanModal} onClose={() => setShowPlanModal(false)} onSuccess={() => { setShowPlanModal(false); onSuccess?.(); }} />
+      </>
     );
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
-    (async () => {
-      try {
-        const first = formData.firstName || (formData.fullName ? formData.fullName.trim().split(/\s+/)[0] : '');
-        const last = formData.lastName || (formData.fullName ? formData.fullName.trim().split(/\s+/).slice(1).join(' ') : '');
+    try {
+      const first = (formData.firstName || '').trim();
+      const last = (formData.lastName || '').trim();
 
-        if (!formData.email || !formData.password || !first || !last) {
-          setError('Tous les champs obligatoires doivent être remplis');
-          return;
-        }
-
-        if (formData.password.length < 8) {
-          setError('Le mot de passe doit contenir au moins 8 caractères');
-          return;
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-          setError('Les mots de passe ne correspondent pas');
-          return;
-        }
-
-        // Avatar upload temporarily disabled (backend not ready)
-        const avatarUrl = null;
-
-        // Create the account via Supabase Auth
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              first_name: first,
-              last_name: last,
-              phone: formData.phone,
-              avatar_url: avatarUrl,
-              full_name: `${first} ${last}`
-            }
-          }
-        });
-
-        if (authError) throw authError;
-
-        const userId = authData?.user?.id;
-        if (!userId) {
-          throw new Error('Impossible de récupérer l\'utilisateur créé');
-        }
-
-        // Update profile with tenant scope
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: `${first} ${last}`,
-            permissions: ['read', 'write'],
-            is_active: true,
-            tenant_id: (tenantId || (profile as any)?.tenant_id) ?? null
-          })
-          .eq('id', userId);
-
-        if (profileError) throw profileError;
-
-        // Assign role for the tenant using a secure RPC, fallback to direct insert
-        const dbRole: AppRole = formData.role === 'admin' ? 'admin' : 'user';
-
-        try {
-          // Try RPC with underscored params first
-          let rpcResult: any = await (supabase as any).rpc('assign_role_to_user', { _user_id: userId, _role: dbRole });
-          let rpcErr = rpcResult?.error ?? null;
-
-          if (rpcErr) {
-            console.warn('assign_role_to_user RPC (with _params) error:', rpcErr);
-            const altRpcResult: any = await (supabase as any).rpc('assign_role_to_user', { user_id: userId, role: dbRole });
-            rpcErr = altRpcResult?.error ?? null;
-            if (rpcErr) {
-              console.warn('assign_role_to_user RPC (without _params) error:', rpcErr);
-              throw rpcErr;
-            }
-          }
-        } catch (e: any) {
-          console.error('assign_role_to_user RPC failed, falling back to direct insert. RPC error:', e);
-          const { error: insertErr } = await supabase
-            .from('user_roles')
-            .insert([{ user_id: userId, role: dbRole }]);
-          if (insertErr) {
-            console.error('Direct insert into user_roles failed:', insertErr);
-            throw insertErr;
-          }
-        }
-
-        // Keep profile.role in sync for quick checks
-        const { error: profileRoleError } = await supabase
-          .from('profiles')
-          .update({ role: dbRole })
-          .eq('id', userId);
-
-        if (profileRoleError) console.warn('Failed to update profile.role for admin:', profileRoleError);
-
-        // show success step
-        setStep(2);
-        onSuccess?.();
-      } catch (err: unknown) {
-        console.error('Erreur création admin tenant:', err);
-        const message = typeof err === 'string' ? err : (err instanceof Error ? err.message : JSON.stringify(err));
-        setError(message || 'Une erreur est survenue lors de la création');
-      } finally {
-        setLoading(false);
+      if (!formData.email || !formData.password || !first || !last) {
+        setError('Tous les champs obligatoires doivent être remplis');
+        return;
       }
-    })();
+
+      if (formData.password.length < 8) {
+        setError('Le mot de passe doit contenir au moins 8 caractères');
+        return;
+      }
+
+      // Upload avatar if present
+      let avatarUrl: string | null = null;
+      if (formData.avatar) {
+        try {
+          const fileExt = formData.avatar.name.split('.').pop();
+          const fileName = `admin-${Date.now()}.${fileExt}`;
+          const filePath = `avatars/${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, formData.avatar);
+
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('avatars')
+              .getPublicUrl(filePath);
+            avatarUrl = publicUrl;
+          }
+        } catch (uploadError) {
+          console.warn('Erreur upload avatar:', uploadError);
+        }
+      }
+
+      // Create Auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: first,
+            last_name: last,
+            phone: formData.phone,
+            avatar_url: avatarUrl,
+            full_name: `${first} ${last}`
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      const userId = authData?.user?.id;
+      if (!userId) throw new Error('Impossible de récupérer l\'utilisateur créé');
+
+  // Upsert profile (includes tenant_id).
+  // The database `profiles.role` has a check constraint; mappedRole will be set below.
+
+  // Assign tenant admin role via RPC. Do not attempt client-side insert if RPC fails (likely RLS).
+  const dbRole: AppRole = 'admin';
+
+  const mappedRole = dbRole === 'admin' ? 'tenant_admin' : dbRole;
+
+  const profilePayload = {
+        id: userId,
+        email: formData.email,
+        first_name: first,
+        last_name: last,
+        avatar_url: avatarUrl,
+        phone: formData.phone,
+        full_name: `${first} ${last}`,
+        permissions: ['read', 'write'],
+        is_active: true,
+        tenant_id: tenantId ?? (profile as any)?.tenant_id ?? null,
+        role: mappedRole
+      } as any;
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert(profilePayload, { onConflict: 'id' });
+
+      if (profileError) throw profileError;
+
+      try {
+        const res: any = await (supabase as any).rpc('assign_role_to_user', { _user_id: userId, _role: dbRole });
+        const rpcErr = res?.error ?? null;
+        if (rpcErr) throw rpcErr;
+      } catch (e: any) {
+        console.error('RPC assign_role_to_user failed:', e);
+        throw new Error("Impossible d'assigner le rôle via RPC: la fonction est absente ou permissions insuffisantes. Veuillez appliquer la migration `assign_role_to_user` et vous assurer que la fonction a GRANT EXECUTE pour anon/authenticated.");
+      }
+
+      // Sync profile.role
+      const { error: profileRoleError } = await supabase
+        .from('profiles')
+        .update({ role: dbRole })
+        .eq('id', userId);
+      if (profileRoleError) console.warn('Failed to update profile.role for admin:', profileRoleError);
+
+      setStep(2);
+      // onSuccess will be called after PlanSelectionModal flow completes; call onSuccess as a fallback
+      setTimeout(() => { onSuccess?.(); }, 2000);
+    } catch (err: any) {
+      console.error('Erreur création admin tenant:', err);
+      setError(err?.message || 'Une erreur est survenue lors de la création');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -188,11 +203,13 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
       size="lg"
       className="rounded-2xl"
       allowCloseOnOutsideClick={false}
+      hideHeader={true}
     >
+      {/* Render a custom header inside children so wrapper header is hidden (avoids double header/scroll) */}
       <ModalHeader
         title="Créer un Admin"
         subtitle="Ajouter un administrateur à la plateforme"
-        icon={Shield}
+        headerLogo={<AnimatedLogo size={56} mainIcon={Cog} mainColor="text-white" secondaryColor="text-green-300" />}
         onClose={onClose}
       />
 
@@ -205,41 +222,68 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
             </Alert>
           )}
 
-          <FormField
-            id="fullName"
-            label="Nom complet"
-            value={formData.fullName}
-            onChange={(fullName) => setFormData({ ...formData, fullName })}
+          <div className="grid grid-cols-2 gap-3">
+            <FormField
+              id="firstName"
+              label="Prénom"
+              value={formData.firstName}
+              onChange={(firstName) => setFormData({ ...formData, firstName })}
+              required
+            />
+            <FormField
+              id="lastName"
+              label="Nom"
+              value={formData.lastName}
+              onChange={(lastName) => setFormData({ ...formData, lastName })}
+              required
+            />
+          </div>
+
+          <EmailInput
+            value={formData.email}
+            onChange={(email) => setFormData({ ...formData, email })}
+            label="Email"
             required
           />
 
-          <FormField
-            id="email"
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(email) => setFormData({ ...formData, email })}
-            required
+          <AvatarUpload
+            value={formData.avatar}
+            onChange={(file) => setFormData({ ...formData, avatar: file })}
+            label="Photo de profil"
+          />
+
+          <PhoneInput
+            value={formData.phone}
+            onChange={(phone) => setFormData({ ...formData, phone })}
+            label="Téléphone"
           />
 
           <FormField
             id="password"
             label="Mot de passe"
-            type="password"
             value={formData.password}
             onChange={(password) => setFormData({ ...formData, password })}
             required
-            placeholder="Min. 8 caractères"
-          />
-
-          <FormField
-            id="confirmPassword"
-            label="Confirmer le mot de passe"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(confirmPassword) => setFormData({ ...formData, confirmPassword })}
-            required
-          />
+          >
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+                className="rounded-lg pr-10"
+                placeholder="Min. 8 caractères"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </FormField>
 
           <Button 
             type="submit" 

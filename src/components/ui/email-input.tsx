@@ -40,7 +40,35 @@ export const EmailInput = ({ value, onChange, label = "Email", required = false,
 
   const handleLocalPartChange = (part: string) => {
     // Empêcher la saisie de caractères spéciaux comme @, supprimer les espaces et forcer en minuscule
-    const cleanPart = part.replace(/[@\s]/g, '').toLowerCase();
+    // Support cases where user pastes a full email or includes a domain fragment.
+    let input = part || '';
+
+    // If user pasted a full email like 'name@domain.com', split and apply domain selection.
+    if (input.includes('@')) {
+      const [local, domain] = input.split('@');
+      input = local || '';
+      if (domain) {
+        const domainWithAt = `@${domain.replace(/^@/, '')}`;
+        if (emailDomains.some(d => d.value === domainWithAt)) {
+          setSelectedDomain(domainWithAt);
+        }
+      }
+    }
+
+    // Remove spaces and stray @ characters
+    let cleanPart = input.replace(/[@\s]/g, '').toLowerCase();
+
+    // If user typed a domain-like suffix (eg 'namegmail.com' or 'name.gmail.com'), strip known domain suffixes
+    for (const d of emailDomains) {
+      const dom = d.value.replace('@', '').toLowerCase();
+      if (cleanPart.endsWith(dom)) {
+        cleanPart = cleanPart.slice(0, -dom.length);
+        // Remove trailing dot if present
+        if (cleanPart.endsWith('.')) cleanPart = cleanPart.slice(0, -1);
+        break;
+      }
+    }
+
     setLocalPart(cleanPart);
     const fullEmail = cleanPart + selectedDomain;
     console.log('📧 EmailInput - Corps changé:', cleanPart, 'Domaine:', selectedDomain, 'Email complet:', fullEmail);

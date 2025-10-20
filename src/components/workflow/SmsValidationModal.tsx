@@ -75,14 +75,25 @@ export const SMSValidationModal = ({
     setLoading(true);
     setError(null);
     try {
-      const result = await whatsappService.verifyOTP(userId!, code, email);
-      if (result.success) {
-        setSuccess(true);
-        setTimeout(() => {
-          onSuccess?.();
-        }, 1500);
+      // If tenantAdminData is provided, we are in simulation/test mode.
+      if (tenantAdminData) {
+        // Accept any 6-digit numeric code as valid in simulation.
+        if (/^\d{6}$/.test(code)) {
+          setSuccess(true);
+          setTimeout(() => onSuccess?.(), 800);
+        } else {
+          setError('Code OTP invalide (simulation)');
+        }
       } else {
-        setError(result.error || 'Code OTP invalide');
+        const result = await whatsappService.verifyOTP(userId!, code, email);
+        if (result.success) {
+          setSuccess(true);
+          setTimeout(() => {
+            onSuccess?.();
+          }, 1500);
+        } else {
+          setError(result.error || 'Code OTP invalide');
+        }
       }
     } catch (error: any) {
       console.error('OTP verification error:', error);
@@ -98,19 +109,27 @@ export const SMSValidationModal = ({
     setError(null);
 
     try {
-      const result = await whatsappService.sendOTP(
-        userId!,
-        phoneNumber!,
-        'free'
-      );
-
-      if (result.success) {
-        setTimeLeft(900); // Reset timer
+      // In simulation mode, just reset timer and prefill the test code
+      if (tenantAdminData) {
+        setTimeLeft(900);
         setCanResend(false);
-        setCode(''); // Clear current code
+        setCode('123456');
         setError(null);
       } else {
-        setError(result.error || 'Échec renvoi du code');
+        const result = await whatsappService.sendOTP(
+          userId!,
+          phoneNumber!,
+          'free'
+        );
+
+        if (result.success) {
+          setTimeLeft(900); // Reset timer
+          setCanResend(false);
+          setCode(''); // Clear current code
+          setError(null);
+        } else {
+          setError(result.error || 'Échec renvoi du code');
+        }
       }
     } catch (error: any) {
       console.error('Resend OTP error:', error);
@@ -125,6 +144,15 @@ export const SMSValidationModal = ({
     if (!phone) return '';
     return phone.replace(/(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '+$1 $2 $3 $4 $5');
   };
+
+  useEffect(() => {
+    // If tenantAdminData exists, put modal into simulation mode: prefill email and OTP
+    if (isOpen && tenantAdminData) {
+      setEmail(tenantAdminData.email || '');
+      // Pre-fill a test OTP for quicker simulation
+      setCode('123456');
+    }
+  }, [isOpen, tenantAdminData]);
 
   if (!isOpen) return null;
 
@@ -179,8 +207,8 @@ export const SMSValidationModal = ({
               </Alert>
             )}
             {timeLeft > 0 && (
-              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="flex items-center justify-center text-sm text-blue-800 dark:text-blue-200">
+        <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg">
+          <div className="flex items-center justify-center text-sm text-emerald-800 dark:text-emerald-200">
                   <Clock className="w-4 h-4 mr-2" />
                   Code valide pendant {formatTime(timeLeft)}
                 </div>
@@ -196,9 +224,12 @@ export const SMSValidationModal = ({
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="votre@email.com"
                   required
-                  disabled={loading}
+                  disabled={loading || !!tenantAdminData}
                   className="mt-1"
                 />
+                {tenantAdminData && (
+                  <p className="text-xs text-amber-700 mt-1">Mode simulation activé — email et OTP pré-remplis pour test</p>
+                )}
               </div>
               <div>
                 <Label htmlFor="code" className="text-sm font-medium text-gray-700 dark:text-gray-300">Code OTP *</Label>
@@ -210,7 +241,7 @@ export const SMSValidationModal = ({
                   placeholder="123456"
                   maxLength={6}
                   required
-                  disabled={loading}
+                  disabled={loading && !tenantAdminData}
                   className="mt-1 text-center text-lg tracking-widest"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Saisissez le code à 6 chiffres reçu sur WhatsApp</p>

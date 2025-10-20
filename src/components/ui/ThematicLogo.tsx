@@ -27,7 +27,7 @@ export const LOGO_THEMES = {
   admin: {
     mainIcon: User,
     secondaryIcon: Wrench,
-    mainColor: "text-blue-600",
+    mainColor: "text-emerald-600",
     secondaryColor: "text-orange-500",
     animation: "idle" as const
   },
@@ -46,7 +46,7 @@ export const LOGO_THEMES = {
     mainIcon: Building,
     secondaryIcon: User,
     mainColor: "text-purple-600",
-    secondaryColor: "text-blue-400",
+    secondaryColor: "text-emerald-300",
     animation: "idle" as const
   },
 
@@ -63,7 +63,7 @@ export const LOGO_THEMES = {
   signin: {
     mainIcon: User,
     secondaryIcon: Shield,
-    mainColor: "text-blue-600",
+    mainColor: "text-emerald-600",
     secondaryColor: "text-green-500",
     animation: "idle" as const
   },

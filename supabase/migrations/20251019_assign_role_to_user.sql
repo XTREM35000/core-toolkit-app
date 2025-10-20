@@ -12,8 +12,25 @@ BEGIN
   ON CONFLICT (user_id, role) DO NOTHING;
 
   -- Sync profiles.role if empty
-  UPDATE public.profiles
-  SET role = _role
-  WHERE id = _user_id AND (role IS NULL OR role = 'user');
+  -- Map app_role values to profiles.role values expected by profiles_role_check
+  -- (profiles.role allowed values: 'super_admin', 'tenant_admin', 'user', 'developer')
+  IF _role = 'super_admin' THEN
+    UPDATE public.profiles
+    SET role = 'super_admin'
+    WHERE id = _user_id AND (role IS NULL OR role = 'user');
+  ELSIF _role = 'admin' THEN
+    -- Translate 'admin' into the profiles enum value for tenant administrators
+    UPDATE public.profiles
+    SET role = 'tenant_admin'
+    WHERE id = _user_id AND (role IS NULL OR role = 'user');
+  ELSE
+    UPDATE public.profiles
+    SET role = 'user'
+    WHERE id = _user_id AND (role IS NULL OR role = 'user');
+  END IF;
 END;
 $$;
+
+-- Ensure RPC is callable by client roles (if your flow requires client-side calls)
+GRANT EXECUTE ON FUNCTION public.assign_role_to_user(uuid, app_role) TO anon;
+GRANT EXECUTE ON FUNCTION public.assign_role_to_user(uuid, app_role) TO authenticated;

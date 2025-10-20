@@ -9,7 +9,9 @@ import {
   SprayCan,
   Hammer,
   Gauge,
-  LucideIcon
+  LucideIcon,
+  User,
+  UserCheck
 } from 'lucide-react';
 
 // Ajout d'animations spécifiques à l'automobile
@@ -31,18 +33,35 @@ interface AnimatedLogoProps {
   animation?: keyof typeof carAnimations;
   className?: string;
   useImage?: boolean; // Nouveau prop pour utiliser l'image
+  role?: 'super_admin' | 'admin' | 'default';
 }
 
 export function AnimatedLogo({
   size = 56, // 56px par défaut (w-14 h-14)
   mainIcon: MainIcon = Car,
   secondaryIcon: SecondaryIcon = Wrench,
-  mainColor = "text-white",
-  secondaryColor = "text-yellow-300",
+  mainColor = 'text-white',
+  secondaryColor = 'text-yellow-300',
   waterDrop = true,
-  className = "",
-  useImage = false // Par défaut, utiliser les icônes lucide
+  className = '',
+  useImage = false, // Par défaut, utiliser les icônes lucide
+  role = 'default'
 }: AnimatedLogoProps) {
+
+  // If a role is provided, override icons/colors to sensible defaults.
+  if (role === 'super_admin') {
+    // assign lucide components to variables typed as any to avoid TS JSX type issues
+    MainIcon = (UserCheck as unknown) as LucideIcon;
+    mainColor = 'text-white';
+    secondaryColor = 'text-yellow-300';
+    waterDrop = true;
+  } else if (role === 'admin') {
+    MainIcon = (User as unknown) as LucideIcon;
+    mainColor = 'text-white';
+    secondaryColor = 'text-green-300';
+    waterDrop = true;
+  }
+
   // Si useImage est true, afficher le logo animé avec l'image
   if (useImage) {
     return (
