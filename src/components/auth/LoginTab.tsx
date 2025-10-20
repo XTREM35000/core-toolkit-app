@@ -5,7 +5,11 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export const LoginTab = () => {
+interface LoginTabProps {
+  onClose: () => void;
+}
+
+export const LoginTab = ({ onClose }: LoginTabProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -18,17 +22,32 @@ export const LoginTab = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
       if (error) throw error;
 
+      // Fetch user profile
+      if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          console.warn('Profile fetch warning:', profileError);
+        }
+      }
+
       toast({
         title: "Connexion réussie",
         description: "Bienvenue !",
       });
+
+      onClose();
     } catch (error: any) {
       toast({
         title: "Erreur de connexion",
@@ -51,6 +70,7 @@ export const LoginTab = () => {
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
           placeholder="votre@email.com"
+          aria-required="true"
         />
       </div>
 
@@ -63,12 +83,13 @@ export const LoginTab = () => {
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
           required
           placeholder="••••••••"
+          aria-required="true"
         />
       </div>
 
       <Button 
         type="submit" 
-        className="w-full gradient-primary text-primary-foreground font-semibold"
+        className="w-full bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white font-semibold hover:opacity-90 transition-opacity"
         disabled={loading}
       >
         {loading ? 'Connexion...' : 'Se connecter'}

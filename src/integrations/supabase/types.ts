@@ -16,35 +16,53 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string | null
           email: string
+          first_name: string | null
           full_name: string | null
           id: string
           is_active: boolean | null
+          last_name: string | null
+          onboarding_completed: boolean | null
           permissions: Json | null
+          phone: string | null
           role: Database["public"]["Enums"]["app_role"] | null
+          selected_plan: string | null
           tenant_id: string | null
           updated_at: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string | null
           email: string
+          first_name?: string | null
           full_name?: string | null
           id: string
           is_active?: boolean | null
+          last_name?: string | null
+          onboarding_completed?: boolean | null
           permissions?: Json | null
+          phone?: string | null
           role?: Database["public"]["Enums"]["app_role"] | null
+          selected_plan?: string | null
           tenant_id?: string | null
           updated_at?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string | null
           email?: string
+          first_name?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean | null
+          last_name?: string | null
+          onboarding_completed?: boolean | null
           permissions?: Json | null
+          phone?: string | null
           role?: Database["public"]["Enums"]["app_role"] | null
+          selected_plan?: string | null
           tenant_id?: string | null
           updated_at?: string | null
         }
@@ -187,6 +205,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_role_to_user: {
+        Args: {
+          target_role: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
