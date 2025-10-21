@@ -311,16 +311,17 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
             </div>
           </FormField>
 
-          <Button 
-            type="submit" 
-            className="w-full bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white font-semibold rounded-lg"
-            disabled={loading}
-          >
-            {loading ? 'Création...' : 'Créer le Super Admin'}
           <AppButton
             type="submit"
             className="w-full"
             disabled={loading}
           >
-            {loading ? 'Cr e9ation...' : 'Cr e9er le Super Admin'}
+            {loading ? 'Création...' : 'Créer le Super Admin'}
           </AppButton>
+        </form>
+      </div>
+    </WhatsAppModal>
+  );
+};
+
+export default SuperAdminModal;

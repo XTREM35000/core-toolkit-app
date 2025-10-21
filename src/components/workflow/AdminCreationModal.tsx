@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
+import AppButton from '@/components/ui/AppButton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, CheckCircle, Eye, EyeOff, Cog } from 'lucide-react';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
@@ -152,9 +152,9 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
   const profilePayload = {
         id: userId,
         email: formData.email,
-        first_name: first,
-        last_name: last,
-        avatar_url: avatarUrl,
+    first_name: first,
+    last_name: last,
+    avatar_url: avatarUrl,
         phone: formData.phone,
         full_name: `${first} ${last}`,
         permissions: ['read', 'write'],
@@ -222,6 +222,13 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
             </Alert>
           )}
 
+          <AvatarUpload
+            id="admin-avatar"
+            value={formData.avatar}
+            onChange={(file) => setFormData({ ...formData, avatar: file })}
+            label="Photo de profil"
+          />
+
           <div className="grid grid-cols-2 gap-3">
             <FormField
               id="firstName"
@@ -244,12 +251,6 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
             onChange={(email) => setFormData({ ...formData, email })}
             label="Email"
             required
-          />
-
-          <AvatarUpload
-            value={formData.avatar}
-            onChange={(file) => setFormData({ ...formData, avatar: file })}
-            label="Photo de profil"
           />
 
           <PhoneInput
@@ -285,20 +286,18 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
             </div>
           </FormField>
 
-          <Button 
-            type="submit" 
-            className="w-full bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white font-semibold rounded-lg"
+          <AppButton
+            type="submit"
+            className="w-full"
             disabled={loading}
           >
-            {loading ? 'Création...' : 'Créer l\'Administrateur'}
-          </Button>
+            {loading ? 'Création...' : "Créer l'Administrateur"}
+          </AppButton>
         </form>
       </div>
     </WhatsAppModal>
   );
 };
-
-export default AdminCreationModal;
 
 export function useAuth(): { profile: any } {
   const [profile, setProfile] = useState<any>(null);
@@ -360,4 +359,6 @@ export function useAuth(): { profile: any } {
 
   return { profile };
 }
+
+export default AdminCreationModal;
 
