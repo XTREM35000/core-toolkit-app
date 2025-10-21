@@ -132,8 +132,8 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         onClick={allowCloseOnOutsideClick ? (e) => e.target === e.currentTarget && onClose() : undefined}
       >
-        {/* Overlay avec backdrop blur */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+  {/* Overlay avec backdrop blur */}
+  <div className="absolute inset-0" style={{ background: 'var(--overlay-color)', backdropFilter: 'blur(6px)' }} />
   <motion.div
           initial={{ scale: 0.98, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -162,11 +162,11 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           {!hideHeader && (
             <>
               {/* Handle de drag */}
-              <div className="flex justify-center pt-3 pb-2 bg-white rounded-t-2xl">
-                <div className="w-12 h-1.5 rounded-full bg-[#128C7E]/30" />
+              <div className="flex justify-center pt-3 pb-2 rounded-t-2xl" style={{ background: 'var(--card-bg)' }}>
+                <div className="w-12 h-1.5 rounded-full" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.06), var(--primary-start))' }} />
               </div>
               {/* Header */}
-              <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white">
+              <div className="text-white" style={{ background: 'linear-gradient(90deg, var(--primary-start), var(--primary-end))' }}>
                 {/* Indicateur Super Admin */}
                 {showSuperAdminIndicator && (
                   <div className="absolute top-3 right-3 flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold z-10">
@@ -201,8 +201,8 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                 </button>
               </div>
               {/* Contenu avec scroll interne pour préserver l'header */}
-              <div className="bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl flex-1 overflow-y-auto">
-                <div className="p-6">
+              <div className="rounded-b-2xl flex-1 overflow-y-auto" style={{ background: 'var(--card-bg)' }}>
+                <div className="p-6" style={{ color: 'var(--muted-foreground)' }}>
                   {children}
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { ThemeName } from '@/types';
 import { ThemeKey, resolveTheme } from '@/lib/themes';
+import { applyThemeTokens } from '@/design/theme';
 
 interface ThemeContextType {
   theme: ThemeKey; // requested theme (can be 'system')
@@ -26,6 +27,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     // apply class for styling, keep previous compatibility `theme-<name>`
     document.documentElement.className = `theme-${resolved}`;
     localStorage.setItem('theme', theme);
+    // Also apply CSS variable tokens for components that rely on them
+    try {
+      applyThemeTokens(resolved);
+    } catch (e) {
+      // ignore in non-browser env
+    }
   }, [theme]);
 
   const setTheme = (t: ThemeKey) => {

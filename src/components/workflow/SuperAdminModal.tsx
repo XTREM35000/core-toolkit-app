@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
+import AppButton from '@/components/ui/AppButton';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Crown, CheckCircle, UserCheck } from 'lucide-react';
@@ -317,9 +317,10 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
             disabled={loading}
           >
             {loading ? 'Création...' : 'Créer le Super Admin'}
-          </Button>
-        </form>
-      </div>
-    </WhatsAppModal>
-  );
-};
+          <AppButton
+            type="submit"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? 'Cr e9ation...' : 'Cr e9er le Super Admin'}
+          </AppButton>
