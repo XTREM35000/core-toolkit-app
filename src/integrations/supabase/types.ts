@@ -200,6 +200,36 @@ export type Database = {
         }
         Relationships: []
       }
+      bassins_piscicoles: {
+        Row: {
+          id: string
+          nom: string | null
+          type_bassin: string | null
+          volume_m3: number | null
+          statut: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          nom?: string | null
+          type_bassin?: string | null
+          volume_m3?: number | null
+          statut?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          nom?: string | null
+          type_bassin?: string | null
+          volume_m3?: number | null
+          statut?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -11,6 +11,8 @@ import {
   BarChart3, 
   FileText, 
   HelpCircle,
+  AlertCircle,
+  Beef,
   Building,
   Activity
 } from "lucide-react";
@@ -38,13 +40,29 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (key: string) => void 
 
   const navItems = [
     { path: "/admin", label: "Tableau de Bord", icon: LayoutDashboard, admin: false },
-    { path: "/pisciculture", label: "Pisciculture", icon: Fish, admin: false },
-    { path: "/heliciculture", label: "Héliciculture", icon: Shell, admin: false },
+    { path: "/activities", label: "Activité", icon: Activity, admin: false },
+
+    // Aquaculture / Production
+    { path: "/bassins-piscicoles", label: "Bassins piscicoles", icon: Fish, admin: false },
+    { path: "/cohortes-poissons", label: "Cohortes poissons", icon: Fish, admin: false },
+    { path: "/cohortes-escargots", label: "Cohortes escargots", icon: Shell, admin: false },
+    { path: "/parcs-helicicoles", label: "Parcs hélicicoles", icon: Building, admin: false },
+
+    // Operations
+    { path: "/stock-aliments", label: "Stock aliments", icon: Beef, admin: false },
+    { path: "/conditions-environnement", label: "Conditions env.", icon: BarChart3, admin: false },
+
+    { path: "/alerts", label: "Alertes", icon: AlertCircle, admin: false },
     { path: "/analytics", label: "Analytiques", icon: BarChart3, admin: false },
     { path: "/reports", label: "Rapports", icon: FileText, admin: false },
+
+    // Admin-only
+    { path: "/employees", label: "Employés", icon: Users, admin: true },
+    { path: "/farms", label: "Fermes", icon: Building, admin: true },
     { path: "/profiles", label: "Gestion Profils", icon: Users, admin: true },
     { path: "/collaborators", label: "Collaborateurs", icon: UserCog, admin: true },
     { path: "/security", label: "Sécurité", icon: Shield, admin: true },
+
     { path: "/settings", label: "Paramètres", icon: Settings, admin: false },
   ];
 

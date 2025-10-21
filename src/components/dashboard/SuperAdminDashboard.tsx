@@ -6,6 +6,7 @@ import CollaboratorsPage from './CollaboratorsPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { AppInitialization } from '@/components/onboarding/AppInitialization';
 import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/AnimatedLogo';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +24,12 @@ export const SuperAdminDashboard = () => {
     users: 0,
     bassins: 0,
     parcs: 0,
-    alertes: 0
+    alertes: 0,
+    poissons: 0,
+    escargots: 0,
+    stock: 0,
   });
+  const [recentActivities, setRecentActivities] = useState<Array<{ action: string; time: string; user: string; type?: string }>>([]);
   const { profile, isSuperAdmin, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -39,20 +44,128 @@ export const SuperAdminDashboard = () => {
         .from('profiles')
         .select('*', { count: 'exact', head: true });
 
-      // Récupérer le nombre de collaborateurs
-      const { count: collaboratorsCount } = await supabase
-        .from('user_roles')
-        .select('*', { count: 'exact', head: true });
+      // Nombre de bassins (table 'bassins' si existante)
+      let bassinsCount = 0;
+      try {
+        const { count } = await (supabase as any)
+          .from('bassins')
+          .select('*', { count: 'exact', head: true });
+        bassinsCount = count || 0;
+      } catch (err) {
+        // table may not exist yet; keep 0
+      }
+
+      // Nombre de parcs (table 'parcs')
+      let parcsCount = 0;
+      try {
+        const { count } = await (supabase as any)
+          .from('parcs')
+          .select('*', { count: 'exact', head: true });
+        parcsCount = count || 0;
+      } catch (err) {
+        // fallback
+      }
+
+      // Nombre d'alertes (table 'alerts' ou 'alertes')
+      let alertesCount = 0;
+      try {
+        const { count } = await (supabase as any)
+          .from('alertes')
+          .select('*', { count: 'exact', head: true });
+        alertesCount = count || 0;
+      } catch (err) {
+        try {
+          const { count } = await (supabase as any)
+            .from('alerts')
+            .select('*', { count: 'exact', head: true });
+          alertesCount = count || 0;
+        } catch (err2) {
+          // keep 0
+        }
+      }
+
+      // helper to try multiple candidate table names for a count
+      const tryCount = async (candidates: string[]) => {
+        for (const t of candidates) {
+          try {
+            const { count } = await (supabase as any)
+              .from(t)
+              .select('*', { count: 'exact', head: true });
+            if (typeof count === 'number') return count;
+          } catch (e) {
+            // ignore and try next
+          }
+        }
+        return 0;
+      };
+
+      const poissonsCount = await tryCount(['poissons', 'fish', 'pisciculture', 'productions']);
+      const escargotsCount = await tryCount(['escargots', 'snails', 'heliciculture']);
+      const stockCount = await tryCount(['stock', 'stocks', 'inventory', 'stock_aliments']);
 
       setStats({
         users: usersCount || 0,
-        bassins: 12, // Données simulées pour l'exemple
-        parcs: 8,   // Données simulées pour l'exemple
-        alertes: 3   // Données simulées pour l'exemple
+        bassins: bassinsCount,
+        parcs: parcsCount,
+        alertes: alertesCount,
+        poissons: poissonsCount,
+        escargots: escargotsCount,
+        stock: stockCount,
       });
     } catch (error) {
       console.error('Erreur chargement stats:', error);
     }
+  };
+
+  const loadRecentActivities = async () => {
+    const candidates = ['activities', 'activity_log', 'activity', 'audit_logs', 'events', 'logs'];
+    for (const table of candidates) {
+      try {
+        const { data, error } = await (supabase as any)
+          .from(table)
+          .select('id, action, created_by, created_at, user_id, metadata')
+          .order('created_at', { ascending: false })
+          .limit(10) as any;
+
+        if (error || !data || data.length === 0) continue;
+
+        const userIds = Array.from(new Set(data.map((d: any) => d.created_by || d.user_id).filter(Boolean)));
+        let profilesMap: Record<string, string> = {};
+        if (userIds.length) {
+          try {
+            const { data: profiles } = await (supabase as any)
+              .from('profiles')
+              .select('id, full_name, email')
+              .in('id', userIds) as any;
+            profilesMap = (profiles || []).reduce((acc: any, p: any) => ({ ...acc, [p.id]: p.full_name || p.email || 'Utilisateur' }), {});
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        const mapped = (data || []).map((d: any) => {
+          const uid = d.created_by || d.user_id;
+          const user = uid ? (profilesMap[uid] || uid) : (d.metadata?.user_name || 'System');
+          const action = d.action || d.metadata?.action || 'Action système';
+          const time = d.created_at ? new Date(d.created_at).toLocaleString() : '';
+          const type = d.metadata?.type || undefined;
+          return { action, time, user, type };
+        });
+
+        setRecentActivities(mapped);
+        return;
+      } catch (e) {
+        // try next candidate
+      }
+    }
+
+    // fallback static
+    setRecentActivities([
+      { action: 'Nouvel utilisateur créé', user: 'Jean Dupont', time: 'Il y a 2 min', type: 'user' },
+      { action: 'Bassin mis à jour', user: 'Marie Lambert', time: 'Il y a 15 min', type: 'bassin' },
+      { action: 'Rapport de production généré', user: 'Admin System', time: 'Il y a 1 heure', type: 'report' },
+      { action: 'Paramètres système modifiés', user: profile?.full_name || 'GOGO THERRY', time: 'Il y a 2 heures', type: 'settings' },
+    ]);
   };
 
   const renderContent = () => {
@@ -99,11 +212,11 @@ export const SuperAdminDashboard = () => {
   ];
 
   const farmTypes = [
-    { name: "Pisciculture Tilapia", icon: "🐟", count: 1500, type: "poissons" },
-    { name: "Élevage Escargots", icon: "🐌", count: 5000, type: "escargots" },
-    { name: "Bassins Actifs", icon: "🏊", count: stats.bassins, type: "bassins" },
-    { name: "Parcs Reproduction", icon: "🔬", count: stats.parcs, type: "parcs" },
-    { name: "Stock Aliments", icon: "🌾", count: 1200, type: "stock" },
+    { name: "Pisciculture Tilapia", icon: "🐟", count: stats.poissons || 0, type: "poissons" },
+    { name: "Élevage Escargots", icon: "🐌", count: stats.escargots || 0, type: "escargots" },
+    { name: "Bassins Actifs", icon: "🏊", count: stats.bassins || 0, type: "bassins" },
+    { name: "Parcs Reproduction", icon: "🔬", count: stats.parcs || 0, type: "parcs" },
+    { name: "Stock Aliments", icon: "🌾", count: stats.stock || 0, type: "stock" },
   ];
 
   const quickActions = [
@@ -115,6 +228,8 @@ export const SuperAdminDashboard = () => {
 
   const DashboardHome = () => (
     <div className="space-y-8">
+      {/* Onboarding / Initialization overlay (renders modals as needed) */}
+      <AppInitialization />
       {/* Hero Section avec bienvenue personnalisée */}
       <Card className="relative h-64 overflow-hidden border-0 shadow-xl">
         <img 
@@ -312,12 +427,7 @@ export const SuperAdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[
-              { action: 'Nouvel utilisateur créé', time: 'Il y a 2 min', user: 'Jean Dupont', type: 'user' },
-              { action: 'Bassin mis à jour', time: 'Il y a 15 min', user: 'Marie Lambert', type: 'bassin' },
-              { action: 'Rapport de production généré', time: 'Il y a 1 heure', user: 'Admin System', type: 'report' },
-              { action: 'Paramètres système modifiés', time: 'Il y a 2 heures', user: profile?.full_name || 'Admin', type: 'settings' }
-            ].map((activity, index) => (
+            {recentActivities.map((activity, index) => (
               <motion.div
                 key={index}
                 className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
