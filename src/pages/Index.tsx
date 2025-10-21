@@ -7,15 +7,27 @@ import { AnimatedLogo } from '@/components/AnimatedLogo';
 import heroImage from '@/assets/hero-aquahelix.jpg';
 import piscicultureImage from '@/assets/pisciculture-feature.jpg';
 import helicicultureImage from '@/assets/heliciculture-feature.jpg';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const { user, profile, loading, isSuperAdmin, isAdmin } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Rediriger vers le dashboard si l'utilisateur est connecté
+    if (user && !loading) {
+      console.log('🔄 Redirection vers /admin depuis Index.tsx');
+      navigate('/admin');
+    }
+  }, [user, loading, navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
 
+  // Afficher un loader pendant la vérification ou la redirection
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -27,10 +39,19 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    return null;
+  // Si l'utilisateur est connecté, ne rien afficher (redirection en cours)
+  if (user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full border-4 border-primary border-t-transparent animate-spin" />
+          <p className="text-muted-foreground">Redirection vers le dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
+  // Si pas connecté, afficher la page d'accueil publique
   const getRoleIcon = () => {
     if (isSuperAdmin) return <Shield className="h-6 w-6" />;
     if (isAdmin) return <UserCog className="h-6 w-6" />;

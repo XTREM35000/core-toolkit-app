@@ -1,16 +1,29 @@
 import React from 'react';
+import { AppSidebar } from './Sidebar';
 import Header from './Header';
-import Sidebar from './Sidebar';
+import {
+  SidebarProvider,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 
-export const DashboardLayout = ({ children, onNavigate }: { children: React.ReactNode, onNavigate?: (k: string) => void }) => {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+  onNavigate?: (key: string) => void;
+}
+
+export const DashboardLayout = ({ children, onNavigate }: DashboardLayoutProps) => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <div className="flex">
-        <Sidebar onNavigate={onNavigate} />
-        <main className="flex-1 p-6">{children}</main>
-      </div>
-    </div>
+    <SidebarProvider>
+      <AppSidebar onNavigate={onNavigate} />
+      <SidebarInset>
+        <Header />
+        <main className="flex-1 p-6 bg-gray-50/30 min-h-screen">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 

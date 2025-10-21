@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { FormModal } from '@/components/ui/FormModal';
 import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
@@ -17,32 +16,43 @@ export const AuthModal = ({ open, onClose }: AuthModalProps) => {
   const [activeTab, setActiveTab] = useState('login');
 
   return (
-    <FormModal isOpen={open} onClose={onClose} className="max-w-md">
-      <div className="space-y-4 p-6">
-        {/* Compact header so the form fields fit fully inside the modal */}
-        <div className="flex items-center gap-4">
-          <AnimatedLogo size={32} mainColor="text-emerald-600" secondaryColor="text-emerald-300" />
-          <div>
-            <h2 className="text-xl font-bold">Bienvenue</h2>
-            <p className="text-sm text-muted-foreground">Connectez-vous ou créez votre compte</p>
+    <WhatsAppModal 
+      isOpen={open} 
+      onClose={onClose}
+      size="lg"
+      className="rounded-2xl"
+      allowCloseOnOutsideClick={true}
+      hideHeader={true}
+    >
+      <ModalHeader
+        title="Authentification"
+        subtitle="Connectez-vous ou créez votre compte"
+        headerLogo={<AnimatedLogo size={56} mainIcon={LogIn} mainColor="text-white" secondaryColor="text-blue-300" waterDrop />}
+        badge={
+          <div className="flex items-center gap-2 bg-blue-500 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold">
+            <LogIn className="w-4 h-4" />
+            Accès Plateforme
           </div>
-        </div>
+        }
+        onClose={onClose}
+      />
 
+      <div className="p-6 bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Connexion</TabsTrigger>
-            <TabsTrigger value="signup">Inscription</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="login" className="rounded-lg py-2.5">Connexion</TabsTrigger>
+            <TabsTrigger value="signup" className="rounded-lg py-2.5">Inscription</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="login" className="mt-4">
+          <TabsContent value="login" className="space-y-4 mt-0">
             <LoginTab />
           </TabsContent>
 
-          <TabsContent value="signup" className="mt-4">
+          <TabsContent value="signup" className="space-y-4 mt-0">
             <SignupTab />
           </TabsContent>
         </Tabs>
       </div>
-    </FormModal>
+    </WhatsAppModal>
   );
 };
