@@ -34,6 +34,7 @@ export const SMSValidationModal = ({
   const [success, setSuccess] = useState(false);
   const [code, setCode] = useState('');
   const [email, setEmail] = useState(tenantAdminData?.email || '');
+  const [localSimMode, setLocalSimMode] = useState(false);
   const [timeLeft, setTimeLeft] = useState(900); // 15 minutes
   const [canResend, setCanResend] = useState(false);
   const [dragY, setDragY] = useState(0);
@@ -75,8 +76,8 @@ export const SMSValidationModal = ({
     setLoading(true);
     setError(null);
     try {
-      // If tenantAdminData is provided, we are in simulation/test mode.
-      if (tenantAdminData) {
+      // If tenantAdminData or localSimMode is enabled, we are in simulation/test mode.
+      if (tenantAdminData || localSimMode) {
         // Accept any 6-digit numeric code as valid in simulation.
         if (/^\d{6}$/.test(code)) {
           setSuccess(true);
@@ -110,7 +111,7 @@ export const SMSValidationModal = ({
 
     try {
       // In simulation mode, just reset timer and prefill the test code
-      if (tenantAdminData) {
+      if (tenantAdminData || localSimMode) {
         setTimeLeft(900);
         setCanResend(false);
         setCode('123456');
@@ -151,6 +152,22 @@ export const SMSValidationModal = ({
       setEmail(tenantAdminData.email || '');
       // Pre-fill a test OTP for quicker simulation
       setCode('123456');
+      setLocalSimMode(false);
+      return;
+    }
+
+    // No tenantAdminData: check localStorage for a last created admin email to enable local simulation
+    try {
+      const last = localStorage.getItem('last_admin_email');
+      if (isOpen && last) {
+        setEmail(last);
+        setCode('123456');
+        setLocalSimMode(true);
+      } else {
+        setLocalSimMode(false);
+      }
+    } catch (e) {
+      setLocalSimMode(false);
     }
   }, [isOpen, tenantAdminData]);
 

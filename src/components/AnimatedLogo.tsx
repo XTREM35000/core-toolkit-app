@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 import logoImage from '@/assets/logo-aquahelix.png';
 import {
-  Car,
+  Fish,
+  Shell,
   Wrench,
   Settings,
-  Car as CarIcon,
   Cog,
   SprayCan,
   Hammer,
@@ -38,7 +38,7 @@ interface AnimatedLogoProps {
 
 export function AnimatedLogo({
   size = 56, // 56px par défaut (w-14 h-14)
-  mainIcon: MainIcon = Car,
+  mainIcon: MainIcon = Fish,
   secondaryIcon: SecondaryIcon = Wrench,
   mainColor = 'text-white',
   secondaryColor = 'text-yellow-300',
@@ -127,7 +127,7 @@ export function AnimatedLogo({
           ${mainColor} 
           absolute inset-0 m-auto 
           transform hover:scale-110 transition-transform
-          ${MainIcon === Car ? 'animate-car-idle' : 'animate-pulse'}
+          animate-pulse
         `}
         style={{ width: mainIconSize, height: mainIconSize }}
       />

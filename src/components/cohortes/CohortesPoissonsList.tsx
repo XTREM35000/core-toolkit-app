@@ -27,7 +27,8 @@ const CohortesPoissonsList = () => {
       </div>
       <div className="bg-white rounded shadow p-4">
         {loading ? <div>Loading...</div> : (
-          <table className="min-w-full text-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
             <thead><tr><th>Espèce</th><th>Nombre initial</th><th>Statut</th><th></th></tr></thead>
             <tbody>
               {items.map(i => (
@@ -35,6 +36,7 @@ const CohortesPoissonsList = () => {
               ))}
             </tbody>
           </table>
+              </div>
         )}
       </div>
       <CohortePoissonModal open={open} onOpenChange={setOpen} cohort={selected} onSaved={() => { setOpen(false); load(); }} />

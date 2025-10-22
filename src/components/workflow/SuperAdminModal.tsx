@@ -185,6 +185,13 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
 
                 if (profileRoleError) console.warn('Failed to update profile.role for super_admin:', profileRoleError);
 
+        // Persist last created admin email for faster testing / OTP prefills
+        try {
+          localStorage.setItem('last_admin_email', formData.email || '');
+        } catch {
+          /* ignore in non-browser env */
+        }
+
         setStep(2);
         setTimeout(() => {
           onSuccess?.();

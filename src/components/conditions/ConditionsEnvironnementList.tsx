@@ -16,9 +16,28 @@ const ConditionsEnvironnementList = () => {
     <div>
       <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>Ajouter Mesure</Button></div>
       <div className="bg-white rounded shadow p-4">{loading ? <div>Loading...</div> : (
-        <table className="min-w-full text-sm"><thead><tr><th>Date</th><th>Temp Air</th><th>Hygrométrie</th><th></th></tr></thead><tbody>
-          {items.map(i => (<tr key={i.id} className="border-t"><td>{i.date_mesure}</td><td>{i.temperature_air_c}</td><td>{i.hygometrie_pct}</td><td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td></tr>))}
-        </tbody></table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Temp Air</th>
+                  <th>Hygrométrie</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map(i => (
+                  <tr key={i.id} className="border-t">
+                    <td>{i.date_mesure}</td>
+                    <td>{i.temperature_air_c}</td>
+                    <td>{i.hygometrie_pct}</td>
+                    <td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
       )}</div>
       <ConditionModal open={open} onOpenChange={setOpen} condition={selected} onSaved={() => { setOpen(false); load(); }} />
     </div>

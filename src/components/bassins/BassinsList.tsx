@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table } from '@/components/ui/table';
 import db from '@/integrations/supabase/db';
-import BassinsModal from './BassinsModal';
+import BassinsModal from '@/components/bassins/BassinsModal';
 
 const BassinsList = () => {
   const [bassins, setBassins] = useState<any[]>([]);
@@ -37,34 +37,36 @@ const BassinsList = () => {
         {loading ? (
           <div>Chargement...</div>
         ) : (
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr>
-                <th className="text-left">Nom</th>
-                <th className="text-left">Type</th>
-                <th className="text-left">Volume (m3)</th>
-                <th className="text-left">Statut</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {bassins.map(b => (
-                <tr key={b.id} className="border-t">
-                  <td className="py-2">{b.nom}</td>
-                  <td>{b.type_bassin}</td>
-                  <td>{b.volume_m3}</td>
-                  <td>{b.statut}</td>
-                  <td className="text-right">
-                    <Button variant="ghost" onClick={() => { setSelected(b); setOpen(true); }}>Edit</Button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left">Nom</th>
+                  <th className="text-left">Type</th>
+                  <th className="text-left">Volume (m3)</th>
+                  <th className="text-left">Statut</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {bassins.map(b => (
+                  <tr key={b.id} className="border-t">
+                    <td className="py-2">{b.nom}</td>
+                    <td>{b.type_bassin}</td>
+                    <td>{b.volume_m3}</td>
+                    <td>{b.statut}</td>
+                    <td className="text-right">
+                      <Button variant="ghost" onClick={() => { setSelected(b); setOpen(true); }}>Edit</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
-      <BassinsModal open={open} onOpenChange={setOpen} bassin={selected} onSaved={() => { setOpen(false); load(); }} />
+  <BassinsModal open={open} onOpenChange={setOpen} bassin={selected} onSaved={() => { setOpen(false); load(); }} />
     </div>
   );
 };

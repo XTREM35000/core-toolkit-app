@@ -6,7 +6,6 @@ import CollaboratorsPage from './CollaboratorsPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { AppInitialization } from '@/components/onboarding/AppInitialization';
 import { Button } from '@/components/ui/button';
 import { AnimatedLogo } from '@/components/AnimatedLogo';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -228,8 +227,7 @@ export const SuperAdminDashboard = () => {
 
   const DashboardHome = () => (
     <div className="space-y-8">
-      {/* Onboarding / Initialization overlay (renders modals as needed) */}
-      <AppInitialization />
+  {/* Onboarding / Initialization overlay is mounted globally in App.tsx; avoid mounting it twice here */}
       {/* Hero Section avec bienvenue personnalisée */}
       <Card className="relative h-64 overflow-hidden border-0 shadow-xl">
         <img 

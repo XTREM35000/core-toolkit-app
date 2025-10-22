@@ -7,6 +7,7 @@ import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 export const SignupTab = () => {
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,7 @@ export const SignupTab = () => {
   });
 
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,11 +138,11 @@ export const SignupTab = () => {
         <PhoneInput value={formData.phone} onChange={(phone) => setFormData({ ...formData, phone })} label="Téléphone" />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 relative">
         <Label htmlFor="signup-password">Mot de passe</Label>
         <Input
           id="signup-password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={formData.password}
           onChange={(e) => {
             const v = e.target.value;
@@ -152,6 +154,14 @@ export const SignupTab = () => {
           required
           placeholder="Min. 8 caractères"
         />
+        <button
+          type="button"
+          onClick={() => setShowPassword((s) => !s)}
+          className="absolute right-2 top-9 p-1 rounded text-muted-foreground hover:text-foreground"
+          aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+        >
+          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
         <div className="h-2 mt-2 w-full bg-gray-200 rounded overflow-hidden">
           <div
             className={`h-2 ${passwordStrength === 'weak' ? 'bg-red-400 w-1/3' : passwordStrength === 'medium' ? 'bg-amber-400 w-2/3' : 'bg-emerald-400 w-full'}`}

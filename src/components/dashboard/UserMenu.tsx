@@ -99,6 +99,13 @@ export const UserMenu = () => {
     { icon: HelpCircle, label: "Aide & Support", action: () => navigate("/help"), description: "Centre d'aide" },
   ];
 
+  if (isAdmin || isSuperAdmin) {
+    menuItems.splice(1, 0,
+      { icon: UserCog, label: "Collaborateurs", action: () => navigate("/collaborators"), description: "Gérer les collaborateurs" },
+      { icon: UserCog, label: "Ajouter un collaborateur", action: () => navigate("/collaborators/add"), description: "Inviter un nouveau collaborateur" }
+    );
+  }
+
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -131,18 +138,18 @@ export const UserMenu = () => {
 
         <AnimatePresence>
           {isOpen && (
-            <DropdownMenuContent 
-              align="end" 
-              className="w-80 p-0 overflow-hidden border-0 shadow-2xl rounded-2xl"
-              forceMount
+      <DropdownMenuContent 
+        align="end" 
+        className="w-80 p-0 overflow-hidden border-0 shadow-2xl rounded-2xl bg-white text-gray-900"
+        forceMount
             >
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="bg-white/95 backdrop-blur-md"
-              >
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="bg-white"
+                >
                 {/* Header avec infos utilisateur */}
                 <DropdownMenuLabel className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
                   <div className="flex items-center gap-4">

@@ -59,8 +59,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (key: string) => void 
     // Admin-only
     { path: "/employees", label: "Employés", icon: Users, admin: true },
     { path: "/farms", label: "Fermes", icon: Building, admin: true },
-    { path: "/profiles", label: "Gestion Profils", icon: Users, admin: true },
-    { path: "/collaborators", label: "Collaborateurs", icon: UserCog, admin: true },
+  { path: "/profiles", label: "Gestion Profils", icon: Users, admin: true },
     { path: "/security", label: "Sécurité", icon: Shield, admin: true },
 
     { path: "/settings", label: "Paramètres", icon: Settings, admin: false },

@@ -20,10 +20,29 @@ const CohortesEscargotsList = () => {
     <div>
       <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>Créer Cohorte</Button></div>
       <div className="bg-white rounded shadow p-4">
-        {loading ? <div>Loading...</div> : (
-          <table className="min-w-full text-sm"><thead><tr><th>Espèce</th><th>Nombre initial</th><th>Statut</th><th></th></tr></thead><tbody>
-            {items.map(i => (<tr key={i.id} className="border-t"><td>{i.espece}</td><td>{i.nombre_initial}</td><td>{i.statut}</td><td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td></tr>))}
-          </tbody></table>
+          {loading ? <div>Loading...</div> : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr>
+                    <th>Espèce</th>
+                    <th>Nombre initial</th>
+                    <th>Statut</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map(i => (
+                    <tr key={i.id} className="border-t">
+                      <td>{i.espece}</td>
+                      <td>{i.nombre_initial}</td>
+                      <td>{i.statut}</td>
+                      <td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
         )}
       </div>
       <CohorteEscargotModal open={open} onOpenChange={setOpen} cohort={selected} onSaved={() => { setOpen(false); load(); }} />

@@ -12,6 +12,7 @@ import Onboarding from "./pages/Onboarding";
 import SuperAdminDashboard from "./components/dashboard/SuperAdminDashboard";
 import Activities from "./pages/Activities";
 import Alerts from "./pages/Alerts";
+import Analytics from "./pages/Analytics";
 import Stock from "./pages/Stock";
 import Ponds from "./pages/Ponds";
 import Parks from "./pages/Parks";
@@ -20,11 +21,16 @@ import SnailCohorts from "./pages/SnailCohorts";
 import Employees from "./pages/Employees";
 import Farms from "./pages/Farms";
 import BassinsPiscicoles from "./pages/BassinsPiscicoles";
+import Bassins from "./pages/Bassins";
 import CohortesPoissons from "./pages/CohortesPoissons";
 import CohortesEscargots from "./pages/CohortesEscargots";
 import ParcsHelicicoles from "./pages/ParcsHelicicoles";
 import StockAliments from "./pages/StockAliments";
 import ConditionsEnvironnement from "./pages/ConditionsEnvironnement";
+import Profile from './pages/Profile';
+import CollaboratorsAdd from './pages/CollaboratorsAdd';
+import CollaboratorsPage from './components/dashboard/CollaboratorsPage';
+import Collaborators from './pages/Collaborators';
 
 const queryClient = new QueryClient();
 
@@ -43,7 +49,9 @@ const App = () => (
               <Route path="/admin" element={<SuperAdminDashboard />} />
               <Route path="/activities" element={<Activities />} />
               <Route path="/alerts" element={<Alerts />} />
+              <Route path="/analytics" element={<Analytics />} />
               <Route path="/bassins-piscicoles" element={<BassinsPiscicoles />} />
+              <Route path="/bassins" element={<Bassins />} />
               <Route path="/cohortes-poissons" element={<CohortesPoissons />} />
               <Route path="/cohortes-escargots" element={<CohortesEscargots />} />
               <Route path="/parcs-helicicoles" element={<ParcsHelicicoles />} />
@@ -54,6 +62,9 @@ const App = () => (
               <Route path="/parks" element={<Parks />} />
               <Route path="/fish-cohorts" element={<FishCohorts />} />
               <Route path="/snail-cohorts" element={<SnailCohorts />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/collaborators/add" element={<CollaboratorsAdd />} />
+                <Route path="/collaborators" element={<Collaborators />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/farms" element={<Farms />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

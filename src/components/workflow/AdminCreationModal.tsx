@@ -187,7 +187,8 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess }: Adm
 
       setStep(2);
       // onSuccess will be called after PlanSelectionModal flow completes; call onSuccess as a fallback
-      setTimeout(() => { onSuccess?.(); }, 2000);
+  try { localStorage.setItem('last_admin_email', formData.email || ''); } catch {}
+  setTimeout(() => { onSuccess?.(); }, 2000);
     } catch (err: any) {
       console.error('Erreur création admin tenant:', err);
       setError(err?.message || 'Une erreur est survenue lors de la création');

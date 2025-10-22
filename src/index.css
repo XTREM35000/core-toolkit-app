@@ -106,3 +106,46 @@ All colors MUST be HSL.
     box-shadow: 0 0 40px hsla(var(--primary), 0.3);
   }
 }
+
+/* Emergency mobile fixes — 2025-10-21
+   Prevent horizontal overflow on small viewports until full responsive audit is done.
+*/
+@layer base {
+  /* Global lock to prevent pages from overflowing horizontally on mobile */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Ensure common layout containers don't exceed viewport width */
+  .container,
+  .page,
+  .main-content {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}
+
+/* Glossy blue 3D utility for header/burger/logo
+   Usage: add .glossy-blue on a wrapper or button to get a vibrant 3D blue look.
+*/
+@layer utilities {
+  .glossy-blue {
+    background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 45%, #1e3a8a 100%);
+    color: white;
+    box-shadow: 0 10px 30px rgba(59,130,246,0.28), inset 0 -6px 18px rgba(255,255,255,0.06);
+    border-radius: 0.5rem;
+  }
+
+  .glossy-blue:active {
+    transform: translateY(1px);
+  }
+
+  .glossy-title {
+    background: linear-gradient(90deg,#67e8f9,#3b82f6,#1e3a8a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600;
+    text-shadow: 0 6px 18px rgba(59,130,246,0.12);
+  }
+}

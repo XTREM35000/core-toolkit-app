@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
+import AnimatedLogo from '@/components/AnimatedLogo';
+import { Card } from '@/components/ui/card';
 
 export const CollaboratorsPage = () => {
   const qc = useQueryClient();
@@ -23,41 +26,49 @@ export const CollaboratorsPage = () => {
   };
 
   return (
-    <section>
-      <h2 className="text-xl font-semibold mb-4">Collaborateurs</h2>
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl overflow-hidden shadow-lg mb-6">
+        <ModalHeader
+          title="Collaborateurs"
+          subtitle="Gérer les membres de l'équipe"
+          headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-blue-300" />}
+          onClose={() => { /* noop in page */ }}
+        />
+        <div className="p-4 bg-white">
+          <Card className="p-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nom complet" className="input" />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="input" />
+            </div>
+            <div className="mt-3">
+              <button onClick={invite} className="btn btn-primary">Inviter</button>
+            </div>
+          </Card>
 
-      <div className="mb-4 bg-white p-4 rounded border">
-        <div className="grid grid-cols-2 gap-3">
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Nom complet" className="input" />
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="input" />
-        </div>
-        <div className="mt-3">
-          <button onClick={invite} className="btn btn-primary">Inviter</button>
+          <Card className="p-0 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="p-3 text-left">Email</th>
+                  <th className="p-3 text-left">Nom</th>
+                  <th className="p-3 text-left">Rôle</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading && <tr><td colSpan={3} className="p-3">Chargement...</td></tr>}
+                {Array.isArray(data) && data.map((p: any) => (
+                  <tr key={p.id} className="border-t">
+                    <td className="p-3">{p.email}</td>
+                    <td className="p-3">{p.full_name}</td>
+                    <td className="p-3">{p.role}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
         </div>
       </div>
-
-      <div className="bg-white rounded border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Nom</th>
-              <th className="p-3 text-left">Rôle</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && <tr><td colSpan={3} className="p-3">Chargement...</td></tr>}
-            {Array.isArray(data) && data.map((p: any) => (
-              <tr key={p.id} className="border-t">
-                <td className="p-3">{p.email}</td>
-                <td className="p-3">{p.full_name}</td>
-                <td className="p-3">{p.role}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    </div>
   );
 };
 
