@@ -4,23 +4,23 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import AnimatedLogo from '@/components/AnimatedLogo';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
+import { AvatarUpload } from '@/components/ui/avatar-upload';
 
 const ProfilePage: React.FC = () => {
   const { profile, refreshProfile } = useAuth();
   const [fullName, setFullName] = useState(profile?.full_name ?? '');
   const [phone, setPhone] = useState((profile as any)?.phone ?? '');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>((profile as any)?.avatar_url ?? null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     setFullName(profile?.full_name ?? '');
     setPhone((profile as any)?.phone ?? '');
-    setAvatarPreview((profile as any)?.avatar_url ?? null);
+    setAvatarFile(null);
   }, [profile]);
 
   const handleSave = async () => {
@@ -31,9 +31,11 @@ const ProfilePage: React.FC = () => {
         // try upload to supabase storage if configured, otherwise fallback to base64
         try {
           const { supabase } = await import('@/integrations/supabase/client');
-          const fileName = `avatars/${profile?.id || 'anon'}_${Date.now()}`;
+          const fileExt = avatarFile.name.split('.').pop();
+          const fileName = `profiles/profile-${profile?.id || 'anon'}_${Date.now()}.${fileExt}`;
           const { data, error } = await supabase.storage.from('public').upload(fileName, avatarFile, { upsert: true } as any);
           if (!error && data) {
+            // build public url similar to other places in repo
             avatar_url = `${(supabase as any).storageUrl ?? ''}/object/public/${data.path}`;
           }
         } catch (e) {
@@ -67,63 +69,50 @@ const ProfilePage: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl overflow-hidden shadow-lg">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl overflow-hidden shadow-sm">
           <ModalHeader
             title="Mon profil"
             subtitle="Gérer vos informations personnelles"
-            headerLogo={<AnimatedLogo size={48} mainColor="text-white" secondaryColor="text-blue-300" />}
+            headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-blue-300" />}
             onClose={() => { /* noop in page */ }}
           />
 
-          <div className="p-6 bg-white">
-            <Card className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-600">Email</label>
-                  <Input value={profile?.email ?? ''} disabled />
+          <div className="p-4 bg-white">
+            <Card className="p-3">
+              <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="flex gap-4 items-start">
+                <div className="w-28 flex-shrink-0">
+                  <AvatarUpload value={avatarFile} onChange={(f) => setAvatarFile(f)} label="Avatar" />
                 </div>
-                <div>
-                  <label className="block text-sm text-gray-600">Rôle</label>
-                  <Input value={(profile?.roles || []).join(', ') || 'Utilisateur'} disabled />
-                </div>
-              </div>
 
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-600">Nom complet</label>
-                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-600">Téléphone</label>
-                  <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm text-gray-600 mb-1">Photo de profil</label>
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                    {avatarPreview ? <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" /> : <span className="text-xs text-gray-400">Aucune</span>}
+                <div className="flex-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm text-gray-600">Nom</label>
+                      <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600">Email</label>
+                      <Input value={profile?.email ?? ''} disabled />
+                    </div>
                   </div>
-                  <div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0] ?? null;
-                        setAvatarFile(f);
-                        setAvatarPreview(f ? URL.createObjectURL(f) : (profile as any)?.avatar_url ?? null);
-                      }}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">PNG/JPG max 2MB</p>
+
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                    <div>
+                      <label className="block text-sm text-gray-600">Téléphone</label>
+                      <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600">Rôle</label>
+                      <Input value={(profile?.roles || []).join(', ') || 'Utilisateur'} disabled className="bg-gray-50 text-gray-600" />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex justify-end">
+                    <Button type="submit" disabled={loading}>{loading ? 'Enregistrement...' : 'Enregistrer'}</Button>
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : 'Enregistrer'}</Button>
-              </div>
+              </form>
             </Card>
           </div>
         </div>

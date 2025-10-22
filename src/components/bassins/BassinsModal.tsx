@@ -107,57 +107,63 @@ const BassinsModal: React.FC<BassinsModalProps> = ({ open, onOpenChange, bassin 
 
   return (
     <div data-debug="BassinsModal" className={`fixed inset-0 z-50 flex items-center justify-center ${open ? '' : 'pointer-events-none'}`}>
-      <div data-debug="BassinsModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+      <div data-debug="BassinsModal-overlay" className="absolute inset-0 bg-black/30" onClick={() => onOpenChange(false)} />
+      <div className="bg-white rounded-xl shadow-md w-full max-w-2xl z-50 overflow-hidden">
         <ModalHeader
           title={bassin ? 'Éditer un bassin' : 'Créer un bassin'}
           subtitle="Informations du bassin"
-          headerLogo={<AnimatedLogo size={48} mainColor="text-white" secondaryColor="text-blue-300" />}
+          headerLogo={<AnimatedLogo size={36} mainColor="text-white" secondaryColor="text-blue-300" />}
           onClose={() => onOpenChange(false)}
         />
 
-        <div className="p-6 bg-gradient-to-b from-white to-gray-50 rounded-b-2xl">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="p-4 bg-gradient-to-b from-white to-gray-50 rounded-b-xl">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {error && (
               <Alert variant="destructive" className="rounded-lg">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <FormField id="name" label="Nom du bassin" value={form.name} onChange={(name) => setForm({ ...form, name })} required />
-              <FormField id="capacity" label="Capacité (L)" value={String(form.capacity)} onChange={(capacity) => setForm({ ...form, capacity })} required />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm text-gray-600 block">Type</label>
-                <select className="w-full border rounded px-3 py-2" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                  <option value="poisson">Poisson</option>
-                  <option value="escargot">Escargot</option>
-                </select>
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="w-28 flex-shrink-0">
+                <AvatarUpload value={form.avatar} onChange={(file) => setForm({ ...form, avatar: file })} label="Photo du bassin" />
               </div>
-              <div>
-                <label className="text-sm text-gray-600 block">Référence</label>
-                <Input value={bassin?.ref ?? ''} disabled placeholder="Référence interne" />
+
+              <div className="flex-1 space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <FormField id="name" label="Nom du bassin" value={form.name} onChange={(name) => setForm({ ...form, name })} required />
+                  <FormField id="capacity" label="Capacité (L)" value={String(form.capacity)} onChange={(capacity) => setForm({ ...form, capacity })} required />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-sm text-gray-600 block">Type</label>
+                    <select className="w-full border rounded px-3 py-2" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                      <option value="poisson">Poisson</option>
+                      <option value="escargot">Escargot</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600 block">Référence</label>
+                    <Input value={bassin?.ref ?? ''} disabled placeholder="Référence interne" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600 block">Description</label>
+                  <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border rounded px-3 py-2 min-h-[72px]" />
+                </div>
+
+                <div className="flex items-center gap-2 justify-end">
+                  {bassin?.id && (
+                    <AppButton variant="ghost" onClick={handleDelete} className="mr-auto flex items-center gap-2 text-red-600 hover:bg-red-50">
+                      <Trash className="w-4 h-4" /> Supprimer
+                    </AppButton>
+                  )}
+                  <AppButton variant="ghost" onClick={() => onOpenChange(false)}>Annuler</AppButton>
+                  <AppButton type="submit" disabled={loading}>{loading ? 'Enregistrement...' : bassin ? 'Enregistrer' : 'Créer'}</AppButton>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-600 block">Description</label>
-              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border rounded px-3 py-2 min-h-[100px]" />
-            </div>
-
-            <AvatarUpload value={form.avatar} onChange={(file) => setForm({ ...form, avatar: file })} label="Photo du bassin" />
-
-            <div className="flex items-center gap-3 justify-end">
-              {bassin?.id && (
-                <AppButton variant="ghost" onClick={handleDelete} className="mr-auto flex items-center gap-2 text-red-600 hover:bg-red-50">
-                  <Trash className="w-4 h-4" /> Supprimer
-                </AppButton>
-              )}
-              <AppButton variant="ghost" onClick={() => onOpenChange(false)}>Annuler</AppButton>
-              <AppButton type="submit" disabled={loading}>{loading ? 'Enregistrement...' : bassin ? 'Enregistrer' : 'Créer le bassin'}</AppButton>
             </div>
           </form>
         </div>

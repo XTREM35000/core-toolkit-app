@@ -2,13 +2,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
+import { useQuery } from '@tanstack/react-query';
 
 const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
-  const [form, setForm] = useState<any>({ nom: '', race: '', nombre: 0, avatar: null as File | null });
+  const [form, setForm] = useState<any>({ nom: '', race: '', nombre: 0, avatar: null as File | null, bassin_id: null, type_escargot: 'Petit-gris', date_introduction: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -16,8 +19,8 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
   const firstInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (cohort) setForm({ ...cohort, avatar: (cohort as any).avatar ?? null });
-    else setForm({ nom: '', race: '', nombre: 0, avatar: null });
+    if (cohort) setForm({ ...cohort, avatar: (cohort as any).avatar ?? null, bassin_id: cohort.bassin_id ?? null, type_escargot: cohort.type_escargot ?? 'Petit-gris', date_introduction: cohort.date_introduction ?? '' });
+    else setForm({ nom: '', race: '', nombre: 0, avatar: null, bassin_id: null, type_escargot: 'Petit-gris', date_introduction: '' });
   }, [cohort, open]);
 
   useEffect(() => {
@@ -32,6 +35,15 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
   useEffect(() => {
     if (firstInputRef.current) setTimeout(() => firstInputRef.current?.focus(), 50);
   }, []);
+
+  // load available bassins for assignment
+  const { data: bassins } = useQuery({
+    queryKey: ['bassins_list'],
+    queryFn: async () => {
+      const { data } = await supabase.from('bassins_piscicoles').select('id,name').order('name');
+      return data || [];
+    }
+  });
 
   const save = async () => {
     setError(null);
@@ -67,11 +79,17 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
       delete payload.avatar;
       if (avatarUrl) payload.avatar_url = avatarUrl;
 
-      if (cohort?.id) await (supabase as any).from('cohortes_escargots').update(payload).eq('id', cohort.id);
-      else await (supabase as any).from('cohortes_escargots').insert(payload);
+  if (cohort?.id) await (supabase as any).from('cohortes_escargots').update(payload).eq('id', cohort.id);
+  else await (supabase as any).from('cohortes_escargots').insert(payload);
 
-      onSaved && onSaved();
-      onOpenChange(false);
+  // invalidate queries and show toast
+  const qc = useQueryClient();
+  qc.invalidateQueries({ queryKey: ['cohortes_escargots'] });
+  const { toast } = useToast();
+  toast({ title: 'Cohorte enregistrée', description: 'La cohorte a bien été enregistrée.' });
+
+  onSaved && onSaved();
+  onOpenChange(false);
     } catch (e: any) {
       console.error('Save cohort escargot error', e);
       setError(e?.message || 'Erreur lors de la sauvegarde');
@@ -112,6 +130,28 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
             <div className="mt-4">
               <label className="block text-sm text-gray-600">Nombre</label>
               <Input type="number" value={String(form.nombre)} onChange={(e) => setForm({ ...form, nombre: Number(e.target.value) })} />
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-gray-600">Type d'escargot</label>
+                <select className="w-full border rounded px-3 py-2" value={form.type_escargot} onChange={(e) => setForm({ ...form, type_escargot: e.target.value })}>
+                  <option>Petit-gris</option>
+                  <option>Gros-gris</option>
+                  <option>Autre</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Bassin / Parc</label>
+                <select className="w-full border rounded px-3 py-2" value={form.bassin_id ?? ''} onChange={(e) => setForm({ ...form, bassin_id: e.target.value || null })}>
+                  <option value="">--Choisir--</option>
+                  {Array.isArray(bassins) && bassins.map((b: any) => (<option key={b.id} value={b.id}>{b.name}</option>))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600">Date d'introduction</label>
+                <Input type="date" value={form.date_introduction ?? ''} onChange={(e) => setForm({ ...form, date_introduction: e.target.value })} />
+              </div>
             </div>
 
             <div className="mt-4">

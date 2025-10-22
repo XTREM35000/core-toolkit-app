@@ -14,7 +14,9 @@ import {
   AlertCircle,
   Beef,
   Building,
-  Activity
+  Activity,
+  ShoppingCart,
+  CreditCard
 } from "lucide-react";
 import { AnimatedLogo } from "@/components/AnimatedLogo";
 import { useAuth } from "@/contexts/AuthContext";
@@ -52,17 +54,23 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (key: string) => void 
     { path: "/stock-aliments", label: "Stock aliments", icon: Beef, admin: false },
     { path: "/conditions-environnement", label: "Conditions env.", icon: BarChart3, admin: false },
 
+  // NAVIGATION (approvisionnement & ventes)
+  { path: "/commandes", label: "Commandes Fournisseurs", icon: FileText, admin: false },
+  { path: "/ventes", label: "Ventes Clients", icon: ShoppingCart, admin: false },
+  { path: "/encaissements", label: "Encaissements", icon: CreditCard, admin: false },
+
     { path: "/alerts", label: "Alertes", icon: AlertCircle, admin: false },
     { path: "/analytics", label: "Analytiques", icon: BarChart3, admin: false },
     { path: "/reports", label: "Rapports", icon: FileText, admin: false },
 
-    // Admin-only
-    { path: "/employees", label: "Employés", icon: Users, admin: true },
+  // Admin-only
     { path: "/farms", label: "Fermes", icon: Building, admin: true },
-  { path: "/profiles", label: "Gestion Profils", icon: Users, admin: true },
+    { path: "/fournisseurs", label: "Fournisseurs", icon: FileText, admin: true },
+    { path: "/clients", label: "Clients", icon: Users, admin: true },
+    { path: "/profiles", label: "Gestion Profils", icon: Users, admin: true },
     { path: "/security", label: "Sécurité", icon: Shield, admin: true },
 
-    { path: "/settings", label: "Paramètres", icon: Settings, admin: false },
+  // Removed global "Paramètres" entry per request
   ];
 
   const handleNavigation = (path: string, label: string) => {

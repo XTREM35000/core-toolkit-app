@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
@@ -134,15 +135,8 @@ const CollaboratorsAdd: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm text-gray-600">Photo (optionnelle)</label>
-                  <div className="flex items-center gap-3">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {avatarPreview ? <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" /> : <span className="text-xs text-gray-400">Aucune</span>}
-                    </div>
-                    <input type="file" accept="image/*" onChange={(e) => {
-                      const f = e.target.files?.[0] ?? null;
-                      setAvatarFile(f);
-                      setAvatarPreview(f ? URL.createObjectURL(f) : null);
-                    }} />
+                  <div className="mt-2">
+                    <AvatarUpload value={avatarFile} onChange={(f) => { setAvatarFile(f); setAvatarPreview(f ? URL.createObjectURL(f) : null); }} />
                   </div>
                 </div>
               </div>

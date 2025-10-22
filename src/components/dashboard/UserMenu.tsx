@@ -93,7 +93,6 @@ export const UserMenu = () => {
     { icon: User, label: "Mon Profil", action: () => navigate("/profile"), description: "Gérer votre profil" },
     { icon: Bell, label: "Notifications", action: () => navigate("/notifications"), description: "Paramètres de notifications" },
     { icon: CreditCard, label: "Abonnement", action: () => navigate("/subscription"), description: "Gérer votre abonnement" },
-    { icon: Settings, label: "Paramètres", action: () => navigate("/settings"), description: "Préférences générales" },
     { icon: Palette, label: "Apparence", action: () => navigate("/appearance"), description: "Personnaliser l'interface" },
     { icon: Shield, label: "Sécurité", action: () => navigate("/security"), description: "Sécurité du compte" },
     { icon: HelpCircle, label: "Aide & Support", action: () => navigate("/help"), description: "Centre d'aide" },
@@ -104,6 +103,11 @@ export const UserMenu = () => {
       { icon: UserCog, label: "Collaborateurs", action: () => navigate("/collaborators"), description: "Gérer les collaborateurs" },
       { icon: UserCog, label: "Ajouter un collaborateur", action: () => navigate("/collaborators/add"), description: "Inviter un nouveau collaborateur" }
     );
+  }
+
+  // Add super-admin only configuration entry
+  if (isSuperAdmin) {
+    menuItems.splice(2, 0, { icon: Shield, label: 'Configuration Plateforme', action: () => navigate('/admin/config'), description: 'Panneau de configuration Super Admin' });
   }
 
   return (

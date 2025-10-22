@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserMenu } from './UserMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Bell, Settings, BarChart3, Search, Menu, Home, User, Users, FileText, Calendar, Shield, HelpCircle, Linkedin, Facebook, Twitter, Book } from 'lucide-react';
+import { Bell, Settings, BarChart3, Search, Menu, Home, User, Users, FileText, Calendar, Shield, Linkedin, Facebook, Twitter } from 'lucide-react';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -70,19 +70,12 @@ const Header: React.FC = () => {
             aria-label="Aide"
             title="Aide"
             onClick={() => navigate('/help')}
-            className="hidden md:flex items-center justify-center w-9 h-9 rounded-full text-white shadow-sm cursor-pointer relative"
-            style={{ background: 'linear-gradient(135deg,#7c3aed,#8b5cf6)' }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg ring-1 ring-blue-700/20 cursor-pointer transform-gpu transition-transform duration-150 focus:outline-none focus:ring-2 focus:ring-blue-300 active:translate-y-[1px]"
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <div className="relative flex items-center justify-center">
-              {/* Main book icon */}
-              <Book className="w-5 h-5 text-white" />
-              {/* Small help badge */}
-              <span className="absolute -right-0.5 -bottom-0.5 bg-white rounded-full p-[2px]">
-                <HelpCircle className="w-3 h-3 text-purple-600" />
-              </span>
-            </div>
+            <span className="text-sm md:text-base font-semibold">?</span>
+            <span className="sr-only">Aide</span>
           </motion.button>
           {/* Logo Animated */}
           <motion.div className="flex items-center gap-4">
@@ -97,7 +90,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Right actions: search, notifications, socials, user */}
-        <div className="flex items-center gap-3">
+  <div className="flex items-center gap-3">
           <motion.button
             aria-label="Rechercher"
             className="p-2 rounded-md hover:bg-gray-100"
@@ -132,6 +125,7 @@ const Header: React.FC = () => {
           <div onClick={() => setUserMenuOpen(true)}>
             <UserMenu />
           </div>
+          {/* contextual help (per-page) is rendered in the page content, not the header */}
         </div>
       </motion.header>
 

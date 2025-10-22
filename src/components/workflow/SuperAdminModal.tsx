@@ -4,7 +4,7 @@ import AppButton from '@/components/ui/AppButton';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Crown, CheckCircle, UserCheck } from 'lucide-react';
-import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
+import { Button } from '@/components/ui/button';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
@@ -205,129 +205,130 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
     }
   };
 
+  const modalOpen = !!isOpen;
+  const setOpen = (v: boolean) => { if (!v) onClose?.(); };
+
   if (step === 2) {
+    if (!modalOpen) return null;
     return (
-      <WhatsAppModal 
-        isOpen={isOpen} 
-        onClose={onClose}
-        size="md"
-        className="rounded-2xl"
-      >
-        <div className="flex flex-col items-center justify-center py-12 px-6">
-          <CheckCircle className="w-20 h-20 text-green-500 mb-4 animate-bounce" />
-          <h2 className="text-2xl font-bold mb-2">Super Admin créé !</h2>
-          <p className="text-muted-foreground text-center">
-            Votre compte a été créé avec succès. Redirection en cours...
-          </p>
+      <div data-debug="SuperAdminModal-success" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
+        <div data-debug="SuperAdminModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+          <div className="p-8 flex flex-col items-center justify-center">
+            <CheckCircle className="w-20 h-20 text-green-500 mb-4 animate-bounce" />
+            <h2 className="text-2xl font-bold mb-2">Super Admin créé !</h2>
+            <p className="text-muted-foreground text-center">Votre compte a été créé avec succès. Redirection en cours...</p>
+            <div className="mt-4">
+              <Button onClick={() => setOpen(false)}>OK</Button>
+            </div>
+          </div>
         </div>
-      </WhatsAppModal>
+      </div>
     );
   }
 
+  if (!modalOpen) return null;
+
   return (
-    <WhatsAppModal 
-      isOpen={isOpen} 
-      onClose={onClose}
-      size="lg"
-      className="rounded-2xl"
-      allowCloseOnOutsideClick={false}
-      hideHeader={true}
-    >
-      <ModalHeader
-        title="Configuration Super Admin"
-        subtitle="Initialisation de la plateforme"
-        headerLogo={<AnimatedLogo size={56} mainIcon={UserCheck} mainColor="text-white" secondaryColor="text-yellow-300" waterDrop />}
-        badge={
-          <div className="flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
-            <Crown className="w-4 h-4" />
-            Super Admin
-          </div>
-        }
-        onClose={onClose}
-      />
-
-      {/* Contenu */}
-      <div className="p-6 bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <Alert variant="destructive" className="rounded-lg">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <AvatarUpload
-            value={formData.avatar}
-            onChange={(file) => setFormData({ ...formData, avatar: file })}
-            label="Photo de profil"
-          />
-
-          <div className="grid grid-cols-2 gap-3">
-            <FormField
-              id="firstName"
-              label="Prénom"
-              value={formData.firstName}
-              onChange={(firstName) => setFormData({ ...formData, firstName })}
-              required
-            />
-            <FormField
-              id="lastName"
-              label="Nom"
-              value={formData.lastName}
-              onChange={(lastName) => setFormData({ ...formData, lastName })}
-              required
-            />
-          </div>
-
-          <EmailInput
-            value={formData.email}
-            onChange={(email) => setFormData({ ...formData, email })}
-            label="Email"
-            required
-          />
-
-          <PhoneInput
-            value={formData.phone}
-            onChange={(phone) => setFormData({ ...formData, phone })}
-            label="Téléphone"
-          />
-
-          <FormField
-            id="password"
-            label="Mot de passe"
-            value={formData.password}
-            onChange={(password) => setFormData({ ...formData, password })}
-            required
-          >
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-                className="rounded-lg pr-10"
-                placeholder="Min. 8 caractères"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+    <div data-debug="SuperAdminModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
+      <div data-debug="SuperAdminModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+        <ModalHeader
+          title="Configuration Super Admin"
+          subtitle="Initialisation de la plateforme"
+          headerLogo={<AnimatedLogo size={56} mainIcon={UserCheck} mainColor="text-white" secondaryColor="text-yellow-300" waterDrop />}
+          badge={
+            <div className="flex items-center gap-2 bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold">
+              <Crown className="w-4 h-4" />
+              Super Admin
             </div>
-          </FormField>
+          }
+          onClose={() => setOpen(false)}
+        />
 
-          <AppButton
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? 'Création...' : 'Créer le Super Admin'}
-          </AppButton>
-        </form>
+        {/* Contenu */}
+        <div className="p-6 bg-gradient-to-b from-white to-gray-50 dark:from-[hsl(var(--card))] dark:to-[hsl(var(--card))] rounded-b-2xl">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="destructive" className="rounded-lg">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <AvatarUpload
+              value={formData.avatar}
+              onChange={(file) => setFormData({ ...formData, avatar: file })}
+              label="Photo de profil"
+            />
+
+            <div className="grid grid-cols-2 gap-3">
+              <FormField
+                id="firstName"
+                label="Prénom"
+                value={formData.firstName}
+                onChange={(firstName) => setFormData({ ...formData, firstName })}
+                required
+              />
+              <FormField
+                id="lastName"
+                label="Nom"
+                value={formData.lastName}
+                onChange={(lastName) => setFormData({ ...formData, lastName })}
+                required
+              />
+            </div>
+
+            <EmailInput
+              value={formData.email}
+              onChange={(email) => setFormData({ ...formData, email })}
+              label="Email"
+              required
+            />
+
+            <PhoneInput
+              value={formData.phone}
+              onChange={(phone) => setFormData({ ...formData, phone })}
+              label="Téléphone"
+            />
+
+            <FormField
+              id="password"
+              label="Mot de passe"
+              value={formData.password}
+              onChange={(password) => setFormData({ ...formData, password })}
+              required
+            >
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                  className="rounded-lg pr-10"
+                  placeholder="Min. 8 caractères"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </FormField>
+
+            <AppButton
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? 'Création...' : 'Créer le Super Admin'}
+            </AppButton>
+          </form>
+        </div>
       </div>
-    </WhatsAppModal>
+    </div>
   );
 };
 

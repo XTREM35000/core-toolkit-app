@@ -11,8 +11,6 @@ import { AuthModal } from '../auth/AuthModal';
 import { PlanSelectionModal } from '../workflow/PlanSelectionModal';
 import { SMSValidationModal } from '../workflow/SmsValidationModal';
 import { useState } from 'react';
-import { FormModal } from '@/components/ui/FormModal';
-import AnimatedLogo from '@/components/AnimatedLogo';
 
 export const AppInitialization = () => {
   const { status, update, check } = useAppInitialization();
@@ -52,21 +50,9 @@ export const AppInitialization = () => {
     return () => { mounted = false; };
   }, []);
 
+  // SUPPRIMER tout l'affichage de chargement - retourner null pendant l'initialisation
   if (status.step === 'checking') {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-        <FormModal isOpen={true} onClose={() => { }} draggable className="max-w-4xl rounded-2xl">
-          <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
-            <div className="flex flex-col items-center justify-center pt-6 pb-4">
-              <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />
-              <h2 className="text-xl font-bold mb-1">Initialisation de l'application</h2>
-              <p className="text-xs opacity-90 mb-2">Veuillez patienter pendant la configuration...</p>
-              <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mt-2" />
-            </div>
-          </div>
-        </FormModal>
-      </div>
-    );
+    return null; // Plus d'écran de chargement visible
   }
 
   return (
