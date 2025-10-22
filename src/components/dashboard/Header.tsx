@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserMenu } from './UserMenu';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink } from 'react-router-dom';
-import { Bell, Settings, BarChart3, Search, Menu, Home, User, Users, FileText, Calendar, Shield, HelpCircle, Linkedin, Facebook, Twitter } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Bell, Settings, BarChart3, Search, Menu, Home, User, Users, FileText, Calendar, Shield, HelpCircle, Linkedin, Facebook, Twitter, Book } from 'lucide-react';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ const Header: React.FC = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const { toggleSidebar } = useSidebar();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,6 +64,25 @@ const Header: React.FC = () => {
             whileTap={{ scale: 0.9 }}
           >
             <Menu className="w-5 h-5 text-gray-600" />
+          </motion.button>
+          {/* Shortcut help icon (left) */}
+          <motion.button
+            aria-label="Aide"
+            title="Aide"
+            onClick={() => navigate('/help')}
+            className="hidden md:flex items-center justify-center w-9 h-9 rounded-full text-white shadow-sm cursor-pointer relative"
+            style={{ background: 'linear-gradient(135deg,#7c3aed,#8b5cf6)' }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="relative flex items-center justify-center">
+              {/* Main book icon */}
+              <Book className="w-5 h-5 text-white" />
+              {/* Small help badge */}
+              <span className="absolute -right-0.5 -bottom-0.5 bg-white rounded-full p-[2px]">
+                <HelpCircle className="w-3 h-3 text-purple-600" />
+              </span>
+            </div>
           </motion.button>
           {/* Logo Animated */}
           <motion.div className="flex items-center gap-4">

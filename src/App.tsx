@@ -27,6 +27,10 @@ import CohortesEscargots from "./pages/CohortesEscargots";
 import ParcsHelicicoles from "./pages/ParcsHelicicoles";
 import StockAliments from "./pages/StockAliments";
 import ConditionsEnvironnement from "./pages/ConditionsEnvironnement";
+import Security from "./pages/Security";
+import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
+import Help from './pages/Help';
 import Profile from './pages/Profile';
 import CollaboratorsAdd from './pages/CollaboratorsAdd';
 import CollaboratorsPage from './components/dashboard/CollaboratorsPage';
@@ -67,6 +71,10 @@ const App = () => (
                 <Route path="/collaborators" element={<Collaborators />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/farms" element={<Farms />} />
+              <Route path="/security" element={<Security />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/help" element={<Help />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

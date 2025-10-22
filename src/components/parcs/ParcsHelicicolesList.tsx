@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
+import AnimatedLogo from '@/components/AnimatedLogo';
+import { Card } from '@/components/ui/card';
 
 type Parc = any;
 type ParcHelicicoleModalProps = {
@@ -10,22 +13,72 @@ type ParcHelicicoleModalProps = {
   onSaved?: () => void;
 };
 
-/**
- * Minimal inline stub for ParcHelicicoleModal to avoid missing-module errors.
- * Replace this with the real implementation or move it to its own file.
- */
 const ParcHelicicoleModal = ({ open, onOpenChange, parc, onSaved }: ParcHelicicoleModalProps) => {
+  const [form, setForm] = useState<any>({ nom: '', superficie_m2: '', statut: 'actif' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const firstRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (parc) setForm({ nom: parc.nom ?? '', superficie_m2: parc.superficie_m2 ?? '', statut: parc.statut ?? 'actif' });
+    else setForm({ nom: '', superficie_m2: '', statut: 'actif' });
+  }, [parc, open]);
+
+  const handleSave = async () => {
+    if (!form.nom) { setError('Le nom est requis'); return; }
+    setLoading(true);
+    try {
+      const payload = { nom: form.nom, superficie_m2: form.superficie_m2, statut: form.statut, updated_at: new Date().toISOString() } as any;
+      if (parc?.id) await (supabase as any).from('parcs_helicicoles').update(payload).eq('id', parc.id);
+      else await (supabase as any).from('parcs_helicicoles').insert(payload);
+      onSaved && onSaved();
+      onOpenChange(false);
+    } catch (e: any) {
+      console.error('Save parc error', e);
+      setError(e?.message || 'Erreur lors de la sauvegarde');
+    } finally { setLoading(false); }
+  };
+
+  const handleDelete = async () => {
+    if (!parc?.id) return;
+    if (!window.confirm('Supprimer ce parc ?')) return;
+    try { await (supabase as any).from('parcs_helicicoles').delete().eq('id', parc.id); onSaved && onSaved(); onOpenChange(false); } catch (e) { console.error(e); }
+  };
+
   if (!open) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="bg-white p-4 rounded shadow w-full max-w-md">
-        <h3 className="text-lg font-medium">{parc ? 'Modifier Parc' : 'Créer Parc'}</h3>
-        <div className="mt-4">
-          <p className="text-sm text-muted-foreground">{parc ? `Édition de ${parc.nom}` : 'Remplissez les informations du parc.'}</p>
-        </div>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button onClick={() => { onOpenChange(false); onSaved && onSaved(); }}>Enregistrer</Button>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+    <div data-debug="ParcHelicicoleModal" className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+        <ModalHeader
+          title={parc ? 'Modifier Parc' : 'Créer Parc'}
+          subtitle="Informations du parc"
+          headerGradient="from-purple-500 to-purple-600"
+          headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-purple-300" />}
+          onClose={() => onOpenChange(false)}
+        />
+
+        <div className="p-6 bg-white">
+          <Card className="p-4">
+            {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm">Nom</label>
+                <input ref={firstRef} value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} className="w-full border rounded px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm">Superficie (m²)</label>
+                <input value={form.superficie_m2} onChange={(e) => setForm({ ...form, superficie_m2: e.target.value })} className="w-full border rounded px-3 py-2" />
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-end gap-3">
+              {parc?.id && <Button variant="ghost" className="mr-auto text-red-600 hover:bg-red-50" onClick={handleDelete}>Supprimer</Button>}
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+              <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : parc ? 'Enregistrer' : 'Créer'}</Button>
+            </div>
+          </Card>
         </div>
       </div>
     </div>
