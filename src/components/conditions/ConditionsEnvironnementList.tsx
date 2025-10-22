@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-// Inline ConditionModal added below
+import ConditionModal from './ConditionModal';
 
 const ConditionsEnvironnementList = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -40,28 +40,6 @@ const ConditionsEnvironnementList = () => {
           </div>
       )}</div>
       <ConditionModal open={open} onOpenChange={setOpen} condition={selected} onSaved={() => { setOpen(false); load(); }} />
-    </div>
-  );
-};
-
-/**
- * Minimal inline ConditionModal stub to satisfy the import and provide basic behavior.
- * Replace or expand this with the real modal implementation as needed.
- */
-const ConditionModal = ({ open, onOpenChange, condition, onSaved }: any) => {
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="bg-black/50 absolute inset-0" onClick={() => onOpenChange(false)} />
-      <div className="bg-white p-4 rounded shadow z-10 w-full max-w-md">
-        <div className="font-bold mb-2">{condition ? 'Edit Condition' : 'New Condition'}</div>
-        <div className="mb-4 text-sm text-slate-600">This is a lightweight modal stub — implement form fields and validation here.</div>
-        <div className="flex justify-end space-x-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={() => { onSaved(); }}>Save</Button>
-        </div>
-      </div>
     </div>
   );
 };

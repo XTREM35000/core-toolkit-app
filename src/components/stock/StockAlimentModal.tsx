@@ -50,7 +50,8 @@ const StockAlimentModal: React.FC<{ open: boolean; onOpenChange: (v: boolean) =>
         <ModalHeader
           title={stock?.id ? 'Editer aliment' : 'Ajouter un aliment'}
           subtitle="Détails de l'aliment"
-          headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-green-300" />}
+          headerGradient="from-purple-500 to-purple-600"
+          headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-purple-300" />}
           onClose={() => onOpenChange(false)}
         />
 

@@ -8,11 +8,13 @@ interface ModalHeaderProps {
   headerLogo?: ReactNode; // optional custom logo node (e.g. AnimatedLogo)
   badge?: ReactNode;
   onClose: () => void;
+  headerGradient?: string;
 }
 
-export const ModalHeader = ({ title, subtitle, icon: Icon, headerLogo, badge, onClose }: ModalHeaderProps) => {
+export const ModalHeader = ({ title, subtitle, icon: Icon, headerLogo, badge, onClose, headerGradient }: ModalHeaderProps) => {
+  const gradient = headerGradient ?? 'from-[#128C7E] to-[#075E54]';
   return (
-    <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white rounded-t-2xl relative">
+    <div className={`bg-gradient-to-r ${gradient} text-white rounded-t-2xl relative`}>
       {badge && (
         <div className="absolute top-3 right-3 z-10">
           {badge}
