@@ -50,7 +50,7 @@ const EscargotiereList: React.FC = () => {
                     <td>{i.substrat}</td>
                     <td>{i.date_installation}</td>
                     <td className="text-right flex justify-end gap-2">
-                      <Button variant="destructive" onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                      <Button variant="ghost" className='text-red-600' onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
                       <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                     </td>
                   </tr>

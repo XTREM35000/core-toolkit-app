@@ -148,7 +148,7 @@ const ParcsHelicicolesList = () => {
                   <td>{i.superficie_m2}</td>
                   <td>{i.statut}</td>
                   <td className="text-right flex justify-end gap-2">
-                    <Button variant="destructive" onClick={async () => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                    <Button variant="ghost" className='text-red-600' onClick={async () => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
                     <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                   </td>
                 </tr>
