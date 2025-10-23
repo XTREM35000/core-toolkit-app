@@ -1,0 +1,53 @@
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { MesureModal } from './';
+
+const MesuresList: React.FC = () => {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<any | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('mesures_escargots').select('*').order('date', { ascending: false }) as any; setItems(data||[]); } catch(e){console.error(e);} finally{setLoading(false);} };
+
+  useEffect(() => { load(); }, []);
+
+  return (
+    <div>
+      <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>Nouvelle mesure</Button></div>
+      <div className="bg-white rounded shadow p-4">{loading ? <div>Loading...</div> : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Poids moyen (g)</th>
+                <th>Taux survie (%)</th>
+                <th>Cohorte</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map(i=> (
+                <tr key={i.id} className="border-t">
+                  <td>{i.date}</td>
+                  <td>{i.poids_moyen}</td>
+                  <td>{i.taux_survie}</td>
+                  <td>{i.cohorte_nom}</td>
+                  <td className="text-right flex justify-end gap-2">
+                    <Button variant="ghost" className="bg-red-600 text-white" onClick={async () => { if (!window.confirm('Supprimer cette mesure ?')) return; await (supabase as any).from('mesures_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
+                    <Button className="bg-blue-600 text-white" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}</div>
+      <MesureModal open={open} onOpenChange={setOpen} mesure={selected} onSaved={() => { setOpen(false); load(); }} />
+    </div>
+  );
+};
+
+export default MesuresList;

@@ -1,11 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+ 
+ 
+import React, { useEffect, useState, useRef } from 'react'
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 type Parc = any;
+
 type ParcHelicicoleModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -13,10 +17,13 @@ type ParcHelicicoleModalProps = {
   onSaved?: () => void;
 };
 
+// using shared ConfirmModal from ui
+
 const ParcHelicicoleModal = ({ open, onOpenChange, parc, onSaved }: ParcHelicicoleModalProps) => {
   const [form, setForm] = useState<any>({ nom: '', superficie_m2: '', statut: 'actif' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const firstRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -39,10 +46,13 @@ const ParcHelicicoleModal = ({ open, onOpenChange, parc, onSaved }: ParcHelicico
     } finally { setLoading(false); }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteConfirmed = async () => {
     if (!parc?.id) return;
-    if (!window.confirm('Supprimer ce parc ?')) return;
-    try { await (supabase as any).from('parcs_helicicoles').delete().eq('id', parc.id); onSaved && onSaved(); onOpenChange(false); } catch (e) { console.error(e); }
+    try {
+      await (supabase as any).from('parcs_helicicoles').delete().eq('id', parc.id);
+      onSaved && onSaved();
+      onOpenChange(false);
+    } catch (e) { console.error(e); }
   };
 
   if (!open) return null;
@@ -74,13 +84,23 @@ const ParcHelicicoleModal = ({ open, onOpenChange, parc, onSaved }: ParcHelicico
             </div>
 
             <div className="mt-4 flex items-center justify-end gap-3">
-              {parc?.id && <Button variant="ghost" className="mr-auto text-red-600 hover:bg-red-50" onClick={handleDelete}>Supprimer</Button>}
+              {parc?.id && <Button variant="ghost" className="mr-auto text-red-600 hover:bg-red-50" onClick={() => setConfirmOpen(true)}>Supprimer</Button>}
               <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
               <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : parc ? 'Enregistrer' : 'Créer'}</Button>
             </div>
           </Card>
         </div>
       </div>
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Supprimer le parc"
+        description={parc ? `Supprimer le parc « ${parc.nom || parc.id} » ?` : 'Supprimer cet élément ?'}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={async () => { await handleDeleteConfirmed(); }}
+      />
     </div>
   );
 };
@@ -90,8 +110,21 @@ const ParcsHelicicolesList = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<any | null>(null);
 
-  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('parcs_helicicoles').select('*').order('created_at', { ascending: false }) as any; setItems(data || []); } catch (e) {} finally { setLoading(false); } };
+  const load = async () => {
+    setLoading(true);
+    try {
+      const { data } = await (supabase as any).from('parcs_helicicoles').select('*').order('created_at', { ascending: false }) as any;
+      setItems(data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => { load(); }, []);
 
   return (
@@ -114,16 +147,38 @@ const ParcsHelicicolesList = () => {
                   <td>{i.nom}</td>
                   <td>{i.superficie_m2}</td>
                   <td>{i.statut}</td>
-                  <td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td>
+                  <td className="text-right flex justify-end gap-2">
+                    <Button variant="destructive" onClick={async () => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                    <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}</div>
+
       <ParcHelicicoleModal open={open} onOpenChange={setOpen} parc={selected} onSaved={() => { setOpen(false); load(); }} />
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Supprimer le parc"
+        description={pendingDelete ? `Supprimer le parc « ${pendingDelete.name || pendingDelete.nom || pendingDelete.title || pendingDelete.id} » ?` : 'Supprimer cet élément ?'}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        onClose={() => { setConfirmOpen(false); setPendingDelete(null); }}
+        onConfirm={async () => {
+          if (!pendingDelete) return;
+          try {
+            await (supabase as any).from('parcs_helicicoles').delete().eq('id', pendingDelete.id);
+            await load();
+          } catch (e) { console.error(e); }
+          setPendingDelete(null);
+        }}
+      />
     </div>
   );
 };
 
 export default ParcsHelicicolesList;
+        

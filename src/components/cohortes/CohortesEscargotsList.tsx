@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import CohorteEscargotModal from './CohorteEscargotModal';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 const CohortesEscargotsList = () => {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<any | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -37,7 +40,10 @@ const CohortesEscargotsList = () => {
                       <td>{i.espece}</td>
                       <td>{i.nombre_initial}</td>
                       <td>{i.statut}</td>
-                      <td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td>
+                      <td className="text-right flex justify-end gap-2">
+                        <Button variant="destructive" onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                        <Button className="bg-blue-600 text-white" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -46,6 +52,23 @@ const CohortesEscargotsList = () => {
         )}
       </div>
       <CohorteEscargotModal open={open} onOpenChange={setOpen} cohort={selected} onSaved={() => { setOpen(false); load(); }} />
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Supprimer la cohorte"
+        description={pendingDelete ? `Supprimer la cohorte « ${pendingDelete.nom || pendingDelete.id} » ?` : "Supprimer cet élément ?"}
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        onClose={() => { setConfirmOpen(false); setPendingDelete(null); }}
+        onConfirm={async () => {
+          if (!pendingDelete) return;
+          try {
+            await (supabase as any).from('cohortes_escargots').delete().eq('id', pendingDelete.id);
+            await load();
+          } catch (e) { console.error(e); }
+          setPendingDelete(null);
+        }}
+      />
     </div>
   );
 };

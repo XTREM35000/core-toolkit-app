@@ -37,6 +37,9 @@ export const SuperAdminDashboard = () => {
     captures_peche: 0,
   });
   const [recentActivities, setRecentActivities] = useState<Array<{ action: string; time: string; user: string; type?: string }>>([]);
+  const [latestBassin, setLatestBassin] = useState<any | null>(null);
+  const [latestParc, setLatestParc] = useState<any | null>(null);
+  const [latestAlert, setLatestAlert] = useState<any | null>(null);
   const { profile, isSuperAdmin, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -46,32 +49,31 @@ export const SuperAdminDashboard = () => {
 
   const loadStats = async () => {
     try {
+      // helper to try multiple candidate table names for a count
+      const tryCount = async (candidates: string[]) => {
+        for (const t of candidates) {
+          try {
+            const { count } = await (supabase as any)
+              .from(t)
+              .select('*', { count: 'exact', head: true });
+            if (typeof count === 'number') return count;
+          } catch (e) {
+            // ignore and try next
+          }
+        }
+        return 0;
+      };
+
       // Récupérer le nombre d'utilisateurs
       const { count: usersCount } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
 
-      // Nombre de bassins (table 'bassins' si existante)
-      let bassinsCount = 0;
-      try {
-        const { count } = await (supabase as any)
-          .from('bassins')
-          .select('*', { count: 'exact', head: true });
-        bassinsCount = count || 0;
-      } catch (err) {
-        // table may not exist yet; keep 0
-      }
+      // Nombre de bassins (chercher sous plusieurs noms courants)
+      const bassinsCount = await tryCount(['bassins_piscicoles', 'bassins', 'bassins_list']);
 
-      // Nombre de parcs (table 'parcs')
-      let parcsCount = 0;
-      try {
-        const { count } = await (supabase as any)
-          .from('parcs')
-          .select('*', { count: 'exact', head: true });
-        parcsCount = count || 0;
-      } catch (err) {
-        // fallback
-      }
+      // Nombre de parcs (prendre la table d'héliciculture si présente)
+      const parcsCount = await tryCount(['parcs_helicicoles', 'parcs']);
 
       // Nombre d'alertes (table 'alerts' ou 'alertes')
       let alertesCount = 0;
@@ -91,23 +93,8 @@ export const SuperAdminDashboard = () => {
         }
       }
 
-      // helper to try multiple candidate table names for a count
-      const tryCount = async (candidates: string[]) => {
-        for (const t of candidates) {
-          try {
-            const { count } = await (supabase as any)
-              .from(t)
-              .select('*', { count: 'exact', head: true });
-            if (typeof count === 'number') return count;
-          } catch (e) {
-            // ignore and try next
-          }
-        }
-        return 0;
-      };
-
       const poissonsCount = await tryCount(['poissons', 'fish', 'pisciculture', 'productions']);
-      const escargotsCount = await tryCount(['escargots', 'snails', 'heliciculture']);
+  const escargotsCount = await tryCount(['cohortes_escargots', 'escargots', 'snails', 'heliciculture']);
       const stockCount = await tryCount(['stock', 'stocks', 'inventory', 'stock_aliments']);
 
   const poulaillersCount = await tryCount(['poulaillers', 'poultry_houses', 'poulailler']);
@@ -136,6 +123,28 @@ export const SuperAdminDashboard = () => {
         recoltes_miel: recoltesMielCount,
         captures_peche: capturesPecheCount,
       });
+
+      // load a few representative recent items to show real info in cards
+      try {
+        const { data: lb } = await (supabase as any).from('bassins_piscicoles').select('id,nom,statut,updated_at').order('updated_at', { ascending: false }).limit(1) as any;
+        setLatestBassin((lb || [])[0] ?? null);
+      } catch (e) {
+        setLatestBassin(null);
+      }
+
+      try {
+        const { data: lp } = await (supabase as any).from('parcs_helicicoles').select('id,nom,statut,updated_at').order('updated_at', { ascending: false }).limit(1) as any;
+        setLatestParc((lp || [])[0] ?? null);
+      } catch (e) {
+        setLatestParc(null);
+      }
+
+      try {
+        const { data: la } = await (supabase as any).from('alertes').select('id,message,level,created_at').order('created_at', { ascending: false }).limit(1) as any;
+        setLatestAlert((la || [])[0] ?? null);
+      } catch (e) {
+        setLatestAlert(null);
+      }
     } catch (error) {
       console.error('Erreur chargement stats:', error);
     }
@@ -210,28 +219,32 @@ export const SuperAdminDashboard = () => {
       value: stats.users, 
       icon: Users, 
       color: "text-primary", 
-      bgColor: "bg-primary/10" 
+      bgColor: "bg-primary/10",
+      type: "users",
     },
     { 
       title: "Bassins Actifs", 
       value: stats.bassins, 
       icon: Fish, 
       color: "text-blue-600", 
-      bgColor: "bg-blue-50" 
+      bgColor: "bg-blue-50",
+      type: "bassins",
     },
     { 
       title: "Parcs d'Escargots", 
       value: stats.parcs, 
       icon: Shell, 
       color: "text-green-600", 
-      bgColor: "bg-green-50" 
+      bgColor: "bg-green-50",
+      type: "parcs",
     },
     { 
       title: "Alertes", 
       value: stats.alertes, 
       icon: AlertCircle, 
       color: "text-destructive", 
-      bgColor: "bg-destructive/10" 
+      bgColor: "bg-destructive/10",
+      type: "alertes",
     },
   ];
 
@@ -302,6 +315,16 @@ export const SuperAdminDashboard = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">{stat.title}</p>
                   <p className="text-3xl font-bold mt-2">{stat.value}</p>
+                  {/* show a short real item summary when available */}
+                  {stat.type === 'bassins' && latestBassin && (
+                    <p className="text-xs text-muted-foreground mt-2">Dernier bassin: {latestBassin.nom} — {latestBassin.statut}</p>
+                  )}
+                  {stat.type === 'parcs' && latestParc && (
+                    <p className="text-xs text-muted-foreground mt-2">Dernier parc: {latestParc.nom} — {latestParc.statut}</p>
+                  )}
+                  {stat.type === 'alertes' && latestAlert && (
+                    <p className="text-xs text-destructive mt-2">{latestAlert.level ? `${latestAlert.level} — ` : ''}{latestAlert.message ?? 'Nouvelle alerte'}</p>
+                  )}
                 </div>
                 <div className={`${stat.bgColor} p-3 rounded-xl`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />

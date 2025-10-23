@@ -1,15 +1,15 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Users, 
-  UserCog, 
-  Shield, 
-  Settings, 
-  Fish, 
-  Shell, 
-  BarChart3, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Users,
+  UserCog,
+  Shield,
+  Settings,
+  Fish,
+  Shell,
+  BarChart3,
+  FileText,
   HelpCircle,
   AlertCircle,
   Beef,
@@ -20,7 +20,7 @@ import {
   Warehouse,
   Sprout,
   Rabbit,
-  Bug, 
+  Bug,
   Anchor,
   Truck,
   Package,
@@ -61,8 +61,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
     production: [
       { path: "/bassins-piscicoles", label: "Bassins Piscicoles", icon: Fish, admin: false },
       { path: "/cohortes-poissons", label: "Cohortes Poissons", icon: Fish, admin: false },
-      { path: "/parcs-helicicoles", label: "Parcs Hélicicoles", icon: Shell, admin: false },
-      { path: "/cohortes-escargots", label: "Cohortes Escargots", icon: Shell, admin: false },
+      { path: "/heliciculture", label: "Héliciculture", icon: Shell, admin: false },
       { path: "/poulaillers", label: "Poulaillers", icon: Warehouse, admin: false },
       { path: "/cohortes-poulets", label: "Cohortes Poulets", icon: Users, admin: false },
       { path: "/clapiers", label: "Clapiers", icon: Rabbit, admin: false },
@@ -139,7 +138,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
   };
 
   const renderNavGroup = (groupKey, items, colorScheme) => {
-    const filteredItems = items.filter(item => 
+    const filteredItems = items.filter(item =>
       !item.admin || (item.admin && (isSuperAdmin || isAdmin))
     );
 
@@ -152,12 +151,12 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
             "text-xs font-bold uppercase tracking-wider px-2 mb-2 border-l-4 pl-3",
             colorScheme.text,
             groupKey === 'tableau' ? "border-l-blue-500" :
-            groupKey === 'production' ? "border-l-green-500" :
-            groupKey === 'operations' ? "border-l-orange-500" :
-            groupKey === 'commercial' ? "border-l-purple-500" :
-            groupKey === 'analytics' ? "border-l-indigo-500" :
-            groupKey === 'administration' ? "border-l-red-500" :
-            "border-l-gray-500"
+              groupKey === 'production' ? "border-l-green-500" :
+                groupKey === 'operations' ? "border-l-orange-500" :
+                  groupKey === 'commercial' ? "border-l-purple-500" :
+                    groupKey === 'analytics' ? "border-l-indigo-500" :
+                      groupKey === 'administration' ? "border-l-red-500" :
+                        "border-l-gray-500"
           )}>
             {groupLabels[groupKey]}
           </SidebarGroupLabel>
@@ -173,8 +172,8 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
                   onClick={() => handleNavigation(item.path, item.label)}
                   className={cn(
                     "transition-all duration-200 group relative",
-                    isActive 
-                      ? `${colorScheme.active} text-white shadow-lg` 
+                    isActive
+                      ? `${colorScheme.active} text-white shadow-lg`
                       : `${colorScheme.hover} text-gray-700`
                   )}
                 >
@@ -201,10 +200,10 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
       <SidebarHeader className="p-6 border-b bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="cursor-pointer hover:scale-105 transition-transform duration-300">
-            <AnimatedLogo 
-              size={state === "collapsed" ? 32 : 36} 
-              mainColor="text-white" 
-              secondaryColor="text-blue-200" 
+            <AnimatedLogo
+              size={state === "collapsed" ? 32 : 36}
+              mainColor="text-white"
+              secondaryColor="text-blue-200"
             />
           </div>
           {state !== "collapsed" && (
@@ -220,7 +219,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
 
       <SidebarContent className="px-3 py-6 space-y-1">
         {/* Affichage de tous les groupes organisés */}
-        {Object.entries(navGroups).map(([groupKey, items]) => 
+        {Object.entries(navGroups).map(([groupKey, items]) =>
           renderNavGroup(groupKey, items, groupColors[groupKey])
         )}
       </SidebarContent>
@@ -245,7 +244,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
               </div>
             </div>
           )}
-          
+
           <div className="flex items-center justify-between">
             {state !== "collapsed" && (
               <div className="flex items-center gap-2">

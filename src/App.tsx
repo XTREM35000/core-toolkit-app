@@ -27,6 +27,7 @@ import Bassins from "./pages/Bassins";
 import CohortesPoissons from "./pages/CohortesPoissons";
 import CohortesEscargots from "./pages/CohortesEscargots";
 import ParcsHelicicoles from "./pages/ParcsHelicicoles";
+import Heliciculture from './pages/Heliciculture';
 import Aviculture from './pages/Aviculture';
 import CohortesPoulets from './pages/CohortesPoulets';
 import Poulaillers from './pages/Poulaillers';
@@ -114,6 +115,7 @@ const App: React.FC = () => {
                 <Route path="/cultures" element={<Cultures />} />
                 <Route path="/cohortes-escargots" element={<CohortesEscargots />} />
                 <Route path="/parcs-helicicoles" element={<ParcsHelicicoles />} />
+                <Route path="/heliciculture" element={<Heliciculture />} />
                 <Route path="/stock-aliments" element={<StockAliments />} />
                 <Route path="/conditions-environnement" element={<ConditionsEnvironnement />} />
                 <Route path="/stock" element={<Stock />} />

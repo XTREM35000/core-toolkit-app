@@ -45,6 +45,10 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
     }
   });
 
+  // Hooks used in save must be called at the top level of the component.
+  const qc = useQueryClient();
+  const { toast } = useToast();
+
   const save = async () => {
     setError(null);
     if (!form.nom || Number(form.nombre) <= 0) {
@@ -79,14 +83,13 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
       delete payload.avatar;
       if (avatarUrl) payload.avatar_url = avatarUrl;
 
-  if (cohort?.id) await (supabase as any).from('cohortes_escargots').update(payload).eq('id', cohort.id);
-  else await (supabase as any).from('cohortes_escargots').insert(payload);
 
-  // invalidate queries and show toast
-  const qc = useQueryClient();
-  qc.invalidateQueries({ queryKey: ['cohortes_escargots'] });
-  const { toast } = useToast();
-  toast({ title: 'Cohorte enregistrée', description: 'La cohorte a bien été enregistrée.' });
+    if (cohort?.id) await (supabase as any).from('cohortes_escargots').update(payload).eq('id', cohort.id);
+    else await (supabase as any).from('cohortes_escargots').insert(payload);
+
+    // invalidate queries and show toast
+    qc.invalidateQueries({ queryKey: ['cohortes_escargots'] });
+    toast({ title: 'Cohorte enregistrée', description: 'La cohorte a bien été enregistrée.' });
 
   onSaved && onSaved();
   onOpenChange(false);
