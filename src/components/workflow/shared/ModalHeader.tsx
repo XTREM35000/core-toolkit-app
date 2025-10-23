@@ -9,9 +9,10 @@ interface ModalHeaderProps {
   badge?: ReactNode;
   onClose: () => void;
   headerGradient?: string;
+  showClose?: boolean;
 }
 
-export const ModalHeader = ({ title, subtitle, icon: Icon, headerLogo, badge, onClose, headerGradient }: ModalHeaderProps) => {
+export const ModalHeader = ({ title, subtitle, icon: Icon, headerLogo, badge, onClose, headerGradient, showClose = true }: ModalHeaderProps) => {
   const gradient = headerGradient ?? 'from-[#128C7E] to-[#075E54]';
   return (
     <div className={`bg-gradient-to-r ${gradient} text-white rounded-t-2xl relative`}>
@@ -29,13 +30,15 @@ export const ModalHeader = ({ title, subtitle, icon: Icon, headerLogo, badge, on
         <p className="text-sm opacity-90">{subtitle}</p>
       </div>
 
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 p-2 rounded-full transition-colors duration-200 text-white/80 hover:text-white hover:bg-white/20"
-        aria-label="Fermer"
-      >
-        <X className="w-5 h-5" />
-      </button>
+      {showClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-full transition-colors duration-200 text-white/80 hover:text-white hover:bg-white/20"
+          aria-label="Fermer"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 };

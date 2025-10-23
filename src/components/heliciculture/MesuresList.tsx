@@ -9,7 +9,7 @@ const MesuresList: React.FC = () => {
   const [selected, setSelected] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
 
-  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('mesures_escargots').select('*').order('date', { ascending: false }) as any; setItems(data||[]); } catch(e){console.error(e);} finally{setLoading(false);} };
+  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('mesures_escargots').select('*').order('date', { ascending: false }) as any; setItems(data || []); } catch (e) { console.error(e); } finally { setLoading(false); } };
 
   useEffect(() => { load(); }, []);
 
@@ -29,15 +29,15 @@ const MesuresList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {items.map(i=> (
+              {items.map(i => (
                 <tr key={i.id} className="border-t">
                   <td>{i.date}</td>
                   <td>{i.poids_moyen}</td>
                   <td>{i.taux_survie}</td>
                   <td>{i.cohorte_nom}</td>
                   <td className="text-right flex justify-end gap-2">
-                    <Button variant="ghost" className="bg-red-600 text-white" onClick={async () => { if (!window.confirm('Supprimer cette mesure ?')) return; await (supabase as any).from('mesures_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
-                    <Button className="bg-blue-600 text-white" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
+                    <Button variant="destructive" onClick={async () => { if (!window.confirm('Supprimer cette mesure ?')) return; await (supabase as any).from('mesures_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
+                    <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                   </td>
                 </tr>
               ))}

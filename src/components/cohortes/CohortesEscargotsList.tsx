@@ -14,41 +14,41 @@ const CohortesEscargotsList = () => {
 
   const load = async () => {
     setLoading(true);
-    try { const { data } = await (supabase as any).from('cohortes_escargots').select('*').order('created_at', { ascending: false }) as any; setItems(data || []); } catch (e) {} finally { setLoading(false); }
+    try { const { data } = await (supabase as any).from('cohortes_escargots').select('*').order('created_at', { ascending: false }) as any; setItems(data || []); } catch (e) { } finally { setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
 
   return (
     <div>
-      <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>Créer Cohorte</Button></div>
+      <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>➕ Cohorte</Button></div>
       <div className="bg-white rounded shadow p-4">
-          {loading ? <div>Loading...</div> : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th>Espèce</th>
-                    <th>Nombre initial</th>
-                    <th>Statut</th>
-                    <th></th>
+        {loading ? <div>Loading...</div> : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th>Espèce</th>
+                  <th>Nombre initial</th>
+                  <th>Statut</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map(i => (
+                  <tr key={i.id} className="border-t">
+                    <td>{i.espece}</td>
+                    <td>{i.nombre_initial}</td>
+                    <td>{i.statut}</td>
+                    <td className="text-right flex justify-end gap-2">
+                      <Button variant="destructive" onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                      <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {items.map(i => (
-                    <tr key={i.id} className="border-t">
-                      <td>{i.espece}</td>
-                      <td>{i.nombre_initial}</td>
-                      <td>{i.statut}</td>
-                      <td className="text-right flex justify-end gap-2">
-                        <Button variant="destructive" onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
-                        <Button className="bg-blue-600 text-white" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
       <CohorteEscargotModal open={open} onOpenChange={setOpen} cohort={selected} onSaved={() => { setOpen(false); load(); }} />

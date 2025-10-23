@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 interface HelpButtonProps {
   pageName?: string; // can be a pathname like '/profile'
   position?: string; // optional extra class for positioning
+  overrideMessage?: string;
 }
 
 const messages: Record<string, string> = {
@@ -34,12 +35,15 @@ function resolveKey(path?: string) {
   return 'default';
 }
 
-const HelpButton: React.FC<HelpButtonProps> = ({ pageName, position }) => {
+const HelpButton: React.FC<HelpButtonProps> = ({ pageName, position, overrideMessage }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
   const key = resolveKey(pageName);
-  const message = messages[key] ?? "Besoin d'aide ? Cliquez ici pour des conseils rapides sur cette page.";
+  const defaultMessage = messages[key] ?? "Besoin d'aide ? Cliquez ici pour des conseils rapides sur cette page.";
+  // Prefer explicit overrideMessage, then a page-level data attribute (for pages that set it), then defaults
+  const pageLevel = typeof document !== 'undefined' ? (document.body?.dataset?.pageHelp as string | undefined) : undefined;
+  const message = overrideMessage ?? pageLevel ?? defaultMessage;
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {

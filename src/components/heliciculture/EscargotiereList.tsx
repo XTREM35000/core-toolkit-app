@@ -26,7 +26,7 @@ const EscargotiereList: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>➕ Nouvelle escargotière</Button></div>
+      <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>➕ escargotière</Button></div>
       <div className="bg-white rounded shadow p-4">
         {loading ? <div>Loading...</div> : (
           <div className="overflow-x-auto">
@@ -51,7 +51,7 @@ const EscargotiereList: React.FC = () => {
                     <td>{i.date_installation}</td>
                     <td className="text-right flex justify-end gap-2">
                       <Button variant="destructive" onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
-                      <Button className="bg-blue-600 text-white" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
+                      <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                     </td>
                   </tr>
                 ))}

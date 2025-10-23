@@ -9,7 +9,7 @@ const PontesList: React.FC = () => {
   const [selected, setSelected] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
 
-  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('pontes_escargots').select('*').order('date_ponte', { ascending: false }) as any; setItems(data||[]); } catch(e){console.error(e);} finally{setLoading(false);} };
+  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('pontes_escargots').select('*').order('date_ponte', { ascending: false }) as any; setItems(data || []); } catch (e) { console.error(e); } finally { setLoading(false); } };
 
   useEffect(() => { load(); }, []);
 
@@ -29,15 +29,15 @@ const PontesList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {items.map(i=> (
+              {items.map(i => (
                 <tr key={i.id} className="border-t">
                   <td>{i.cohorte_nom}</td>
                   <td>{i.date_ponte}</td>
                   <td>{i.nb_oeufs}</td>
                   <td>{i.observation}</td>
                   <td className="text-right flex justify-end gap-2">
-                    <Button variant="ghost" className="bg-red-600 text-white" onClick={async () => { if (!window.confirm('Supprimer cette ponte ?')) return; await (supabase as any).from('pontes_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
-                    <Button className="bg-blue-600 text-white" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
+                    <Button variant="destructive" onClick={async () => { if (!window.confirm('Supprimer cette ponte ?')) return; await (supabase as any).from('pontes_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
+                    <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                   </td>
                 </tr>
               ))}

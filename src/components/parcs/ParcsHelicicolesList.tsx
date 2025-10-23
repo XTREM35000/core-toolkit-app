@@ -1,5 +1,5 @@
- 
- 
+
+
 import React, { useEffect, useState, useRef } from 'react'
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -129,7 +129,7 @@ const ParcsHelicicolesList = () => {
 
   return (
     <div>
-      <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>Créer Parc</Button></div>
+      <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>➕ Parc</Button></div>
       <div className="bg-white rounded shadow p-4">{loading ? <div>Loading...</div> : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -181,4 +181,3 @@ const ParcsHelicicolesList = () => {
 };
 
 export default ParcsHelicicolesList;
-        
