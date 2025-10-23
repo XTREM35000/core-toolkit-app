@@ -17,11 +17,31 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
   📁 analytics
     📄 BiomassChart.tsx
   📄 AnimatedLogo.tsx
+  📄 AnimatedLogoPoisson.tsx
   📁 auth
     📄 AuthModal.tsx
     📄 LoginTab.tsx
     📄 SignupTab.tsx
+    📁 __tests__
+      📄 AuthModal.test.tsx
+  📁 bassins
+    📄 BassinsList.tsx
+    📄 BassinsModal.tsx
+    📄 TankForm.tsx
+    📄 TankList.tsx
+  📁 clients
+    📄 ClientModal.tsx
+    📄 ClientsList.tsx
+  📁 cohortes
+    📄 CohorteEscargotModal.tsx
+    📄 CohortePoissonModal.tsx
+    📄 CohortesEscargotsList.tsx
+    📄 CohortesPoissonsList.tsx
+  📁 conditions
+    📄 ConditionModal.tsx
+    📄 ConditionsEnvironnementList.tsx
   📁 dashboard
+    📄 CollaboratorModal.tsx
     📄 CollaboratorsPage.tsx
     📄 DashboardLayout.tsx
     📄 Header.tsx
@@ -29,18 +49,30 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
     📄 Sidebar.tsx
     📄 SuperAdminDashboard.tsx
     📄 UserMenu.tsx
+  📁 fournisseurs
+    📄 FournisseurModal.tsx
+    📄 FournisseursList.tsx
   📁 modals
     📄 AdminCreationModal.tsx
     📄 BaseModal.tsx
     📄 DeveloperModal.tsx
     📄 SuperAdminCreationModal.tsx
+  📄 NavigationBreadcrumb.tsx
   📁 onboarding
     📄 AppInitialization.tsx
+  📁 parcs
+    📄 ParcHelicicoleModal.tsx
+    📄 ParcsHelicicolesList.tsx
+  📄 SplashScreen.tsx
+  📁 stock
+    📄 StockAlimentModal.tsx
+    📄 StockAlimentsList.tsx
   📁 ui
     📄 accordion.tsx
     📄 alert-dialog.tsx
     📄 alert.tsx
     📄 alert_old1.tsx
+    📄 AppButton.tsx
     📄 aspect-ratio.tsx
     📄 avatar-upload.tsx
     📄 avatar.tsx
@@ -69,6 +101,7 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
     📄 email-input.tsx
     📄 form.tsx
     📄 FormModal.tsx
+    📄 HelpButton.tsx
     📄 hover-card.tsx
     📄 index.ts
     📄 input-otp.tsx
@@ -79,11 +112,14 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
     📄 loading-spinner.tsx
     📄 menubar.tsx
     📄 modal-wrapper.tsx
+    📄 modal.tsx
     📄 navigation-menu.tsx
+    📄 PageHelpButton.tsx
     📄 pagination.tsx
     📄 password-input.tsx
     📄 phone-input.tsx
     📄 popover.tsx
+    📄 ProfileAutocomplete.tsx
     📄 progress.tsx
     📄 ProgressStep.tsx
     📄 radio-group.tsx
@@ -117,20 +153,30 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
     📄 WorkflowProgressBar.tsx
   📁 workflow
     📄 AdminCreationModal.tsx
+    📄 ClientModal.tsx
+    📄 CommandeFournisseurModal.tsx
+    📄 CreateProfileModal.tsx
     📄 DeveloperModal.tsx
+    📄 EncaissementModal.tsx
     📄 GarageModal.tsx
     📄 OrganizationModal.tsx
+    📄 PaiementFournisseurModal.tsx
     📄 PlanSelectionModal.tsx
+    📄 ReceptionCommandeModal.tsx
     📁 shared
       📄 FormField.tsx
       📄 ModalHeader.tsx
     📄 SmsValidationModal.tsx
     📄 SuperAdminModal.tsx
+    📄 SupplierModal.tsx
     📄 TeamModal.tsx
     📄 TenantAdminModal.tsx
+    📄 VenteClientModal.tsx
 📁 contexts
   📄 AuthContext.tsx
   📄 ThemeContext.tsx
+📁 design
+  📄 theme.ts
 📁 hooks
   📄 use-mobile.tsx
   📄 use-toast.ts
@@ -141,6 +187,7 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
 📁 integrations
   📁 supabase
     📄 client.ts
+    📄 db.ts
     📄 types.ts
 📁 lib
   📄 aquaTheme.ts
@@ -150,11 +197,53 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
 📄 liste.mjs
 📄 main.tsx
 📁 pages
+  📄 Activities.tsx
+  📁 admin
+    📁 components
+      📄 BrandingConfig.tsx
+      📄 GeneralConfig.tsx
+      📄 ModulesConfig.tsx
+      📄 RolesConfig.tsx
+      📄 SecurityConfig.tsx
+    📄 ConfigurationPlateforme.tsx
+  📄 Alerts.tsx
+  📄 Analytics.tsx
+  📄 Bassins.tsx
+  📄 BassinsPiscicoles.tsx
+  📄 Clients.tsx
+  📄 CohortesEscargots.tsx
+  📄 CohortesPoissons.tsx
+  📄 Collaborators.tsx
+  📄 CollaboratorsAdd.tsx
+  📄 ConditionsEnvironnement.tsx
+  📄 Employees.tsx
+  📄 Encaissements.tsx
+  📄 Farms.tsx
+  📄 FishCohorts.tsx
+  📄 Fournisseurs.tsx
+  📄 Help.tsx
   📄 Index.tsx
+  📄 ListeClientsPage.tsx
+  📄 ListeCommandesPage.tsx
+  📄 ListeFournisseursPage.tsx
+  📄 ListeVentesPage.tsx
   📄 NotFound.tsx
   📄 Onboarding.tsx
+  📄 ParcsHelicicoles.tsx
+  📄 Parks.tsx
+  📄 Ponds.tsx
+  📄 Profile.tsx
+  📄 Reports.tsx
+  📄 Security.tsx
+  📄 Settings.tsx
+  📄 SnailCohorts.tsx
+  📄 Stock.tsx
+  📄 StockAliments.tsx
+  📄 Ventes.tsx
 📄 project_structure.txt
 📄 project_structure_1.txt
+📄 project_structure_2.txt
+📄 project_structure_3.txt
 📁 services
   📄 alertService.ts
   📄 callmebot-service.ts
@@ -163,6 +252,8 @@ Structure du projet (exclusions : node_modules, dist, public, nhost, .vscode, .n
   📄 supabaseClient.ts
   📄 supabaseCrud.ts
   📄 whatsappService.ts
+📁 test
+  📄 setup.ts
 📁 types
   📄 aquaculture.ts
   📄 core.ts

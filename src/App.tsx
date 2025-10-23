@@ -27,6 +27,22 @@ import Bassins from "./pages/Bassins";
 import CohortesPoissons from "./pages/CohortesPoissons";
 import CohortesEscargots from "./pages/CohortesEscargots";
 import ParcsHelicicoles from "./pages/ParcsHelicicoles";
+import Aviculture from './pages/Aviculture';
+import CohortesPoulets from './pages/CohortesPoulets';
+import Poulaillers from './pages/Poulaillers';
+import Clapiers from './pages/Clapiers';
+import CohortesLapins from './pages/CohortesLapins';
+import Ruchers from './pages/Ruchers';
+import Etables from './pages/Etables';
+import Troupeaux from './pages/Troupeaux';
+import Parcelles from './pages/Parcelles';
+import ZonesPeche from './pages/ZonesPeche';
+import Cultures from './pages/Cultures';
+import Agriculture from './pages/Agriculture';
+import Cuniculture from './pages/Cuniculture';
+import Apiculture from './pages/Apiculture';
+import Bovins from './pages/Bovins';
+import Peche from './pages/Peche';
 import StockAliments from "./pages/StockAliments";
 import ConditionsEnvironnement from "./pages/ConditionsEnvironnement";
 import Security from "./pages/Security";
@@ -80,6 +96,22 @@ const App: React.FC = () => {
                 <Route path="/bassins-piscicoles" element={<BassinsPiscicoles />} />
                 <Route path="/bassins" element={<Bassins />} />
                 <Route path="/cohortes-poissons" element={<CohortesPoissons />} />
+                <Route path="/cohortes-poulets" element={<CohortesPoulets />} />
+                <Route path="/aviculture" element={<Aviculture />} />
+                <Route path="/agriculture" element={<Agriculture />} />
+                <Route path="/cuniculture" element={<Cuniculture />} />
+                <Route path="/apiculture" element={<Apiculture />} />
+                <Route path="/bovins" element={<Bovins />} />
+                <Route path="/peche" element={<Peche />} />
+                <Route path="/poulaillers" element={<Poulaillers />} />
+                <Route path="/clapiers" element={<Clapiers />} />
+                <Route path="/cohortes-lapins" element={<CohortesLapins />} />
+                <Route path="/ruchers" element={<Ruchers />} />
+                <Route path="/etables" element={<Etables />} />
+                <Route path="/troupeaux" element={<Troupeaux />} />
+                <Route path="/parcelles" element={<Parcelles />} />
+                <Route path="/zones-peche" element={<ZonesPeche />} />
+                <Route path="/cultures" element={<Cultures />} />
                 <Route path="/cohortes-escargots" element={<CohortesEscargots />} />
                 <Route path="/parcs-helicicoles" element={<ParcsHelicicoles />} />
                 <Route path="/stock-aliments" element={<StockAliments />} />

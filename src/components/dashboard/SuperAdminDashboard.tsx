@@ -27,6 +27,14 @@ export const SuperAdminDashboard = () => {
     poissons: 0,
     escargots: 0,
     stock: 0,
+    poulaillers: 0,
+    clapiers: 0,
+    ruchers: 0,
+    etables: 0,
+    parcelles: 0,
+    zones_peche: 0,
+    recoltes_miel: 0,
+    captures_peche: 0,
   });
   const [recentActivities, setRecentActivities] = useState<Array<{ action: string; time: string; user: string; type?: string }>>([]);
   const { profile, isSuperAdmin, isAdmin } = useAuth();
@@ -102,6 +110,15 @@ export const SuperAdminDashboard = () => {
       const escargotsCount = await tryCount(['escargots', 'snails', 'heliciculture']);
       const stockCount = await tryCount(['stock', 'stocks', 'inventory', 'stock_aliments']);
 
+  const poulaillersCount = await tryCount(['poulaillers', 'poultry_houses', 'poulailler']);
+  const clapiersCount = await tryCount(['clapiers', 'clapiers_lapins', 'rabbit_hutches']);
+  const ruchersCount = await tryCount(['ruchers', 'apiaries', 'rucher']);
+  const etablesCount = await tryCount(['etables', 'stables', 'etables_animaux']);
+  const parcellesCount = await tryCount(['parcelles', 'parcelles_cultures', 'fields']);
+  const zonesPecheCount = await tryCount(['zones_peche', 'zones_peche', 'fishing_zones']);
+  const recoltesMielCount = await tryCount(['recoltes_miel', 'recoltes', 'honey_harvests']);
+  const capturesPecheCount = await tryCount(['captures_peche', 'captures', 'fishing_catches']);
+
       setStats({
         users: usersCount || 0,
         bassins: bassinsCount,
@@ -110,6 +127,14 @@ export const SuperAdminDashboard = () => {
         poissons: poissonsCount,
         escargots: escargotsCount,
         stock: stockCount,
+        poulaillers: poulaillersCount,
+        clapiers: clapiersCount,
+        ruchers: ruchersCount,
+        etables: etablesCount,
+        parcelles: parcellesCount,
+        zones_peche: zonesPecheCount,
+        recoltes_miel: recoltesMielCount,
+        captures_peche: capturesPecheCount,
       });
     } catch (error) {
       console.error('Erreur chargement stats:', error);
@@ -216,13 +241,21 @@ export const SuperAdminDashboard = () => {
     { name: "Bassins Actifs", icon: "🏊", count: stats.bassins || 0, type: "bassins" },
     { name: "Parcs Reproduction", icon: "🔬", count: stats.parcs || 0, type: "parcs" },
     { name: "Stock Aliments", icon: "🌾", count: stats.stock || 0, type: "stock" },
+    { name: "Poulaillers", icon: "🐔", count: stats.poulaillers || 0, type: "poulaillers", path: '/poulaillers' },
+    { name: "Clapiers", icon: "🐇", count: stats.clapiers || 0, type: "clapiers", path: '/clapiers' },
+    { name: "Ruchers", icon: "🐝", count: stats.ruchers || 0, type: "ruchers", path: '/ruchers' },
+    { name: "Étables", icon: "🐄", count: stats.etables || 0, type: "etables", path: '/etables' },
+    { name: "Parcelles", icon: "🌱", count: stats.parcelles || 0, type: "parcelles", path: '/parcelles' },
+    { name: "Zones de pêche", icon: "🎣", count: stats.zones_peche || 0, type: "zones_peche", path: '/zones-peche' },
+    { name: "Récoltes miel", icon: "🍯", count: stats.recoltes_miel || 0, type: "recoltes_miel", path: '/apiculture' },
+    { name: "Captures pêche", icon: "🦈", count: stats.captures_peche || 0, type: "captures_peche", path: '/peche' },
   ];
 
   const quickActions = [
     { label: "Gestion Profils", icon: Users, action: () => setView('profiles'), path: "/profiles" },
     { label: "Collaborateurs", icon: UserCog, action: () => setView('collaborators'), path: "/collaborators" },
     { label: "Analytiques", icon: BarChart3, action: () => navigate("/analytics"), path: "/analytics" },
-    { label: "Paramètres", icon: Settings, action: () => navigate("/settings"), path: "/settings" },
+    { label: "Paramètres", icon: Settings, action: () => navigate("/admin/config"), path: "/admin/config" },
   ];
 
   const DashboardHome = () => (
@@ -283,7 +316,7 @@ export const SuperAdminDashboard = () => {
       <div>
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold">Modules d'Activité</h3>
-          <Button variant="outline" onClick={() => navigate("/modules")}>
+          <Button variant="outline" onClick={() => navigate("/admin")}>
             Voir tous les modules
           </Button>
         </div>
@@ -326,6 +359,38 @@ export const SuperAdminDashboard = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </div>
+      {/* Nouveaux modules en grille */}
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-4">Autres modules</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {farmTypes.slice(5).map((m, i) => (
+            <Card
+              key={i}
+              onClick={() => m.path ? navigate(m.path) : undefined}
+              className="relative text-center hover:shadow-lg transition-shadow cursor-pointer flex flex-col"
+              aria-label={m.name}
+            >
+              {/* badge top-right */}
+              <div className="absolute top-3 right-3">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  {m.count}
+                </span>
+              </div>
+              <CardContent className="p-4 flex flex-col justify-between min-h-[160px]">
+                <div>
+                  <div className="text-3xl mb-2">{m.icon}</div>
+                  <CardTitle className="text-sm">{m.name}</CardTitle>
+                </div>
+                <div className="mt-3">
+                  <Button variant="outline" onClick={(e) => { e.stopPropagation(); if (m.path) navigate(m.path); }} className="w-full">
+                    Accéder
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
 
