@@ -122,7 +122,7 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ## 🚀 Comment tester localement
 
 1. **Vérifier la migration**
-   - Ouvrir le backend Lovable Cloud
+   - Ouvrir le backend Supabase
    - Vérifier que les colonnes `first_name`, `last_name`, `phone`, `avatar_url`, `selected_plan`, `onboarding_completed` existent dans `profiles`
    - Vérifier que le bucket `avatars` est créé dans Storage
 

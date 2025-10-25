@@ -61,39 +61,41 @@ const TankForm: React.FC<TankFormProps> = ({ open, onOpenChange, initial = null,
 
       onSaved?.(newTank);
       onOpenChange(false);
-    return (
-      <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-md">
-        <div role="dialog" aria-modal="true" aria-label={initial ? 'Éditer un bac' : 'Créer un bac'} className="bg-white rounded-t-3xl shadow-lg p-6 w-full max-w-md mx-auto overflow-visible">
-          <ModalHeader title={initial ? 'Éditer un bac' : 'Créer un bac'} subtitle="Informations du bac" onClose={() => onOpenChange(false)} />
-          <div className="space-y-3">
-            <label className="block">
-              <div className="text-xs text-gray-600 mb-1">Nom du bac</div>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du bac" />
-              {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
-            </label>
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-            <label className="block">
-              <div className="text-xs text-gray-600 mb-1">Capacité (L)</div>
-              <Input value={capacity} onChange={(e) => setCapacity(e.target.value)} placeholder="Capacité (L)" />
-              {errors.capacity && <p className="text-red-600 text-xs mt-1">{errors.capacity}</p>}
-            </label>
+  return (
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-md">
+      <div role="dialog" aria-modal="true" aria-label={initial ? 'Éditer un bac' : 'Créer un bac'} className="bg-white rounded-t-3xl shadow-lg p-6 w-full max-w-md mx-auto overflow-visible">
+        <ModalHeader title={initial ? 'Éditer un bac' : 'Créer un bac'} subtitle="Informations du bac" onClose={() => onOpenChange(false)} />
+        <div className="space-y-3">
+          <label className="block">
+            <div className="text-xs text-gray-600 mb-1">Nom du bac</div>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom du bac" />
+            {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
+          </label>
 
-            <label className="block">
-              <div className="text-xs text-gray-600 mb-1">Type</div>
-              <Input value={type} onChange={(e) => setType(e.target.value)} placeholder="Type (poisson/escargot)" />
-            </label>
-          </div>
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isSaving}>Annuler</Button>
-            <Button onClick={handleSave} disabled={isSaving}>{isSaving ? 'Enregistrement...' : 'Enregistrer'}</Button>
-          </div>
+          <label className="block">
+            <div className="text-xs text-gray-600 mb-1">Capacité (L)</div>
+            <Input value={capacity} onChange={(e) => setCapacity(e.target.value)} placeholder="Capacité (L)" />
+            {errors.capacity && <p className="text-red-600 text-xs mt-1">{errors.capacity}</p>}
+          </label>
+
+          <label className="block">
+            <div className="text-xs text-gray-600 mb-1">Type</div>
+            <Input value={type} onChange={(e) => setType(e.target.value)} placeholder="Type (poisson/escargot)" />
+          </label>
         </div>
-      </WhatsAppModal>
-    );
+        <div className="mt-4 flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isSaving}>Annuler</Button>
           <Button onClick={handleSave} disabled={isSaving}>{isSaving ? 'Enregistrement...' : 'Enregistrer'}</Button>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

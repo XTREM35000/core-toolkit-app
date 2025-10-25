@@ -26,6 +26,7 @@ const CollaboratorModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
   const [phone, setPhone] = useState((existing as any)?.phone ?? '');
   const [avatar, setAvatar] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {

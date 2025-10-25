@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -21,11 +22,9 @@ const PoulaillerModal: React.FC<Props> = ({ open, onOpenChange, poulailler = nul
     onSaved?.(item);
     onOpenChange(false);
   };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-xl shadow-md w-full max-w-2xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-2xl">
+      <div className="bg-white rounded-t-3xl shadow-md w-full max-w-2xl mx-auto overflow-visible">
         <ModalHeader title={poulailler ? 'Éditer un poulailler' : 'Créer un poulailler'} subtitle="Informations du poulailler" onClose={() => onOpenChange(false)} />
         <div className="p-4">
           <div className="space-y-3">
@@ -40,7 +39,7 @@ const PoulaillerModal: React.FC<Props> = ({ open, onOpenChange, poulailler = nul
           </div>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 
