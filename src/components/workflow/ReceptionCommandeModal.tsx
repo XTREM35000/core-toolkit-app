@@ -53,12 +53,12 @@ const ReceptionCommandeModal = ({ isOpen, open, onClose, onOpenChange, commandeI
       if (!commandeId) throw new Error('Commande introuvable');
       const delivered = Number(deliveredQty || 0);
       // Update commande with delivered qty and quality
-  const { error } = await (supabase as any).from('commande_fournisseurs').update({ delivered_quantity: delivered, quality_notes: qualityNotes, status: 'Réceptionné' }).eq('id', commandeId);
-  if (error) throw error;
-  onSaved?.();
-  qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] });
-  toast({ title: 'Réception enregistrée', description: 'La réception a été enregistrée et la commande marquée Réceptionné.' });
-  setOpen(false);
+      const { error } = await (supabase as any).from('commande_fournisseurs').update({ delivered_quantity: delivered, quality_notes: qualityNotes, status: 'Réceptionné' }).eq('id', commandeId);
+      if (error) throw error;
+      onSaved?.();
+      qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] });
+      toast({ title: 'Réception enregistrée', description: 'La réception a été enregistrée et la commande marquée Réceptionné.' });
+      setOpen(false);
     } catch (err: any) {
       console.error('Reception save error', err);
     } finally {
@@ -69,9 +69,8 @@ const ReceptionCommandeModal = ({ isOpen, open, onClose, onOpenChange, commandeI
   if (!modalOpen) return null;
 
   return (
-    <div data-debug="ReceptionCommandeModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-      <div data-debug="ReceptionCommandeModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+    <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} hideHeader className="max-w-md">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader title="Réception commande" subtitle="Valider la livraison" headerLogo={<AnimatedLogo size={36} />} onClose={() => setOpen(false)} />
         <div className="p-6">
           <Card className="p-4">
@@ -98,7 +97,7 @@ const ReceptionCommandeModal = ({ isOpen, open, onClose, onOpenChange, commandeI
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

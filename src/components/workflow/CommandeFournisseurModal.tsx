@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { ModalHeader } from './shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
@@ -63,12 +64,12 @@ const CommandeFournisseurModal = ({ isOpen, open, onClose, onOpenChange, onSaved
         created_at: new Date().toISOString()
       } as any;
 
-  const { error } = await (supabase as any).from('commande_fournisseurs').insert(payload);
-  if (error) throw error;
-  onSaved?.();
-  qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] });
-  toast({ title: 'Commande créée', description: 'La commande fournisseur a été créée avec succès.' });
-  setOpen(false);
+      const { error } = await (supabase as any).from('commande_fournisseurs').insert(payload);
+      if (error) throw error;
+      onSaved?.();
+      qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] });
+      toast({ title: 'Commande créée', description: 'La commande fournisseur a été créée avec succès.' });
+      setOpen(false);
     } catch (err: any) {
       console.error('Save commande error', err);
       setError(err?.message || 'Erreur lors de la création de la commande');
@@ -80,9 +81,8 @@ const CommandeFournisseurModal = ({ isOpen, open, onClose, onOpenChange, onSaved
   if (!modalOpen) return null;
 
   return (
-    <div data-debug="CommandeFournisseurModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-      <div data-debug="CommandeFournisseurModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} hideHeader className="max-w-3xl">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader
           title="Nouvelle commande fournisseur"
           subtitle="Saisir les détails de la commande"
@@ -130,8 +130,8 @@ const CommandeFournisseurModal = ({ isOpen, open, onClose, onOpenChange, onSaved
           </Card>
         </div>
       </div>
-        <CreateProfileModal isOpen={openCreateSupplier} onClose={() => setOpenCreateSupplier(false)} role="supplier" initialName={supplier} onCreated={(p) => { setSupplierId(p.id); setSupplier(p.full_name); }} />
-      </div>
+      <CreateProfileModal isOpen={openCreateSupplier} onClose={() => setOpenCreateSupplier(false)} role="supplier" initialName={supplier} onCreated={(p) => { setSupplierId(p.id); setSupplier(p.full_name); }} />
+    </WhatsAppModal>
   );
 
   // Render create modal for supplier

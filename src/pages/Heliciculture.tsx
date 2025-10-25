@@ -15,8 +15,8 @@ const SECTIONS = [
   { id: 'cohortes', label: 'Cohortes' }
 ];
 
-const Heliciculture = () => {
-  const [active, setActive] = useState<string>('parcs');
+const Heliciculture = ({ initialSection }: { initialSection?: string } = {}) => {
+  const [active, setActive] = useState<string>(initialSection || 'parcs');
   const sectionsRef = useRef<Record<string, HTMLDivElement | null>>({ parcs: null, escargotieres: null, cohortes: null });
 
   useEffect(() => {
@@ -45,6 +45,17 @@ const Heliciculture = () => {
       if (typeof document !== 'undefined') delete document.body.dataset.pageHelp;
     };
   }, [active]);
+
+  // If the page is opened via a direct route targeting a section, scroll to it on mount
+  useEffect(() => {
+    if (initialSection) {
+      setTimeout(() => scrollTo(initialSection), 200);
+    } else if (typeof window !== 'undefined' && window.location.hash) {
+      const id = window.location.hash.replace('#', '');
+      if (id) setTimeout(() => scrollTo(id), 200);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const scrollTo = (id: string) => {
     const el = sectionsRef.current[id];

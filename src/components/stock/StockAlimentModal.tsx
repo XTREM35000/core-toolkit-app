@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import db from '@/integrations/supabase/db';
@@ -44,9 +45,8 @@ const StockAlimentModal: React.FC<{ open: boolean; onOpenChange: (v: boolean) =>
   if (!open) return null;
 
   return (
-    <div data-debug="StockAlimentModal" className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-2xl">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader
           title={stock?.id ? 'Editer aliment' : 'Ajouter un aliment'}
           subtitle="Détails de l'aliment"
@@ -77,7 +77,7 @@ const StockAlimentModal: React.FC<{ open: boolean; onOpenChange: (v: boolean) =>
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

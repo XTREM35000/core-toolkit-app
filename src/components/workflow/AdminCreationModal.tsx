@@ -11,6 +11,7 @@ import { EmailInput } from '@/components/ui/email-input';
 import { Input } from '@/components/ui/input';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { ModalHeader } from './shared/ModalHeader';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { PlanSelectionModal } from './PlanSelectionModal';
 
 type AppRole = 'admin' | 'user';
@@ -69,9 +70,8 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess, initi
     if (!modalOpen) return null;
     return (
       <>
-        <div data-debug="AdminCreationModal-success" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-          <div data-debug="AdminCreationModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+        <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} size="md" hideHeader>
+          <div data-debug="AdminCreationModal-success" className="w-full">
             <div className="p-8 flex flex-col items-center justify-center">
               <CheckCircle className="w-20 h-20 text-green-500 mb-4 animate-bounce" />
               <h2 className="text-2xl font-bold mb-2">Administrateur créé !</h2>
@@ -81,7 +81,7 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess, initi
               </div>
             </div>
           </div>
-        </div>
+        </WhatsAppModal>
 
         <PlanSelectionModal isOpen={showPlanModal} onClose={() => setShowPlanModal(false)} onSuccess={() => { setShowPlanModal(false); onSuccess?.(); }} />
       </>
@@ -151,26 +151,26 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess, initi
       const userId = authData?.user?.id;
       if (!userId) throw new Error('Impossible de récupérer l\'utilisateur créé');
 
-  // Upsert profile (includes tenant_id).
-  // The database `profiles.role` has a check constraint; mappedRole will be set below.
+      // Upsert profile (includes tenant_id).
+      // The database `profiles.role` has a check constraint; mappedRole will be set below.
 
-  // Assign tenant admin role via RPC. Do not attempt client-side insert if RPC fails (likely RLS).
-    // Map frontend role choice to DB/RPC role identifiers
-    // frontend choices: 'admin' | 'vendeur' | 'caissier'
-    // db rpc expects roles like 'admin' / 'seller' / 'cashier' or tenant_admin
-    let dbRole: string = 'admin';
-    if (role === 'admin') dbRole = 'admin';
-    if (role === 'vendeur') dbRole = 'seller';
-    if (role === 'caissier') dbRole = 'cashier';
+      // Assign tenant admin role via RPC. Do not attempt client-side insert if RPC fails (likely RLS).
+      // Map frontend role choice to DB/RPC role identifiers
+      // frontend choices: 'admin' | 'vendeur' | 'caissier'
+      // db rpc expects roles like 'admin' / 'seller' / 'cashier' or tenant_admin
+      let dbRole: string = 'admin';
+      if (role === 'admin') dbRole = 'admin';
+      if (role === 'vendeur') dbRole = 'seller';
+      if (role === 'caissier') dbRole = 'cashier';
 
-    const mappedRole = dbRole === 'admin' ? 'tenant_admin' : dbRole;
+      const mappedRole = dbRole === 'admin' ? 'tenant_admin' : dbRole;
 
       const profilePayload = {
         id: userId,
         email: formData.email,
-    first_name: first,
-    last_name: last,
-    avatar_url: avatarUrl,
+        first_name: first,
+        last_name: last,
+        avatar_url: avatarUrl,
         phone: formData.phone,
         full_name: `${first} ${last}`,
         permissions: ['read', 'write'],
@@ -203,8 +203,8 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess, initi
 
       setStep(2);
       // onSuccess will be called after PlanSelectionModal flow completes; call onSuccess as a fallback
-  try { localStorage.setItem('last_admin_email', formData.email || ''); } catch {}
-  setTimeout(() => { onSuccess?.(); }, 2000);
+      try { localStorage.setItem('last_admin_email', formData.email || ''); } catch { }
+      setTimeout(() => { onSuccess?.(); }, 2000);
     } catch (err: any) {
       console.error('Erreur création admin tenant:', err);
       setError(err?.message || 'Une erreur est survenue lors de la création');
@@ -216,9 +216,8 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess, initi
   if (!modalOpen) return null;
 
   return (
-    <div data-debug="AdminCreationModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-      <div data-debug="AdminCreationModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} size="xl" hideHeader>
+      <div className="w-full">
         <ModalHeader
           title="Créer un Admin"
           subtitle="Ajouter un administrateur à la plateforme"
@@ -318,7 +317,7 @@ export const AdminCreationModal = ({ isOpen, onClose, tenantId, onSuccess, initi
           </form>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

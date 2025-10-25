@@ -27,7 +27,7 @@ const CapturesJournal: React.FC = () => {
                 <div className="text-xs text-muted-foreground">Poids: {it.weight ?? 0}</div>
               </div>
               <div className="flex gap-2">
-                <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => handleDelete(it.id)}>Supprimer</Button>
+                <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(it.id)}>Supprimer</Button>
               </div>
             </div>
           ))

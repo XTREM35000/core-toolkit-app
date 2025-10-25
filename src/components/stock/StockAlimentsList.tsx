@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
@@ -68,9 +69,8 @@ const StockAlimentModal: React.FC<{
   if (!open) return null;
 
   return (
-    <div data-debug="StockAlimentModal" className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-md">
+      <div data-debug="StockAlimentModal" className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader
           title={stock ? 'Editer aliment' : 'Ajouter aliment'}
           subtitle="Détails de l'aliment"
@@ -105,7 +105,7 @@ const StockAlimentModal: React.FC<{
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 
@@ -115,18 +115,18 @@ const StockAlimentsList = () => {
   const [selected, setSelected] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
 
-  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('stock_aliments').select('*').order('created_at', { ascending: false }) as any; setItems(data || []); } catch (e) {} finally { setLoading(false); } };
+  const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('stock_aliments').select('*').order('created_at', { ascending: false }) as any; setItems(data || []); } catch (e) { } finally { setLoading(false); } };
   useEffect(() => { load(); }, []);
 
   return (
     <div>
       <div className="flex justify-end mb-4"><Button onClick={() => { setSelected(null); setOpen(true); }}>Ajouter aliment</Button></div>
       <div className="bg-white rounded shadow p-4">{loading ? <div>Loading...</div> : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm"><thead><tr><th>Nom</th><th>Quantité</th><th>Unité</th><th></th></tr></thead><tbody>
-          {items.map(i => (<tr key={i.id} className="border-t"><td>{i.item_name}</td><td>{i.quantity}</td><td>{i.unit}</td><td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td></tr>))}
-        </tbody></table>
-            </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm"><thead><tr><th>Nom</th><th>Quantité</th><th>Unité</th><th></th></tr></thead><tbody>
+            {items.map(i => (<tr key={i.id} className="border-t"><td>{i.item_name}</td><td>{i.quantity}</td><td>{i.unit}</td><td className="text-right"><Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Edit</Button></td></tr>))}
+          </tbody></table>
+        </div>
       )}</div>
       <StockAlimentModal open={open} onOpenChange={setOpen} stock={selected} onSaved={() => { setOpen(false); load(); }} />
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ModalHeader } from './shared/ModalHeader';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
@@ -70,22 +71,22 @@ const CreateProfileModal = ({ isOpen, onClose, role = 'client', initialName = ''
 
       const payload: any = { full_name: name, email: email || null, phone: phone || null, role: role, tenant_id: tenantId ?? null, avatar_url: avatarUrl };
       // Support edit if existing provided
-            if (existing?.id) {
-              const id = existing.id;
-              const { data, error } = await (supabase as any).from('profiles').update(payload).eq('id', id).select().single();
-              if (error) throw error;
-              toast({ title: 'Contact mis à jour', description: `${name} a été mis à jour.` });
-              qc.invalidateQueries({ queryKey: ['profiles'] });
-              onCreated?.(data);
-              onClose?.();
-            } else {
-              const { data, error } = await (supabase as any).from('profiles').insert(payload).select().single();
-              if (error) throw error;
-              toast({ title: 'Contact créé', description: `${name} a été créé.` });
-              qc.invalidateQueries({ queryKey: ['profiles'] });
-              onCreated?.(data);
-              onClose?.();
-            }
+      if (existing?.id) {
+        const id = existing.id;
+        const { data, error } = await (supabase as any).from('profiles').update(payload).eq('id', id).select().single();
+        if (error) throw error;
+        toast({ title: 'Contact mis à jour', description: `${name} a été mis à jour.` });
+        qc.invalidateQueries({ queryKey: ['profiles'] });
+        onCreated?.(data);
+        onClose?.();
+      } else {
+        const { data, error } = await (supabase as any).from('profiles').insert(payload).select().single();
+        if (error) throw error;
+        toast({ title: 'Contact créé', description: `${name} a été créé.` });
+        qc.invalidateQueries({ queryKey: ['profiles'] });
+        onCreated?.(data);
+        onClose?.();
+      }
     } catch (err) {
       console.error('CreateProfileModal error', err);
       toast({ title: 'Erreur', description: 'Impossible de créer le contact' });
@@ -97,9 +98,8 @@ const CreateProfileModal = ({ isOpen, onClose, role = 'client', initialName = ''
   if (!modalOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-      <div className="absolute inset-0 bg-black/40" onClick={() => onClose?.()} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+    <WhatsAppModal isOpen={modalOpen} onClose={() => onClose?.()} hideHeader className="max-w-md">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader title={`Créer ${role === 'supplier' ? 'Fournisseur' : 'Client'}`} subtitle="Créer rapidement un contact" headerLogo={<AnimatedLogo size={36} />} onClose={() => onClose?.()} />
         <div className="p-6">
           <Card className="p-4">
@@ -124,7 +124,7 @@ const CreateProfileModal = ({ isOpen, onClose, role = 'client', initialName = ''
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

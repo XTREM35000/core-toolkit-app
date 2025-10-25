@@ -1,4 +1,4 @@
- 
+
 import { useState, FormEvent } from 'react';
 import { ModalHeader } from './shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
@@ -38,15 +38,15 @@ const EncaissementModal = ({ isOpen, open, onClose, onOpenChange, venteId, onSav
     setLoading(true);
     try {
       const payload = { vente_id: venteId, amount: Number(amount), method, date: date || new Date().toISOString(), created_at: new Date().toISOString() } as any;
-  const { error } = await (supabase as any).from('encaissements').insert(payload);
-  if (error) throw error;
-  // mark vente as payé/encaisse
-  await (supabase as any).from('ventes_clients').update({ status: 'Payé' }).eq('id', venteId);
-  onSaved?.();
-  qc.invalidateQueries({ queryKey: ['encaissements'] });
-  qc.invalidateQueries({ queryKey: ['ventes_clients'] });
-  toast({ title: 'Encaissement enregistré', description: 'Paiement client enregistré et vente marquée payée.' });
-  setOpen(false);
+      const { error } = await (supabase as any).from('encaissements').insert(payload);
+      if (error) throw error;
+      // mark vente as payé/encaisse
+      await (supabase as any).from('ventes_clients').update({ status: 'Payé' }).eq('id', venteId);
+      onSaved?.();
+      qc.invalidateQueries({ queryKey: ['encaissements'] });
+      qc.invalidateQueries({ queryKey: ['ventes_clients'] });
+      toast({ title: 'Encaissement enregistré', description: 'Paiement client enregistré et vente marquée payée.' });
+      setOpen(false);
     } catch (err) {
       console.error('Encaissement save error', err);
     } finally {
@@ -57,9 +57,8 @@ const EncaissementModal = ({ isOpen, open, onClose, onOpenChange, venteId, onSav
   if (!modalOpen) return null;
 
   return (
-    <div data-debug="EncaissementModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-      <div data-debug="EncaissementModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+    <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} hideHeader className="max-w-md">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader title="Encaissement" subtitle="Enregistrer un paiement client" headerLogo={<AnimatedLogo size={36} />} onClose={() => setOpen(false)} />
         <div className="p-6">
           <Card className="p-4">
@@ -89,7 +88,7 @@ const EncaissementModal = ({ isOpen, open, onClose, onOpenChange, venteId, onSav
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,7 +21,7 @@ const ConditionModal = ({ open, onOpenChange, condition, onSaved }: any) => {
       if (condition?.id) await (supabase as any).from('conditions_environnement').update(form).eq('id', condition.id);
       else await (supabase as any).from('conditions_environnement').insert(form);
       onSaved && onSaved();
-    } catch (e) {}
+    } catch (e) { }
     onOpenChange(false);
   };
 
@@ -28,9 +29,8 @@ const ConditionModal = ({ open, onOpenChange, condition, onSaved }: any) => {
   if (!open) return null;
 
   return (
-    <div data-debug="ConditionModal" className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-2xl">
+      <div data-debug="ConditionModal" className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader
           title={condition ? 'Edit Condition' : 'Nouvelle mesure'}
           subtitle="Mesures environnementales"
@@ -43,15 +43,15 @@ const ConditionModal = ({ open, onOpenChange, condition, onSaved }: any) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm">Température (°C)</label>
-                <Input ref={firstRef} type="number" value={form.temperature} onChange={(e) => setForm({...form, temperature: Number(e.target.value)})} />
+                <Input ref={firstRef} type="number" value={form.temperature} onChange={(e) => setForm({ ...form, temperature: Number(e.target.value) })} />
               </div>
               <div>
                 <label className="block text-sm">pH</label>
-                <Input type="number" step="0.1" value={form.ph} onChange={(e) => setForm({...form, ph: Number(e.target.value)})} />
+                <Input type="number" step="0.1" value={form.ph} onChange={(e) => setForm({ ...form, ph: Number(e.target.value) })} />
               </div>
               <div>
                 <label className="block text-sm">Oxygène (mg/L)</label>
-                <Input type="number" value={form.oxygen} onChange={(e) => setForm({...form, oxygen: Number(e.target.value)})} />
+                <Input type="number" value={form.oxygen} onChange={(e) => setForm({ ...form, oxygen: Number(e.target.value) })} />
               </div>
             </div>
 
@@ -62,7 +62,7 @@ const ConditionModal = ({ open, onOpenChange, condition, onSaved }: any) => {
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,9 +57,8 @@ const EscargotiereModal = ({ open, onOpenChange, parc, onSaved }: any) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-2xl">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader
           title={parc ? 'Éditer Escargotière' : 'Nouvelle Escargotière'}
           subtitle="Détails de l'escargotière"
@@ -159,11 +159,11 @@ const EscargotiereModal = ({ open, onOpenChange, parc, onSaved }: any) => {
       <ConfirmModal
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        title="Supprimer l'escargotière"
+        title={`Supprimer l'escargotière de ${parc?.nom || "cet utilisateur"}`}
         description="Voulez-vous vraiment supprimer cette escargotière ? Cette action est irréversible."
         onConfirm={confirmDelete}
       />
-    </div>
+    </WhatsAppModal>
   );
 };
 

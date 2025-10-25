@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Profile } from '@/types';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import { Card } from '@/components/ui/card';
@@ -77,9 +79,8 @@ const CollaboratorModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onClose?.()} />
-      <div className="bg-white rounded-xl shadow-md w-full max-w-xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={isOpen} onClose={() => onClose?.()} hideHeader className="max-w-xl">
+      <div className="bg-white rounded-t-3xl shadow-md w-full mx-auto overflow-visible">
         <ModalHeader title={existing ? 'Modifier collaborateur' : 'Nouveau collaborateur'} subtitle="Détails du collaborateur" headerLogo={<AnimatedLogo size={36} mainColor="text-white" secondaryColor="text-blue-300" />} onClose={() => onClose?.()} />
         <div className="p-4">
           <Card className="p-3">
@@ -110,16 +111,7 @@ const CollaboratorModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
                 </div>
 
                 <div className="flex justify-end gap-2 pt-2">
-                  {existing?.id && <Button variant="destructive" onClick={async () => {
-                    if (!confirm('Supprimer ce collaborateur ?')) return;
-                    setLoading(true);
-                    try {
-                      await (supabase as any).from('profiles').delete().eq('id', existing.id);
-                      qc.invalidateQueries({ queryKey: ['collabs'] });
-                      onSaved?.();
-                      onClose?.();
-                    } catch (e) { console.error(e); } finally { setLoading(false); }
-                  }} disabled={loading}>Supprimer</Button>}
+                  {existing?.id && <Button variant="destructive" onClick={() => setConfirmOpen(true)} disabled={loading}>Supprimer</Button>}
                   <Button variant="ghost" onClick={() => onClose?.()}>Annuler</Button>
                   <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : 'Enregistrer'}</Button>
                 </div>
@@ -127,8 +119,18 @@ const CollaboratorModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
             </form>
           </Card>
         </div>
+        <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title={`Supprimer ce collaborateur ${existing?.full_name ?? ''}`} description="Cette action est irréversible. Voulez-vous continuer ?" onConfirm={async () => {
+          if (!existing?.id) return;
+          setLoading(true);
+          try {
+            await (supabase as any).from('profiles').delete().eq('id', existing.id);
+            qc.invalidateQueries({ queryKey: ['collabs'] });
+            onSaved?.();
+            onClose?.();
+          } catch (e) { console.error(e); } finally { setLoading(false); setConfirmOpen(false); }
+        }} />
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

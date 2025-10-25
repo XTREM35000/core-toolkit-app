@@ -32,9 +32,8 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div data-debug="DeveloperModal" className={`fixed inset-0 z-50 flex items-center justify-center ${isOpen ? '' : 'pointer-events-none'}`}>
-      <div data-debug="DeveloperModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => onClose()} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={isOpen} onClose={() => onClose()} hideHeader size="xl">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full max-w-3xl mx-auto overflow-visible">
         <ModalHeader
           title="Bienvenue sur AquaHelix Manager Pro"
           subtitle="Plateforme de gestion piscicole et hélicicole"
@@ -100,6 +99,6 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
           </div>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };

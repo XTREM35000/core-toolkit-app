@@ -36,7 +36,7 @@ const PontesList: React.FC = () => {
                   <td>{i.nb_oeufs}</td>
                   <td>{i.observation}</td>
                   <td className="text-right flex justify-end gap-2">
-                    <Button variant="destructive" onClick={async () => { if (!window.confirm('Supprimer cette ponte ?')) return; await (supabase as any).from('pontes_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
+                    <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={async () => { if (!window.confirm('Supprimer cette ponte ?')) return; await (supabase as any).from('pontes_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
                     <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                   </td>
                 </tr>

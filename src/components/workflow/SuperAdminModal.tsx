@@ -9,6 +9,7 @@ import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { EmailInput } from '@/components/ui/email-input';
 import { ModalHeader } from './shared/ModalHeader';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { FormField } from './shared/FormField';
 import AnimatedLogo from '@/components/AnimatedLogo';
 
@@ -58,52 +59,52 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
         return;
       }
 
-         // Vérifier si un super admin existe d\u00e9j\u00e0 via RPC s\u00e9curis\u00e9.
-         // If the RPC is not available (404 / PGRST202), fall back to direct selects.
-         let hasSuperAdmin = false;
- 
-         try {
-           const { data: hasSuperAdminData, error: hasError } = await (supabase as any).rpc('has_super_admin');
-           if (!hasError && hasSuperAdminData !== undefined) {
-             hasSuperAdmin = Array.isArray(hasSuperAdminData) ? hasSuperAdminData[0] : hasSuperAdminData;
-           }
-         } catch (rpcErr) {
-           // RPC missing or network error — we'll fallback to selects below.
-           console.warn('has_super_admin rpc unavailable, falling back to selects:', rpcErr);
-         }
- 
-         // Fallback: check profiles and user_roles directly if RPC didn't report true.
-         if (!hasSuperAdmin) {
-           try {
-             const { data: profilesWithSuper } = await supabase
-               .from('profiles')
-               .select('id')
-               .eq('role', 'super_admin')
-               .limit(1) as any;
-             hasSuperAdmin = (profilesWithSuper?.length ?? 0) > 0;
-           } catch (err) {
-             // ignore and try next fallback
-           }
- 
-           if (!hasSuperAdmin) {
-             try {
-               const { data: superAdmin } = await supabase
-                 .from('user_roles' as any)
-                 .select('id')
-                 .eq('role', 'super_admin')
-                 .limit(1) as any;
- 
-               hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
-             } catch (err) {
-               // ignore
-             }
-           }
-         }
- 
-         if (hasSuperAdmin === true) {
-           setError('Un super administrateur existe d\u00e9j\u00e0 dans le syst\u00e8me');
-           return;
-         }
+      // Vérifier si un super admin existe d\u00e9j\u00e0 via RPC s\u00e9curis\u00e9.
+      // If the RPC is not available (404 / PGRST202), fall back to direct selects.
+      let hasSuperAdmin = false;
+
+      try {
+        const { data: hasSuperAdminData, error: hasError } = await (supabase as any).rpc('has_super_admin');
+        if (!hasError && hasSuperAdminData !== undefined) {
+          hasSuperAdmin = Array.isArray(hasSuperAdminData) ? hasSuperAdminData[0] : hasSuperAdminData;
+        }
+      } catch (rpcErr) {
+        // RPC missing or network error — we'll fallback to selects below.
+        console.warn('has_super_admin rpc unavailable, falling back to selects:', rpcErr);
+      }
+
+      // Fallback: check profiles and user_roles directly if RPC didn't report true.
+      if (!hasSuperAdmin) {
+        try {
+          const { data: profilesWithSuper } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'super_admin')
+            .limit(1) as any;
+          hasSuperAdmin = (profilesWithSuper?.length ?? 0) > 0;
+        } catch (err) {
+          // ignore and try next fallback
+        }
+
+        if (!hasSuperAdmin) {
+          try {
+            const { data: superAdmin } = await supabase
+              .from('user_roles' as any)
+              .select('id')
+              .eq('role', 'super_admin')
+              .limit(1) as any;
+
+            hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
+          } catch (err) {
+            // ignore
+          }
+        }
+      }
+
+      if (hasSuperAdmin === true) {
+        setError('Un super administrateur existe d\u00e9j\u00e0 dans le syst\u00e8me');
+        return;
+      }
 
       // Upload de l'avatar si présent
       let avatarUrl = null;
@@ -171,19 +172,19 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
         if (profileError) throw profileError;
 
         // Demander au serveur (RPC) d'assigner le rôle super_admin de façon sécurisée
-                // L'appel RPC exécute la logique avec des droits suffisants (SECURITY DEFINER)
-                const { data: rpcData, error: rpcError } = await (supabase as any)
-                  .rpc('assign_initial_super_admin', { user_uuid: authData.user.id });
-        
-                if (rpcError) throw rpcError;
+        // L'appel RPC exécute la logique avec des droits suffisants (SECURITY DEFINER)
+        const { data: rpcData, error: rpcError } = await (supabase as any)
+          .rpc('assign_initial_super_admin', { user_uuid: authData.user.id });
 
-                // Also synchronize profile.role for quick checks
-                const { error: profileRoleError } = await supabase
-                  .from('profiles')
-                  .update({ role: 'super_admin' })
-                  .eq('id', authData.user.id);
+        if (rpcError) throw rpcError;
 
-                if (profileRoleError) console.warn('Failed to update profile.role for super_admin:', profileRoleError);
+        // Also synchronize profile.role for quick checks
+        const { error: profileRoleError } = await supabase
+          .from('profiles')
+          .update({ role: 'super_admin' })
+          .eq('id', authData.user.id);
+
+        if (profileRoleError) console.warn('Failed to update profile.role for super_admin:', profileRoleError);
 
         // Persist last created admin email for faster testing / OTP prefills
         try {
@@ -211,9 +212,8 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
   if (step === 2) {
     if (!modalOpen) return null;
     return (
-      <div data-debug="SuperAdminModal-success" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-        <div data-debug="SuperAdminModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+      <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} size="md" hideHeader>
+        <div data-debug="SuperAdminModal-success" className="w-full">
           <div className="p-8 flex flex-col items-center justify-center">
             <CheckCircle className="w-20 h-20 text-green-500 mb-4 animate-bounce" />
             <h2 className="text-2xl font-bold mb-2">Super Admin créé !</h2>
@@ -223,16 +223,15 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
             </div>
           </div>
         </div>
-      </div>
+      </WhatsAppModal>
     );
   }
 
   if (!modalOpen) return null;
 
   return (
-    <div data-debug="SuperAdminModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-      <div data-debug="SuperAdminModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} size="xl" hideHeader>
+      <div className="w-full">
         <ModalHeader
           title="Configuration Super Admin"
           subtitle="Initialisation de la plateforme"
@@ -328,7 +327,7 @@ export const SuperAdminModal = ({ isOpen, onClose, onSuccess }: SuperAdminModalP
           </form>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

@@ -36,7 +36,7 @@ const CohortesPouletsList: React.FC = () => {
             <div key={it.id} className="py-2 border-b last:border-b-0 flex items-center justify-between">
               <div>{it.name}</div>
               <div className="flex gap-2">
-                <Button variant="destructive" onClick={async () => { if (!confirm('Confirmer la suppression ?')) return; try { await remove(it.id); } catch (err) { console.error(err); } }}>Supprimer</Button>
+                <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={async () => { if (!confirm('Confirmer la suppression ?')) return; try { await remove(it.id); } catch (err) { console.error(err); } }}>Supprimer</Button>
                 <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => { setSelected(it); setOpen(true); }}>Éditer</Button>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { useAuth } from '@/components/workflow/AdminCreationModal';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import { Card } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { EmailInput } from '@/components/ui/email-input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 interface Props {
   isOpen?: boolean;
@@ -68,7 +70,7 @@ const ClientModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
         await (supabase as any).from('profiles').insert(payload);
       }
 
-      qc.invalidateQueries({ queryKey: ['profiles','clients'] });
+      qc.invalidateQueries({ queryKey: ['profiles', 'clients'] });
       onSaved?.();
       onClose?.();
     } catch (err) {
@@ -78,28 +80,34 @@ const ClientModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
     }
   };
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   const handleDelete = async () => {
     if (!existing?.id) return;
-    if (!confirm('Supprimer ce client ? Cette action est irréversible.')) return;
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!existing?.id) return;
     setLoading(true);
     try {
       await (supabase as any).from('profiles').delete().eq('id', existing.id);
-      qc.invalidateQueries({ queryKey: ['profiles','clients'] });
+      qc.invalidateQueries({ queryKey: ['profiles', 'clients'] });
       onSaved?.();
       onClose?.();
     } catch (err) {
       console.error('Delete client error', err);
     } finally {
       setLoading(false);
+      setConfirmOpen(false);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onClose?.()} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={isOpen} onClose={() => onClose?.()} hideHeader className="max-w-2xl">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader title={existing ? 'Modifier Client' : 'Nouveau Client'} subtitle="Détails du client" headerLogo={null} onClose={() => onClose?.()} />
         <div className="p-6">
           <Card className="p-4">
@@ -120,15 +128,16 @@ const ClientModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="destructive" onClick={handleDelete} disabled={loading}>Supprimer</Button>
+                <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={handleDelete} disabled={loading}>Supprimer</Button>
                 <Button variant="ghost" onClick={() => onClose?.()}>Annuler</Button>
                 <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : 'Enregistrer'}</Button>
               </div>
             </form>
           </Card>
         </div>
+        <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title={`Supprimer le client ${existing?.full_name ?? ''}`} description="Cette action est irréversible. Voulez-vous continuer ?" onConfirm={confirmDelete} />
       </div>
-    </div>
+    </WhatsAppModal >
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -125,9 +126,8 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
   if (!open) return null;
 
   return (
-    <div data-debug="CohorteEscargotModal" className={`fixed inset-0 z-50 flex items-center justify-center ${open ? '' : 'pointer-events-none'}`}>
-      <div data-debug="CohorteEscargotModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-3xl">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader
           title={cohort ? 'Éditer cohorte - Escargot' : 'Créer une cohorte - Escargot'}
           subtitle="Informations de la cohorte"
@@ -255,7 +255,7 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
 
         <ConfirmModal
           open={confirmOpen}
-          title="Supprimer la cohorte"
+          title={`Supprimer la cohorte de ${cohort?.nom || "cet utilisateur"}`}
           description="Cette action est irréversible. Voulez-vous vraiment supprimer cette cohorte ?"
           confirmLabel="Supprimer"
           cancelLabel="Annuler"
@@ -263,7 +263,7 @@ const CohorteEscargotModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
           onClose={() => setConfirmOpen(false)}
         />
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

@@ -28,6 +28,7 @@ import CohortesPoissons from "./pages/CohortesPoissons";
 import CohortesEscargots from "./pages/CohortesEscargots";
 import ParcsHelicicoles from "./pages/ParcsHelicicoles";
 import Heliciculture from './pages/Heliciculture';
+import Poissons from './pages/Poissons';
 import Aviculture from './pages/Aviculture';
 import CohortesPoulets from './pages/CohortesPoulets';
 import Poulaillers from './pages/Poulaillers';
@@ -84,7 +85,7 @@ const App: React.FC = () => {
             <BrowserRouter>
               {/* AppInitialization fonctionne en arrière-plan */}
               <AppInitialization />
-              
+
               {/* Routes principales toujours visibles */}
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -114,8 +115,13 @@ const App: React.FC = () => {
                 <Route path="/zones-peche" element={<ZonesPeche />} />
                 <Route path="/cultures" element={<Cultures />} />
                 <Route path="/cohortes-escargots" element={<CohortesEscargots />} />
+                <Route path="/poissons" element={<Poissons />} />
+                <Route path="/especes-poissons" element={<Poissons initialSection="especes" />} />
                 <Route path="/parcs-helicicoles" element={<ParcsHelicicoles />} />
                 <Route path="/heliciculture" element={<Heliciculture />} />
+                {/* Legacy / direct links to heliciculture subsections — redirect to Heliciculture and open section */}
+                <Route path="/escargotieres" element={<Heliciculture initialSection="escargotieres" />} />
+                <Route path="/mesures-heliciculture" element={<Heliciculture initialSection="cohortes" />} />
                 <Route path="/stock-aliments" element={<StockAliments />} />
                 <Route path="/conditions-environnement" element={<ConditionsEnvironnement />} />
                 <Route path="/stock" element={<Stock />} />

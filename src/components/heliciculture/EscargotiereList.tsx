@@ -50,7 +50,7 @@ const EscargotiereList: React.FC = () => {
                     <td>{i.substrat}</td>
                     <td>{i.date_installation}</td>
                     <td className="text-right flex justify-end gap-2">
-                      <Button variant="ghost" className='text-red-600' onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                      <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
                       <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                     </td>
                   </tr>
@@ -64,7 +64,7 @@ const EscargotiereList: React.FC = () => {
 
       <ConfirmModal
         open={confirmOpen}
-        title="Supprimer l'escargotière"
+        title={`Supprimer l'escargotière de ${pendingDelete?.nom || "cet utilisateur"}`}
         description={pendingDelete ? `Supprimer l'escargotière « ${pendingDelete.nom || pendingDelete.id} » ?` : "Supprimer cet élément ?"}
         confirmLabel="Supprimer"
         cancelLabel="Annuler"

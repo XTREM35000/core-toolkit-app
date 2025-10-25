@@ -41,12 +41,12 @@ const VenteClientModal = ({ isOpen, open, onClose, onOpenChange, onSaved }: Prop
     setLoading(true);
     try {
       const payload = { client_name: clientName, client_id: clientId, quantity: Number(quantity), unit_price: Number(unitPrice), notes, created_at: new Date().toISOString(), status: 'Commande' } as any;
-  const { error } = await (supabase as any).from('ventes_clients').insert(payload);
-  if (error) throw error;
-  onSaved?.();
-  qc.invalidateQueries({ queryKey: ['ventes_clients'] });
-  toast({ title: 'Vente créée', description: 'La vente client a été créée avec succès.' });
-  setOpen(false);
+      const { error } = await (supabase as any).from('ventes_clients').insert(payload);
+      if (error) throw error;
+      onSaved?.();
+      qc.invalidateQueries({ queryKey: ['ventes_clients'] });
+      toast({ title: 'Vente créée', description: 'La vente client a été créée avec succès.' });
+      setOpen(false);
     } catch (err) {
       console.error('Vente save error', err);
     } finally {
@@ -58,9 +58,8 @@ const VenteClientModal = ({ isOpen, open, onClose, onOpenChange, onSaved }: Prop
 
   return (
     <>
-      <div data-debug="VenteClientModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-        <div data-debug="VenteClientModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl z-50 overflow-hidden">
+      <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} hideHeader className="max-w-xl">
+        <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
           <ModalHeader title="Nouvelle vente" subtitle="Saisir la commande client" headerLogo={<AnimatedLogo size={32} />} onClose={() => setOpen(false)} />
           <div className="p-4 bg-white">
             <Card className="p-3">
@@ -99,7 +98,7 @@ const VenteClientModal = ({ isOpen, open, onClose, onOpenChange, onSaved }: Prop
             </Card>
           </div>
         </div>
-      </div>
+      </WhatsAppModal>
 
       <CreateProfileModal isOpen={openCreateClient} onClose={() => setOpenCreateClient(false)} role="client" initialName={clientName} onCreated={(p) => { setClientId(p.id); setClientName(p.full_name); }} />
     </>

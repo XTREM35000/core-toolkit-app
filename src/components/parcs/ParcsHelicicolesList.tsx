@@ -58,50 +58,51 @@ const ParcHelicicoleModal = ({ open, onOpenChange, parc, onSaved }: ParcHelicico
   if (!open) return null;
 
   return (
-    <div data-debug="ParcHelicicoleModal" className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
-        <ModalHeader
-          title={parc ? 'Modifier Parc' : 'Créer Parc'}
-          subtitle="Informations du parc"
-          headerGradient="from-purple-500 to-purple-600"
-          headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-purple-300" />}
-          onClose={() => onOpenChange(false)}
-        />
+    <>
+      <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-3xl">
+        <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
+          <ModalHeader
+            title={parc ? 'Modifier Parc' : 'Créer Parc'}
+            subtitle="Informations du parc"
+            headerGradient="from-purple-500 to-purple-600"
+            headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-purple-300" />}
+            onClose={() => onOpenChange(false)}
+          />
 
-        <div className="p-6 bg-white">
-          <Card className="p-4">
-            {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm">Nom</label>
-                <input ref={firstRef} value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} className="w-full border rounded px-3 py-2" />
+          <div className="p-6 bg-white">
+            <Card className="p-4">
+              {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm">Nom</label>
+                  <input ref={firstRef} value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} className="w-full border rounded px-3 py-2" />
+                </div>
+                <div>
+                  <label className="block text-sm">Superficie (m²)</label>
+                  <input value={form.superficie_m2} onChange={(e) => setForm({ ...form, superficie_m2: e.target.value })} className="w-full border rounded px-3 py-2" />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm">Superficie (m²)</label>
-                <input value={form.superficie_m2} onChange={(e) => setForm({ ...form, superficie_m2: e.target.value })} className="w-full border rounded px-3 py-2" />
-              </div>
-            </div>
 
-            <div className="mt-4 flex items-center justify-end gap-3">
-              {parc?.id && <Button variant="ghost" className="mr-auto text-red-600 hover:bg-red-50" onClick={() => setConfirmOpen(true)}>Supprimer</Button>}
-              <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
-              <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : parc ? 'Enregistrer' : 'Créer'}</Button>
-            </div>
-          </Card>
+              <div className="mt-4 flex items-center justify-end gap-3">
+                {parc?.id && <Button variant="ghost" className="mr-auto text-red-600 hover:bg-red-50" onClick={() => setConfirmOpen(true)}>Supprimer</Button>}
+                <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+                <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : parc ? 'Enregistrer' : 'Créer'}</Button>
+              </div>
+            </Card>
+          </div>
         </div>
-      </div>
+      </WhatsAppModal>
 
       <ConfirmModal
         open={confirmOpen}
-        title="Supprimer le parc"
+        title={parc ? `Supprimer le parc de ${parc.nom}` : 'Supprimer le parc'}
         description={parc ? `Supprimer le parc « ${parc.nom || parc.id} » ?` : 'Supprimer cet élément ?'}
         confirmLabel="Supprimer"
         cancelLabel="Annuler"
         onClose={() => setConfirmOpen(false)}
         onConfirm={async () => { await handleDeleteConfirmed(); }}
       />
-    </div>
+    </>
   );
 };
 
@@ -148,7 +149,7 @@ const ParcsHelicicolesList = () => {
                   <td>{i.superficie_m2}</td>
                   <td>{i.statut}</td>
                   <td className="text-right flex justify-end gap-2">
-                    <Button variant="ghost" className='text-red-600' onClick={async () => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                    <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={async () => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
                     <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                   </td>
                 </tr>
@@ -162,7 +163,7 @@ const ParcsHelicicolesList = () => {
 
       <ConfirmModal
         open={confirmOpen}
-        title="Supprimer le parc"
+        title={`Supprimer l'escargotière de ${pendingDelete?.nom || "cet utilisateur"}`}
         description={pendingDelete ? `Supprimer le parc « ${pendingDelete.name || pendingDelete.nom || pendingDelete.title || pendingDelete.id} » ?` : 'Supprimer cet élément ?'}
         confirmLabel="Supprimer"
         cancelLabel="Annuler"

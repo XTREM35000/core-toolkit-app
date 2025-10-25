@@ -51,7 +51,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
   // const responsiveConstraints = useBreakpointDragConstraints();
 
   // Valeurs de test / defaults
-  const defaultConstraints = { top: -150, bottom: 100 };
+  const defaultConstraints = { top: -400, bottom: 400 };
   const effectiveConstraints = dragConstraints ? { top: dragConstraints.top ?? defaultConstraints.top, bottom: dragConstraints.bottom ?? defaultConstraints.bottom } : defaultConstraints;
 
   // Gestion du drag vertical
@@ -129,12 +129,12 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
         onClick={allowCloseOnOutsideClick ? (e) => e.target === e.currentTarget && onClose() : undefined}
       >
-  {/* Overlay avec backdrop blur */}
-  <div className="absolute inset-0" style={{ background: 'var(--overlay-color)', backdropFilter: 'blur(6px)' }} />
-  <motion.div
+        {/* Overlay avec backdrop blur */}
+        <div className="absolute inset-0" style={{ background: 'var(--overlay-color)', backdropFilter: 'blur(6px)' }} />
+        <motion.div
           initial={{ scale: 0.98, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.98, opacity: 0, y: 20 }}
@@ -146,7 +146,7 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
           onDragEnd={handleDragEnd}
           style={{ ...externalStyle, transform: `translateY(${dragY}px)` }}
           className={cn(
-            'relative bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full',
+            'relative bg-white dark:bg-neutral-900 rounded-t-3xl shadow-xl w-full',
             'flex flex-col',
             size === 'sm' && 'max-w-sm h-[95vh]',
             size === 'md' && 'max-w-md h-[95vh]',
@@ -200,8 +200,8 @@ export const WhatsAppModal: React.FC<WhatsAppModalProps> = ({
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              {/* Contenu avec scroll interne pour préserver l'header */}
-              <div className="rounded-b-2xl flex-1 overflow-y-auto" style={{ background: 'var(--card-bg)' }}>
+              {/* Contenu — allow visible overflow so children can render outside and not block drag */}
+              <div className="rounded-b-2xl flex-1 overflow-visible" style={{ background: 'var(--card-bg)' }}>
                 <div className="p-6" style={{ color: 'var(--muted-foreground)' }}>
                   {children}
                 </div>

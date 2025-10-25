@@ -41,7 +41,7 @@ const CohortesEscargotsList = () => {
                     <td>{i.nombre_initial}</td>
                     <td>{i.statut}</td>
                     <td className="text-right flex justify-end gap-2">
-                      <Button variant="ghost" className='text-red-600' onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
+                      <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => { setPendingDelete(i); setConfirmOpen(true); }}>Supprimer</Button>
                       <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                     </td>
                   </tr>
@@ -55,7 +55,7 @@ const CohortesEscargotsList = () => {
 
       <ConfirmModal
         open={confirmOpen}
-        title="Supprimer la cohorte"
+        title={`Supprimer l'escargotière de ${pendingDelete?.nom || "cet utilisateur"}`}
         description={pendingDelete ? `Supprimer la cohorte « ${pendingDelete.nom || pendingDelete.id} » ?` : "Supprimer cet élément ?"}
         confirmLabel="Supprimer"
         cancelLabel="Annuler"

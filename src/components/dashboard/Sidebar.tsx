@@ -8,6 +8,8 @@ import {
   Settings,
   Fish,
   Shell,
+  ChevronDown,
+  ChevronRight,
   BarChart3,
   FileText,
   HelpCircle,
@@ -51,6 +53,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
   const navigate = useNavigate();
   const { isSuperAdmin, isAdmin, profile } = useAuth();
   const { state } = useSidebar();
+  const [openModules, setOpenModules] = React.useState<Record<string, boolean>>({});
 
   // Réorganisation par groupes logiques
   const navGroups = {
@@ -58,20 +61,56 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
       { path: "/admin", label: "Tableau de Bord", icon: LayoutDashboard, admin: false }
     ],
 
+    // Modules métiers — pages principales qui regroupent les cohortes/ressources
     production: [
       { path: "/bassins-piscicoles", label: "Bassins Piscicoles", icon: Fish, admin: false },
-      { path: "/cohortes-poissons", label: "Cohortes Poissons", icon: Fish, admin: false },
-      { path: "/heliciculture", label: "Héliciculture", icon: Shell, admin: false },
+      {
+        path: "/poissons",
+        label: "Poissons",
+        icon: Fish,
+        admin: false,
+        children: [
+          { path: "/cohortes-poissons", label: "Cohortes Poissons", icon: Users, admin: false },
+          { path: "/bassins-piscicoles", label: "Bassins Piscicoles", icon: Fish, admin: false },
+          { path: "/especes-poissons", label: "Espèces", icon: FileText, admin: false }
+        ]
+      },
+      {
+        path: "/heliciculture",
+        label: "Héliciculture",
+        icon: Shell,
+        admin: false,
+        children: [
+          { path: "/cohortes-escargots", label: "Cohortes Escargots", icon: Shell, admin: false },
+          { path: "/escargotieres", label: "Escargotières", icon: Building, admin: false },
+          { path: "/mesures-heliciculture", label: "Mesures", icon: Thermometer, admin: false }
+        ]
+      },
+      {
+        path: "/aviculture",
+        label: "Aviculture",
+        icon: Beef,
+        admin: false,
+        children: [
+          { path: "/cohortes-poulets", label: "Cohortes Poulets", icon: Users, admin: false },
+          { path: "/poulaillers", label: "Poulaillers", icon: Warehouse, admin: false }
+        ]
+      },
+      {
+        path: "/cuniculture",
+        label: "Cuniculture",
+        icon: Rabbit,
+        admin: false,
+        children: [
+          { path: "/cohortes-lapins", label: "Cohortes Lapins", icon: Users, admin: false },
+          { path: "/clapiers", label: "Clapiers", icon: Rabbit, admin: false }
+        ]
+      },
       { path: "/poulaillers", label: "Poulaillers", icon: Warehouse, admin: false },
-      { path: "/cohortes-poulets", label: "Cohortes Poulets", icon: Users, admin: false },
-      { path: "/clapiers", label: "Clapiers", icon: Rabbit, admin: false },
-      { path: "/cohortes-lapins", label: "Cohortes Lapins", icon: Rabbit, admin: false },
       { path: "/ruchers", label: "Ruchers", icon: Bug, admin: false },
       { path: "/etables", label: "Étables", icon: Beef, admin: false },
-      { path: "/troupeaux", label: "Troupeaux", icon: Users, admin: false },
       { path: "/parcelles", label: "Parcelles", icon: Sprout, admin: false },
-      { path: "/cultures", label: "Cultures", icon: Sprout, admin: false },
-      { path: "/zones-peche", label: "Zones de Pêche", icon: Anchor, admin: false }
+      { path: "/zones-peche", label: "Zones de Pêche", icon: Anchor, admin: false },
     ],
 
     operations: [
@@ -93,8 +132,6 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
     ],
 
     administration: [
-      { path: "/farms", label: "Fermes", icon: Building, admin: true },
-      { path: "/fournisseurs", label: "Fournisseurs", icon: Truck, admin: true },
       { path: "/clients", label: "Clients", icon: Users, admin: true },
       { path: "/profiles", label: "Gestion Profils", icon: UserCog, admin: true },
       { path: "/security", label: "Sécurité", icon: Shield, admin: true },
@@ -102,8 +139,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
     ],
 
     support: [
-      { path: "/help", label: "Aide & Support", icon: HelpCircle, admin: false },
-      // settings removed (orphan) per request
+      { path: "/help", label: "Aide & Support", icon: HelpCircle, admin: false }
     ]
   };
 
@@ -144,6 +180,95 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
 
     if (filteredItems.length === 0) return null;
 
+    const renderNavItem = (item) => {
+      const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+      const childMatches = hasChildren && item.children.some(child => location.pathname === child.path || location.pathname.startsWith(child.path));
+      const isOpen = openModules[item.path] ?? !!childMatches;
+      // only mark an item active when its path exactly matches the location.
+      // if a child is active, we keep the parent visually distinct but not 'selected'
+      const isActive = location.pathname === item.path;
+
+      return (
+        <div key={item.path}>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              isActive={isActive}
+              tooltip={item.label}
+              onClick={() => handleNavigation(item.path, item.label)}
+              className={cn(
+                "transition-all duration-200 group relative",
+                isActive
+                  ? `${colorScheme.active} text-white shadow-lg`
+                  : childMatches
+                    ? "bg-gray-100 text-gray-900"
+                    : `${colorScheme.hover} text-gray-700`
+              )}
+            >
+              <item.icon className={cn(
+                "w-4 h-4 transition-transform group-hover:scale-110",
+                isActive ? "text-white" : "text-gray-500"
+              )} />
+              <span className="font-medium">{item.label}</span>
+
+              {hasChildren && (
+                <button
+                  aria-label={isOpen ? "Réduire" : "Développer"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenModules(prev => ({ ...prev, [item.path]: !isOpen }));
+                  }}
+                  className={cn("ml-auto p-1 rounded focus:outline-none", isActive ? "text-white" : childMatches ? "text-gray-700" : "text-gray-400")}
+                >
+                  <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen ? "rotate-180" : "rotate-0")} />
+                </button>
+              )}
+
+              {!hasChildren && isActive && state !== "collapsed" && (
+                <div className="ml-auto w-2 h-2 bg-white rounded-full" />
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {hasChildren && (
+            <div
+              className={cn(
+                "ml-4 mt-1 space-y-1 overflow-hidden transition-[max-height,opacity,transform] duration-200 ease-in-out",
+                isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+              )}
+              style={{ maxHeight: isOpen ? 500 : 0 }}
+            >
+              {item.children.filter(child => !child.admin || (child.admin && (isSuperAdmin || isAdmin))).map(child => {
+                const childActive = location.pathname === child.path;
+                return (
+                  <SidebarMenuItem key={child.path}>
+                    <SidebarMenuButton
+                      isActive={childActive}
+                      tooltip={child.label}
+                      onClick={() => handleNavigation(child.path, child.label)}
+                      className={cn(
+                        "transition-all duration-150 group relative text-sm",
+                        childActive ? `${colorScheme.active} text-white shadow-sm` : "text-gray-600 hover:bg-gray-50"
+                      )}
+                    >
+                      {child.icon ? (
+                        <child.icon className={cn("w-4 h-4 mr-2", childActive ? "text-white" : "text-gray-500")} />
+                      ) : (
+                        <div className={cn("w-2 h-2 mr-2 rounded-full", childActive ? "bg-white" : "bg-gray-400")} />
+                      )}
+                      <span className="ml-0.5">{child.label}</span>
+                      {childActive && state !== "collapsed" && (
+                        <div className="ml-auto w-2 h-2 bg-white rounded-full" />
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    };
+
     return (
       <SidebarGroup key={groupKey} className="mb-2">
         {state !== "collapsed" && (
@@ -162,33 +287,7 @@ export const AppSidebar = ({ onNavigate }: { onNavigate?: (string) => void }) =>
           </SidebarGroupLabel>
         )}
         <SidebarMenu>
-          {filteredItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton
-                  isActive={isActive}
-                  tooltip={item.label}
-                  onClick={() => handleNavigation(item.path, item.label)}
-                  className={cn(
-                    "transition-all duration-200 group relative",
-                    isActive
-                      ? `${colorScheme.active} text-white shadow-lg`
-                      : `${colorScheme.hover} text-gray-700`
-                  )}
-                >
-                  <item.icon className={cn(
-                    "w-4 h-4 transition-transform group-hover:scale-110",
-                    isActive ? "text-white" : "text-gray-500"
-                  )} />
-                  <span className="font-medium">{item.label}</span>
-                  {isActive && state !== "collapsed" && (
-                    <div className="ml-auto w-2 h-2 bg-white rounded-full" />
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
+          {filteredItems.map(item => renderNavItem(item))}
         </SidebarMenu>
       </SidebarGroup>
     );

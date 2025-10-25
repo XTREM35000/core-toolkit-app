@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,9 +100,8 @@ const CohortePoissonModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
   if (!open) return null;
 
   return (
-    <div data-debug="CohortePoissonModal" className={`fixed inset-0 z-50 flex items-center justify-center ${open ? '' : 'pointer-events-none'}`}>
-      <div data-debug="CohortePoissonModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl z-50 overflow-hidden">
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-3xl">
+      <div data-debug="CohortePoissonModal" className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader
           title={cohort ? 'Éditer cohorte - Poisson' : 'Créer une cohorte - Poisson'}
           subtitle="Informations de la cohorte"
@@ -140,7 +140,7 @@ const CohortePoissonModal = ({ open, onOpenChange, cohort, onSaved }: any) => {
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 

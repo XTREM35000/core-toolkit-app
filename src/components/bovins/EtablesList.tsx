@@ -38,7 +38,7 @@ const EtablesList: React.FC = () => {
                   <div className="text-xs text-muted-foreground">Créé le {new Date(p.created_at ?? p.createdAt).toLocaleString()}</div>
                 </div>
                 <div className="flex gap-2">
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => handleDelete(p.id)}>Supprimer</Button>
+                  <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(p.id)}>Supprimer</Button>
                   <Button variant="ghost" onClick={() => handleEdit(p)}>Éditer</Button>
                 </div>
               </div>

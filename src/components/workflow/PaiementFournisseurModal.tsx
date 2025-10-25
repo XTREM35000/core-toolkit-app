@@ -37,14 +37,14 @@ const PaiementFournisseurModal = ({ isOpen, open, onClose, onOpenChange, command
     setLoading(true);
     try {
       const payload = { commande_id: commandeId, amount: Number(amount), method, date: date || new Date().toISOString(), created_at: new Date().toISOString() } as any;
-  const { error } = await (supabase as any).from('paiements_fournisseurs').insert(payload);
-  if (error) throw error;
-  // mark commande as payé
-  await (supabase as any).from('commande_fournisseurs').update({ status: 'Payé' }).eq('id', commandeId);
-  onSaved?.();
-  qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] });
-  toast({ title: 'Paiement enregistré', description: 'Le paiement fournisseur a été enregistré.' });
-  setOpen(false);
+      const { error } = await (supabase as any).from('paiements_fournisseurs').insert(payload);
+      if (error) throw error;
+      // mark commande as payé
+      await (supabase as any).from('commande_fournisseurs').update({ status: 'Payé' }).eq('id', commandeId);
+      onSaved?.();
+      qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] });
+      toast({ title: 'Paiement enregistré', description: 'Le paiement fournisseur a été enregistré.' });
+      setOpen(false);
     } catch (err) {
       console.error('Paiement save error', err);
     } finally {
@@ -55,9 +55,8 @@ const PaiementFournisseurModal = ({ isOpen, open, onClose, onOpenChange, command
   if (!modalOpen) return null;
 
   return (
-    <div data-debug="PaiementFournisseurModal" className={`fixed inset-0 z-50 flex items-center justify-center ${modalOpen ? '' : 'pointer-events-none'}`}>
-      <div data-debug="PaiementFournisseurModal-overlay" className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md z-50 overflow-hidden">
+    <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} hideHeader className="max-w-md">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader title="Paiement fournisseur" subtitle="Enregistrer un paiement" headerLogo={<AnimatedLogo size={36} />} onClose={() => setOpen(false)} />
         <div className="p-6">
           <Card className="p-4">
@@ -87,7 +86,7 @@ const PaiementFournisseurModal = ({ isOpen, open, onClose, onOpenChange, command
           </Card>
         </div>
       </div>
-    </div>
+    </WhatsAppModal>
   );
 };
 
