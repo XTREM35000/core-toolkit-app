@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { MesureModal } from './';
 
 const MesuresList: React.FC = () => {
@@ -8,6 +9,8 @@ const MesuresList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const load = async () => { setLoading(true); try { const { data } = await (supabase as any).from('mesures_escargots').select('*').order('date', { ascending: false }) as any; setItems(data || []); } catch (e) { console.error(e); } finally { setLoading(false); } };
 
@@ -36,7 +39,7 @@ const MesuresList: React.FC = () => {
                   <td>{i.taux_survie}</td>
                   <td>{i.cohorte_nom}</td>
                   <td className="text-right flex justify-end gap-2">
-                    <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={async () => { if (!window.confirm('Supprimer cette mesure ?')) return; await (supabase as any).from('mesures_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
+                    <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => { setPendingDeleteId(i.id); setConfirmOpen(true); }}>Supprimer</Button>
                     <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                   </td>
                 </tr>
@@ -46,6 +49,7 @@ const MesuresList: React.FC = () => {
         </div>
       )}</div>
       <MesureModal open={open} onOpenChange={setOpen} mesure={selected} onSaved={() => { setOpen(false); load(); }} />
+      <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Supprimer la mesure" description="Supprimer cette mesure ?" onConfirm={async () => { if (!pendingDeleteId) return; await (supabase as any).from('mesures_escargots').delete().eq('id', pendingDeleteId); setPendingDeleteId(null); setConfirmOpen(false); load(); }} />
     </div>
   );
 };

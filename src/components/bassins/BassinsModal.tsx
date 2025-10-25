@@ -9,6 +9,7 @@ import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import { FormField } from '@/components/workflow/shared/FormField';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import db from '@/integrations/supabase/db';
+import ConfirmModal from '@/components/ui/ConfirmModal'; 
 
 interface BassinsModalProps {
   open: boolean;
@@ -36,10 +37,15 @@ const BassinsModal: React.FC<BassinsModalProps> = ({ open, onOpenChange, bassin 
     }
   }, [bassin, open]);
 
-  const handleDelete = async () => {
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+
+  const handleDelete = () => {
     if (!bassin?.id) return;
-    const confirmed = window.confirm('Supprimer ce bassin ? Cette action est irréversible.');
-    if (!confirmed) return;
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!bassin?.id) return;
     try {
       await db.deleteOne('bassins_piscicoles', bassin.id);
       onSaved && onSaved();
@@ -47,6 +53,8 @@ const BassinsModal: React.FC<BassinsModalProps> = ({ open, onOpenChange, bassin 
     } catch (e) {
       console.error('Delete bassin error', e);
       setError('Impossible de supprimer le bassin');
+    } finally {
+      setConfirmOpen(false);
     }
   };
 
@@ -163,6 +171,7 @@ const BassinsModal: React.FC<BassinsModalProps> = ({ open, onOpenChange, bassin 
                   <AppButton variant="ghost" onClick={() => onOpenChange(false)}>Annuler</AppButton>
                   <AppButton type="submit" disabled={loading}>{loading ? 'Enregistrement...' : bassin ? 'Enregistrer' : 'Créer'}</AppButton>
                 </div>
+                <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Supprimer le bassin" description="Supprimer ce bassin ? Cette action est irréversible." onConfirm={confirmDelete} />
               </div>
             </div>
           </form>

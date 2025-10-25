@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import useRecoltesMiel from '@/hooks/useRecoltesMiel';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 const RecoltesMielList: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -14,7 +15,17 @@ const RecoltesMielList: React.FC = () => {
   };
 
   const handleEdit = (it: any) => { setSelected(it); setOpen(true); };
-  const handleDelete = async (id: string) => { if (!confirm('Confirmer la suppression ?')) return; try { await remove(id); } catch (err) { console.error(err); } };
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null);
+
+  const handleDelete = async (id: string) => { setPendingDeleteId(id); setConfirmOpen(true); };
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    try { await remove(pendingDeleteId); } catch (err) { console.error(err); }
+    setPendingDeleteId(null);
+    setConfirmOpen(false);
+  };
 
   return (
     <div>
@@ -39,6 +50,7 @@ const RecoltesMielList: React.FC = () => {
         )}
         {error && <div className="text-sm text-red-600 mt-2">Erreur: {(error as any).message ?? String(error)}</div>}
       </div>
+      <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Confirmer la suppression" description="Confirmer la suppression ?" onConfirm={confirmDelete} />
     </div>
   );
 };

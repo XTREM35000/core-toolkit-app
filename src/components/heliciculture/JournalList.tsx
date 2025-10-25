@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import { JournalModal } from './';
 
 const JournalList: React.FC = () => {
@@ -15,6 +16,14 @@ const JournalList: React.FC = () => {
   };
 
   useEffect(() => { load(); }, []);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    try { await (supabase as any).from('journal_escargots').delete().eq('id', pendingDeleteId); } catch (e) { console.error(e); } finally { setPendingDeleteId(null); setConfirmOpen(false); load(); }
+  };
 
   return (
     <div>
@@ -38,7 +47,7 @@ const JournalList: React.FC = () => {
                     <td>{i.activite}</td>
                     <td>{i.observations}</td>
                     <td className="text-right flex justify-end gap-2">
-                      <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={async () => { if (!window.confirm('Supprimer cet enregistrement ?')) return; await (supabase as any).from('journal_escargots').delete().eq('id', i.id); load(); }}>Supprimer</Button>
+                      <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => { setPendingDeleteId(i.id); setConfirmOpen(true); }}>Supprimer</Button>
                       <Button variant="ghost" onClick={() => { setSelected(i); setOpen(true); }}>Éditer</Button>
                     </td>
                   </tr>
@@ -49,6 +58,7 @@ const JournalList: React.FC = () => {
         )}
       </div>
       <JournalModal open={open} onOpenChange={setOpen} entry={selected} onSaved={() => { setOpen(false); load(); }} />
+      <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Supprimer l'enregistrement" description="Supprimer cet enregistrement ?" onConfirm={confirmDelete} />
     </div>
   );
 };

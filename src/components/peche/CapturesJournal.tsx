@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import useCaptures from '@/hooks/useCaptures';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 const CapturesJournal: React.FC = () => {
   const { items, loading, error, create, update, remove } = useCaptures();
@@ -10,7 +11,17 @@ const CapturesJournal: React.FC = () => {
     try { await create({ description: desc }); } catch (err) { console.error(err); }
   };
 
-  const handleDelete = async (id: string) => { if (!confirm('Confirmer la suppression ?')) return; try { await remove(id); } catch (err) { console.error(err); } };
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => { setPendingDeleteId(id); setConfirmOpen(true); };
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    try { await remove(pendingDeleteId); } catch (err) { console.error(err); }
+    setPendingDeleteId(null);
+    setConfirmOpen(false);
+  };
 
   return (
     <div>
@@ -34,6 +45,7 @@ const CapturesJournal: React.FC = () => {
         )}
         {error && <div className="text-sm text-red-600 mt-2">Erreur: {(error as any).message ?? String(error)}</div>}
       </div>
+      <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Confirmer la suppression" description="Confirmer la suppression ?" onConfirm={confirmDelete} />
     </div>
   );
 };

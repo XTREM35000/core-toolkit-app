@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 const StockAlimentModal: React.FC<{
   open: boolean;
@@ -56,13 +57,19 @@ const StockAlimentModal: React.FC<{
     }
   };
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   const handleDelete = async () => {
     if (!stock?.id) return;
-    if (!window.confirm('Supprimer cet aliment ?')) return;
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!stock?.id) return;
     try {
       await (supabase as any).from('stock_aliments').delete().eq('id', stock.id);
       onSaved && onSaved();
-    } catch (e) { console.error(e); } finally { onOpenChange(false); }
+    } catch (e) { console.error(e); } finally { onOpenChange(false); setConfirmOpen(false); }
   };
 
   // don't render when closed
@@ -105,6 +112,7 @@ const StockAlimentModal: React.FC<{
           </Card>
         </div>
       </div>
+      <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Supprimer l'aliment" description="Supprimer cet aliment ?" onConfirm={confirmDelete} />
     </WhatsAppModal>
   );
 };

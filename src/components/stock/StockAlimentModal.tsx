@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import db from '@/integrations/supabase/db';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
 
@@ -36,9 +37,16 @@ const StockAlimentModal: React.FC<{ open: boolean; onOpenChange: (v: boolean) =>
     finally { setSaving(false); onOpenChange(false); }
   };
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   const handleDelete = async () => {
-    if (!stock?.id) return; if (!window.confirm('Supprimer cet aliment ?')) return;
-    try { await db.deleteOne('stock_aliments', stock.id); onSaved && onSaved(); } catch (err) { console.error('Delete stock error', err); } finally { onOpenChange(false); }
+    if (!stock?.id) return;
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!stock?.id) return;
+    try { await db.deleteOne('stock_aliments', stock.id); onSaved && onSaved(); } catch (err) { console.error('Delete stock error', err); } finally { onOpenChange(false); setConfirmOpen(false); }
   };
 
   // don't render when closed (after hooks)
@@ -76,6 +84,7 @@ const StockAlimentModal: React.FC<{ open: boolean; onOpenChange: (v: boolean) =>
             </div>
           </Card>
         </div>
+        <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Supprimer l'aliment" description="Supprimer cet aliment ?" onConfirm={confirmDelete} />
       </div>
     </WhatsAppModal>
   );

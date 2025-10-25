@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import CohorteModal from './CohorteModal';
 import useCohortesPoulets from '@/hooks/useCohortesPoulets';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 type Cohorte = { id: string; name: string };
 
@@ -11,6 +12,15 @@ const CohortesPouletsList: React.FC = () => {
   const { items, loading, error, create, update, remove } = useCohortesPoulets();
 
   const add = () => { setSelected(null); setOpen(true); };
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    try { await remove(pendingDeleteId); } catch (err) { console.error(err); }
+    setPendingDeleteId(null);
+    setConfirmOpen(false);
+  };
 
   const handleSaved = async (item: any) => {
     try {
@@ -36,7 +46,7 @@ const CohortesPouletsList: React.FC = () => {
             <div key={it.id} className="py-2 border-b last:border-b-0 flex items-center justify-between">
               <div>{it.name}</div>
               <div className="flex gap-2">
-                <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={async () => { if (!confirm('Confirmer la suppression ?')) return; try { await remove(it.id); } catch (err) { console.error(err); } }}>Supprimer</Button>
+                <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => { setPendingDeleteId(it.id); setConfirmOpen(true); }}>Supprimer</Button>
                 <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => { setSelected(it); setOpen(true); }}>Éditer</Button>
               </div>
             </div>
@@ -46,6 +56,7 @@ const CohortesPouletsList: React.FC = () => {
       </div>
 
       <CohorteModal open={open} onOpenChange={(v) => { if (!v) setSelected(null); setOpen(v); }} cohorte={selected} onSaved={(item) => { handleSaved(item); setOpen(false); }} />
+      <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Confirmer la suppression" description="Confirmer la suppression ?" onConfirm={confirmDelete} />
     </div>
   );
 };
