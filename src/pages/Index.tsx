@@ -68,9 +68,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative h-[60vh] overflow-hidden">
-        <img 
+          <img 
           src={heroImage} 
-          alt="AquaHelix Manager Pro - Pisciculture et Héliciculture"
+          alt="MultiFarm SaaS Manager Pro - Pisciculture et Héliciculture"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background" />
@@ -78,10 +78,10 @@ const Index = () => {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
           <AnimatedLogo size={120} className="mb-6" useImage={true} />
           <h1 className="text-5xl md:text-6xl font-bold mb-4 text-center">
-            AquaHelix Manager Pro
+            MultiFarm SaaS Manager Pro
           </h1>
           <p className="text-xl md:text-2xl text-center max-w-2xl px-4 opacity-90">
-            Gestion intelligente de votre pisciculture et héliciculture
+            Gestion intelligente de toutes vos activités agricoles et animales
           </p>
           
           <div className="mt-8 flex items-center gap-2">

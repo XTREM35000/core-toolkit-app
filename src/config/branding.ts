@@ -1,5 +1,5 @@
-export const APP_NAME = 'AquaHelix SaaS';
-export const APP_TAGLINE = 'Gestion intelligente des élevages agricoles';
+export const APP_NAME = 'MultiFarm SaaS';
+export const APP_TAGLINE = 'Gestion intelligente de toutes vos activités agricoles et animales';
 
 export const BRAND_COLORS = {
   primary: '#128C7E',

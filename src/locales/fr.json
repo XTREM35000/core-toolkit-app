@@ -1,0 +1,23 @@
+{
+  "app": {
+  "title": "MultiFarm SaaS",
+  "tagline": "Gestion intelligente de toutes vos activités agricoles et animales"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "clients": "Clients",
+    "poissons": "Poissons",
+    "escargotieres": "Escargotières",
+    "mesures": "Mesures"
+  },
+  "dashboard": {
+  "welcome": "Bienvenue sur MultiFarm SaaS",
+    "active_cohorts": "Cohortes actives",
+    "events_today": "Évènements aujourd'hui"
+  },
+  "confirm": {
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "delete_item": "Voulez-vous vraiment supprimer cet élément ?"
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getHelpForPath } from '@/lib/helpMessages';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -12,8 +13,8 @@ import { Card } from '@/components/ui/card';
 const Fournisseurs = () => {
   const [openNew, setOpenNew] = useState(false);
   const [openSupplierModal, setOpenSupplierModal] = useState(false);
-  const [openReception, setOpenReception] = useState<{open:boolean; id?: string | null}>({ open: false });
-  const [openPaiement, setOpenPaiement] = useState<{open:boolean; id?: string | null}>({ open: false });
+  const [openReception, setOpenReception] = useState<{ open: boolean; id?: string | null }>({ open: false });
+  const [openPaiement, setOpenPaiement] = useState<{ open: boolean; id?: string | null }>({ open: false });
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -24,7 +25,15 @@ const Fournisseurs = () => {
     }
   });
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.dataset.pageHelp = getHelpForPath('/fournisseurs');
+    }
+    return () => {
+      if (typeof document !== 'undefined') delete document.body.dataset.pageHelp;
+    };
+  }, []);
 
   return (
     <DashboardLayout>
@@ -71,10 +80,10 @@ const Fournisseurs = () => {
           )}
         </Card>
 
-  <CommandeFournisseurModal isOpen={openNew} onClose={() => { setOpenNew(false); qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] }); }} onSaved={() => qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] })} />
-  <ReceptionCommandeModal isOpen={openReception.open} onClose={() => { setOpenReception({ open: false }); qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] }); }} commandeId={openReception.id} onSaved={() => qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] })} />
-  <PaiementFournisseurModal isOpen={openPaiement.open} onClose={() => { setOpenPaiement({ open: false }); qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] }); }} commandeId={openPaiement.id} onSaved={() => qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] })} />
-  <CreateProfileModal isOpen={openSupplierModal} onClose={() => { setOpenSupplierModal(false); qc.invalidateQueries({ queryKey: ['profiles','suppliers'] }); }} role="supplier" onCreated={() => qc.invalidateQueries({ queryKey: ['profiles','suppliers'] })} />
+        <CommandeFournisseurModal isOpen={openNew} onClose={() => { setOpenNew(false); qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] }); }} onSaved={() => qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] })} />
+        <ReceptionCommandeModal isOpen={openReception.open} onClose={() => { setOpenReception({ open: false }); qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] }); }} commandeId={openReception.id} onSaved={() => qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] })} />
+        <PaiementFournisseurModal isOpen={openPaiement.open} onClose={() => { setOpenPaiement({ open: false }); qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] }); }} commandeId={openPaiement.id} onSaved={() => qc.invalidateQueries({ queryKey: ['commande_fournisseurs'] })} />
+        <CreateProfileModal isOpen={openSupplierModal} onClose={() => { setOpenSupplierModal(false); qc.invalidateQueries({ queryKey: ['profiles', 'suppliers'] }); }} role="supplier" onCreated={() => qc.invalidateQueries({ queryKey: ['profiles', 'suppliers'] })} />
       </div>
     </DashboardLayout>
   );

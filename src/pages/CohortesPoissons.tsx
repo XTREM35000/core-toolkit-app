@@ -1,29 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import CohortesPoissonsList from '@/components/cohortes/CohortesPoissonsList';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
 
-const CohortesPoissons = () => (
-  <DashboardLayout>
-    <div className="max-w-4xl mx-auto py-6">
-      <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl overflow-hidden shadow-lg">
-        <ModalHeader
-          title="Cohortes Poissons"
-          subtitle="Gérer vos cohortes de poissons"
-          headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-blue-300" />}
-          onClose={() => {}}
-        />
+const CohortesPoissons = () => {
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.dataset.pageHelp = 'Aide — Cohortes (poissons) : surveillez la croissance, enregistrez traitements et planifiez les transferts.';
+    }
+    return () => {
+      if (typeof document !== 'undefined') delete document.body.dataset.pageHelp;
+    };
+  }, []);
 
-        <div className="p-6 bg-white">
-          <Card className="p-4">
-            <CohortesPoissonsList />
-          </Card>
+  return (
+    <DashboardLayout>
+      <div className="max-w-4xl mx-auto py-6">
+        <div className="bg-gradient-to-r from-blue-50 to-white rounded-2xl overflow-hidden shadow-lg">
+          <ModalHeader
+            title="Cohortes Poissons"
+            subtitle="Gérer vos cohortes de poissons"
+            headerLogo={<AnimatedLogo size={40} mainColor="text-white" secondaryColor="text-blue-300" />}
+            onClose={() => { }}
+          />
+          <div className="p-6 bg-white">
+            <Card className="p-4">
+              <CohortesPoissonsList />
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
-  </DashboardLayout>
-);
+    </DashboardLayout>
+  );
+};
 
 export default CohortesPoissons;

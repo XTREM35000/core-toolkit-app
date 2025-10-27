@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import BassinsList from '@/components/bassins/BassinsList';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
@@ -6,6 +6,14 @@ import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
 
 const BassinsPiscicoles = () => {
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.dataset.pageHelp = 'Aide — Bassins piscicoles : créez, éditez ou supprimez des bassins. Assignez des cohortes et suivez les paramètres clés.';
+    }
+    return () => {
+      if (typeof document !== 'undefined') delete document.body.dataset.pageHelp;
+    };
+  }, []);
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto py-6">

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types';
+import type { Database } from '@/integrations/supabase/types';
 
 interface AuthContextType {
   user: User | null;
@@ -34,20 +35,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (profileError) throw profileError;
 
       // Fetch roles from user_roles table (secure)
+      // Fetch roles from user_roles table (secure)
       const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles' as any)
+        .from('user_roles')
         .select('role')
-        .eq('user_id', userId) as any;
+        .eq('user_id', userId);
 
       if (rolesError) {
         console.error('Error fetching roles:', rolesError);
       }
 
-      // Combine profile with roles
+      // Combine profile with roles — coerce to expected shape safely
+      const roles: string[] = Array.isArray(rolesData)
+        ? (rolesData as Array<{ role: Database['public']['Enums']['app_role'] }>).map((r) => r.role)
+        : [];
+
       setProfile({
         ...profileData,
-        roles: rolesData?.map((r: any) => r.role) || []
-      });
+        roles,
+      } as Profile);
     } catch (error) {
       console.error('Error fetching profile:', error);
       setProfile(null);
@@ -60,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
-        
+
         if (currentSession?.user) {
           setTimeout(() => {
             fetchProfile(currentSession.user.id);
@@ -68,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setProfile(null);
         }
-        
+
         setLoading(false);
       }
     );
@@ -77,11 +83,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-      
+
       if (currentSession?.user) {
         fetchProfile(currentSession.user.id);
       }
-      
+
       setLoading(false);
     });
 
@@ -96,15 +102,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const isSuperAdmin = profile?.roles?.includes('super_admin') || false;
   const isAdmin = profile?.roles?.includes('admin') || isSuperAdmin;
-  
+
   const hasPermission = (permission: string): boolean => {
     if (!profile) return false;
     if (isSuperAdmin) return true;
-    
-    const permissions = Array.isArray(profile.permissions) 
-      ? profile.permissions 
+
+    const permissions = Array.isArray(profile.permissions)
+      ? profile.permissions
       : [];
-    
+
     return permissions.includes('*') || permissions.includes(permission);
   };
 

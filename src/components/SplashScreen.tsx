@@ -78,7 +78,7 @@ const SplashScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
                 🌊
               </motion.div>
               <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">
-                AquaHelix
+                MultiFarm SaaS
               </h1>
               <motion.p 
                 className="text-white/80 text-xl font-light"

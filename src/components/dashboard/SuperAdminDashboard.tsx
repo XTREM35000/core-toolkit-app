@@ -278,7 +278,7 @@ export const SuperAdminDashboard = () => {
       <Card className="relative h-64 overflow-hidden border-0 shadow-xl">
         <img 
           src={heroImage} 
-          alt="AquaHelix Manager Pro"
+          alt="MultiFarm SaaS Manager Pro"
           className="w-full h-full object-cover"
         />
          <AnimatedLogo size={120} className="mb-6" useImage={true} />
@@ -289,7 +289,7 @@ export const SuperAdminDashboard = () => {
               Bienvenue, {profile?.full_name || 'Administrateur'} 👋
             </h1>
             <p className="text-xl opacity-90 mb-6">
-              Gestion intelligente de votre pisciculture et héliciculture
+              Gestion intelligente de toutes vos activités agricoles et animales
             </p>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">

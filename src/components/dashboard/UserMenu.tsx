@@ -50,7 +50,7 @@ export const UserMenu = () => {
       await supabase.auth.signOut();
       toast({ 
         title: "Déconnexion réussie",
-        description: "À bientôt sur AquaHelix!",
+        description: "À bientôt sur MultiFarm SaaS!",
         duration: 3000
       });
       navigate("/");
@@ -271,7 +271,7 @@ export const UserMenu = () => {
                 {/* Footer */}
                 <div className="p-3 bg-gray-50/50 border-t">
                   <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>AquaHelix Pro</span>
+                    <span>MultiFarm SaaS Pro</span>
                     <span>v1.0.0</span>
                   </div>
                 </div>
@@ -296,7 +296,7 @@ export const UserMenu = () => {
                 Confirmer la déconnexion
               </AlertDialogTitle>
               <AlertDialogDescription className="text-gray-600">
-                Êtes-vous sûr de vouloir vous déconnecter de votre compte AquaHelix ?
+                Êtes-vous sûr de vouloir vous déconnecter de votre compte MultiFarm SaaS ?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex flex-row gap-3 justify-center sm:justify-center">

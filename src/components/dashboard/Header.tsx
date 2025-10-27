@@ -82,9 +82,9 @@ const Header: React.FC = () => {
             {/* Sidebar is handled by SidebarProvider and AppSidebar (Sheet for mobile) */}
             {/* Left user menu removed to avoid duplication; keep user menu on the right */}
             {/* Mobile: show animated logo + title next to burger */}
-            <div className="flex items-center gap-2 md:hidden">
+              <div className="flex items-center gap-2 md:hidden">
               <AnimatedLogo size={36} useImage={false} className="shrink-0" mainColor="text-blue-400" secondaryColor="text-blue-600" />
-              <span className="font-semibold text-lg glossy-title">AquaHelix</span>
+              <span className="font-semibold text-lg glossy-title">MultiFarm SaaS</span>
             </div>
           </motion.div>
         </div>

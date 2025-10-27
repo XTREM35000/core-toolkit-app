@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import './i18n';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { AppInitialization } from "./components/onboarding/AppInitialization";
@@ -31,6 +32,8 @@ import Heliciculture from './pages/Heliciculture';
 import Poissons from './pages/Poissons';
 import MesuresHeliciculture from './pages/MesuresHeliciculture';
 import Escargotieres from './pages/Escargotieres';
+import PontesEscargots from './pages/PontesEscargots';
+import JournalEscargots from './pages/JournalEscargots';
 import Aviculture from './pages/Aviculture';
 import CohortesPoulets from './pages/CohortesPoulets';
 import Poulaillers from './pages/Poulaillers';
@@ -97,11 +100,26 @@ const App: React.FC = () => {
                 <Route path="/activities" element={<Activities />} />
                 <Route path="/alerts" element={<Alerts />} />
                 <Route path="/analytics" element={<Analytics />} />
-                <Route path="/bassins-piscicoles" element={<BassinsPiscicoles />} />
-                <Route path="/bassins" element={<Bassins />} />
-                <Route path="/cohortes-poissons" element={<CohortesPoissons />} />
-                <Route path="/cohortes-poulets" element={<CohortesPoulets />} />
+                {/* Poissons module - normalized paths */}
+                <Route path="/poissons" element={<Poissons />} />
+                <Route path="/poissons/cohortes" element={<CohortesPoissons />} />
+                <Route path="/poissons/bassins" element={<BassinsPiscicoles />} />
+                <Route path="/poissons/especes" element={<Poissons />} />
+
+                {/* Backwards-compatible legacy routes (redirects) */}
+                <Route path="/bassins-piscicoles" element={<Navigate to="/poissons/bassins" replace />} />
+                <Route path="/bassins" element={<Navigate to="/poissons/bassins" replace />} />
+                <Route path="/cohortes-poissons" element={<Navigate to="/poissons/cohortes" replace />} />
+                <Route path="/cohortes-poulets" element={<Navigate to="/aviculture/cohortes" replace />} />
                 <Route path="/aviculture" element={<Aviculture />} />
+                {/* Aviculture child routes (normalized) */}
+                <Route path="/aviculture/cohortes" element={<CohortesPoulets />} />
+                <Route path="/aviculture/poulaillers" element={<Poulaillers />} />
+                {/* Cuniculture child routes (normalized) */}
+                <Route path="/cuniculture/cohortes" element={<CohortesLapins />} />
+                <Route path="/cuniculture/clapiers" element={<Clapiers />} />
+                {/* Profiles: redirect to admin dashboard */}
+                <Route path="/profiles" element={<Navigate to="/admin" replace />} />
                 <Route path="/agriculture" element={<Agriculture />} />
                 <Route path="/cuniculture" element={<Cuniculture />} />
                 <Route path="/apiculture" element={<Apiculture />} />
@@ -119,11 +137,24 @@ const App: React.FC = () => {
                 <Route path="/cohortes-escargots" element={<CohortesEscargots />} />
                 <Route path="/poissons" element={<Poissons />} />
                 <Route path="/especes-poissons" element={<Poissons />} />
-                <Route path="/parcs-helicicoles" element={<ParcsHelicicoles />} />
+                {/* Heliciculture module - normalized paths */}
                 <Route path="/heliciculture" element={<Heliciculture />} />
-                {/* Legacy / direct links to heliciculture subsections — redirect to Heliciculture and open section */}
-                <Route path="/escargotieres" element={<Escargotieres />} />
-                <Route path="/mesures-heliciculture" element={<MesuresHeliciculture />} />
+                <Route path="/heliciculture/cohortes" element={<CohortesEscargots />} />
+                <Route path="/heliciculture/escargotieres" element={<Escargotieres />} />
+                <Route path="/heliciculture/mesures" element={<MesuresHeliciculture />} />
+                <Route path="/heliciculture/pontes" element={<PontesEscargots />} />
+                <Route path="/heliciculture/journal" element={<JournalEscargots />} />
+
+                {/* Heliciculture additional child routes (map to existing pages where appropriate) */}
+                <Route path="/heliciculture/stock" element={<Navigate to="/stock-aliments" replace />} />
+                <Route path="/heliciculture/ventes" element={<Navigate to="/ventes" replace />} />
+
+                {/* Legacy routes for heliciculture */}
+                <Route path="/parcs-helicicoles" element={<Navigate to="/heliciculture" replace />} />
+                <Route path="/escargotieres" element={<Navigate to="/heliciculture/escargotieres" replace />} />
+                <Route path="/mesures-heliciculture" element={<Navigate to="/heliciculture/mesures" replace />} />
+                <Route path="/pontes-escargots" element={<Navigate to="/heliciculture/pontes" replace />} />
+                <Route path="/journal-escargots" element={<Navigate to="/heliciculture/journal" replace />} />
                 <Route path="/stock-aliments" element={<StockAliments />} />
                 <Route path="/conditions-environnement" element={<ConditionsEnvironnement />} />
                 <Route path="/stock" element={<Stock />} />

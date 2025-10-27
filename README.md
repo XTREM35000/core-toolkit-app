@@ -1,6 +1,6 @@
-# AquaHelix SaaS
+# MultiFarm SaaS
 
-AquaHelix SaaS is a management front-end for aquaculture and heliciculture operations.
+MultiFarm SaaS is a management front-end for aquaculture, heliciculture and broader agricultural & animal activities.
 
 ## Project info
 

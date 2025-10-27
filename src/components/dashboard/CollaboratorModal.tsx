@@ -11,6 +11,10 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { supabase } from '@/integrations/supabase/client';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
 
 interface Props {
   isOpen?: boolean;
@@ -21,16 +25,20 @@ interface Props {
 
 const CollaboratorModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
   const qc = useQueryClient();
+  const { toast } = useToast();
   const [name, setName] = useState(existing?.full_name ?? '');
   const [email, setEmail] = useState(existing?.email ?? '');
-  const [phone, setPhone] = useState((existing as any)?.phone ?? '');
+  const [phone, setPhone] = useState(existing?.phone ?? '');
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
-      setName(existing?.full_name ?? ''); setEmail(existing?.email ?? ''); setPhone((existing as any)?.phone ?? ''); setAvatar(null);
+      setName(existing?.full_name ?? '');
+      setEmail(existing?.email ?? '');
+      setPhone(existing?.phone ?? '');
+      setAvatar(null);
     } else {
       setAvatar(null);
     }
@@ -38,7 +46,7 @@ const CollaboratorModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
 
   const handleSave = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    setLoading(true);
+    setSaving(true);
     try {
       if (email && !/^[\w.-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(email)) throw new Error('Email invalide');
 
@@ -47,90 +55,184 @@ const CollaboratorModal = ({ isOpen, onClose, onSaved, existing }: Props) => {
         try {
           const fileExt = avatar.name.split('.').pop();
           const fileName = `profiles/collab-${Date.now()}.${fileExt}`;
-          const { error: uploadError } = await supabase.storage.from('public').upload(fileName, avatar as File, { upsert: true } as any);
-          if (!uploadError) {
-            const { data: publicData } = await supabase.storage.from('public').getPublicUrl(fileName) as any;
+          const { data: uploadData, error: uploadError } = await supabase.storage.from('public').upload(fileName, avatar, { upsert: true });
+          if (uploadError) throw uploadError;
+          // Prefer getPublicUrl for the uploaded file
+          try {
+            const { data: publicData } = await supabase.storage.from('public').getPublicUrl(fileName);
             avatarUrl = publicData?.publicUrl ?? null;
+          } catch {
+            // fallback to base64
+            const toBase64 = (f: File) => new Promise<string | null>((res) => {
+              const reader = new FileReader();
+              reader.onload = () => res(typeof reader.result === 'string' ? reader.result : null);
+              reader.onerror = () => res(null);
+              reader.readAsDataURL(f);
+            });
+            avatarUrl = await toBase64(avatar as File);
           }
         } catch (uploadErr) {
           console.warn('Avatar upload error', uploadErr);
+          const toBase64 = (f: File) => new Promise<string | null>((res) => {
+            const reader = new FileReader();
+            reader.onload = () => res(typeof reader.result === 'string' ? reader.result : null);
+            reader.onerror = () => res(null);
+            reader.readAsDataURL(f);
+          });
+          avatarUrl = await toBase64(avatar as File);
         }
       }
 
       const phoneNormalized = phone ? phone.replace(/\D/g, '') : null;
 
-      const payload: any = { full_name: name, email: email || null, phone: phone || null, phone_normalized: phoneNormalized, role: 'collaborator', avatar_url: avatarUrl };
+      const payload: Database['public']['Tables']['profiles']['Insert'] = {
+        full_name: name,
+        email: email || null,
+        phone: phone || null,
+        role: 'user' as Database['public']['Enums']['app_role'] | null,
+        avatar_url: avatarUrl,
+        id: undefined as unknown as string, // allow DB to generate / or caller to provide; we'll use update when existing.id present
+      } as any;
 
       if (existing?.id) {
-        await (supabase as any).from('profiles').update(payload).eq('id', existing.id);
+        const updates: Database['public']['Tables']['profiles']['Update'] = {
+          full_name: name,
+          email: email || null,
+          phone: phone || null,
+          avatar_url: avatarUrl,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error } = await supabase.from('profiles').update(updates).eq('id', existing.id);
+        if (error) throw error;
       } else {
-        await (supabase as any).from('profiles').insert(payload);
+        // Insert a new profile row
+        const insertPayload: Database['public']['Tables']['profiles']['Insert'] = {
+          full_name: name,
+          email: email || '',
+          phone: phone || null,
+          avatar_url: avatarUrl,
+          id: crypto.randomUUID(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: insertError } = await supabase.from('profiles').insert(insertPayload).select().single();
+        if (insertError) throw insertError;
       }
 
       qc.invalidateQueries({ queryKey: ['collabs'] });
+      toast({ title: 'Collaborateur enregistré', description: existing?.id ? 'Modifications enregistrées.' : 'Collaborateur créé avec succès.' });
       onSaved?.();
       onClose?.();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Collaborator save error', err);
+      toast({ title: 'Erreur', description: err?.message || 'Impossible d\'enregistrer le collaborateur', variant: 'destructive' });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <WhatsAppModal isOpen={isOpen} onClose={() => onClose?.()} hideHeader className="max-w-xl">
-      <div className="bg-white rounded-t-3xl shadow-md w-full mx-auto overflow-visible">
-        <ModalHeader title={existing ? 'Modifier collaborateur' : 'Nouveau collaborateur'} subtitle="Détails du collaborateur" headerLogo={<AnimatedLogo size={36} mainColor="text-white" secondaryColor="text-blue-300" />} onClose={() => onClose?.()} />
-        <div className="p-4">
-          <Card className="p-3">
-            <form onSubmit={handleSave} className="flex gap-4 items-start">
-              <div className="w-24 flex-shrink-0">
-                <AvatarUpload value={avatar} onChange={(f) => setAvatar(f)} label="Photo" />
+    <WhatsAppModal isOpen={isOpen} onClose={() => onClose?.()} hideHeader className="max-w-3xl">
+      <motion.div
+        className="bg-white rounded-3xl shadow-xl overflow-visible"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+      >
+        <ModalHeader
+          title={existing ? 'Modifier collaborateur' : 'Nouveau collaborateur'}
+          subtitle="Détails du collaborateur"
+          headerLogo={<AnimatedLogo size={36} mainColor="text-white" secondaryColor="text-blue-300" />}
+          onClose={() => onClose?.()}
+        />
+
+        <div className="p-6">
+          <Card className="p-6 space-y-4 shadow-inner rounded-2xl">
+            <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="flex flex-col items-center md:items-start">
+                <AvatarUpload
+                  value={avatar}
+                  onChange={(f) => setAvatar(f)}
+                  label="Photo"
+                  className="rounded-full shadow-md w-28 h-28"
+                />
+                <p className="mt-2 text-sm text-gray-500 text-center md:text-left">Photo du collaborateur</p>
               </div>
 
-              <div className="flex-1 space-y-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="md:col-span-2 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm">Nom</label>
-                    <input value={name} onChange={(e) => setName(e.target.value)} className="input w-full" />
+                    <label className="block text-sm font-semibold text-gray-700">Nom</label>
+                    <Input value={name} onChange={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Nom complet" />
                   </div>
                   <div>
+                    <label className="block text-sm font-semibold text-gray-700">Email</label>
                     <EmailInput value={email} onChange={(v) => setEmail(v)} />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
+                    <label className="block text-sm font-semibold text-gray-700">Téléphone</label>
                     <PhoneInput value={phone} onChange={(v) => setPhone(v)} />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600">Rôle</label>
-                    <input value={(existing as any)?.role ?? 'Collaborateur'} disabled className="input w-full bg-gray-50 text-gray-600" />
+                    <label className="block text-sm font-semibold text-gray-700">Rôle</label>
+                    <Input value={(existing as any)?.role ?? 'Collaborateur'} disabled className="bg-gray-50 text-gray-600" />
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2">
-                  {existing?.id && <Button variant="destructive" onClick={() => setConfirmOpen(true)} disabled={loading}>Supprimer</Button>}
-                  <Button variant="ghost" onClick={() => onClose?.()}>Annuler</Button>
-                  <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : 'Enregistrer'}</Button>
+                <div className="mt-4 flex justify-end gap-3">
+                  {existing?.id && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => setConfirmOpen(true)}
+                      disabled={saving}
+                    >
+                      Supprimer
+                    </Button>
+                  )}
+                  <Button variant="ghost" onClick={() => onClose?.()} disabled={saving}>
+                    Annuler
+                  </Button>
+                  <Button type="submit" disabled={saving}>
+                    {saving ? 'Enregistrement...' : 'Enregistrer'}
+                  </Button>
                 </div>
               </div>
             </form>
           </Card>
         </div>
-        <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title={`Supprimer ce collaborateur ${existing?.full_name ?? ''}`} description="Cette action est irréversible. Voulez-vous continuer ?" onConfirm={async () => {
-          if (!existing?.id) return;
-          setLoading(true);
-          try {
-            await (supabase as any).from('profiles').delete().eq('id', existing.id);
-            qc.invalidateQueries({ queryKey: ['collabs'] });
-            onSaved?.();
-            onClose?.();
-          } catch (e) { console.error(e); } finally { setLoading(false); setConfirmOpen(false); }
-        }} />
-      </div>
+
+        <ConfirmModal
+          open={confirmOpen}
+          onClose={() => setConfirmOpen(false)}
+          title={`Supprimer ce collaborateur ${existing?.full_name ?? ''}`}
+          description="Cette action est irréversible. Voulez-vous continuer ?"
+          onConfirm={async () => {
+            if (!existing?.id) return;
+            setSaving(true);
+            try {
+              const { error } = await supabase.from('profiles').delete().eq('id', existing.id);
+              if (error) throw error;
+              qc.invalidateQueries({ queryKey: ['collabs'] });
+              toast({ title: 'Collaborateur supprimé', description: 'La suppression a réussi.' });
+              onSaved?.();
+              onClose?.();
+            } catch (e: any) {
+              console.error(e);
+              toast({ title: 'Erreur', description: e?.message || 'Impossible de supprimer le collaborateur', variant: 'destructive' });
+            } finally {
+              setSaving(false);
+              setConfirmOpen(false);
+            }
+          }}
+        />
+      </motion.div>
     </WhatsAppModal>
   );
 };

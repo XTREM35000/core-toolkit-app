@@ -34,7 +34,7 @@ const AnimatedLogoPoisson: React.FC<AnimatedLogoPoissonProps> = ({
       </motion.div>
 
       {showText && (
-        <span className="font-semibold text-sm text-gray-900">AquaHelix</span>
+        <span className="font-semibold text-sm text-gray-900">MultiFarm SaaS</span>
       )}
     </div>
   );

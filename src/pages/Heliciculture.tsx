@@ -77,11 +77,11 @@ const Heliciculture = ({ initialSection }: { initialSection?: string } = {}) => 
   const getHelpText = (sectionId: string) => {
     switch (sectionId) {
       case 'parcs':
-        return 'Les parcs regroupent plusieurs bassins et escargotières. Ici vous pouvez créer, éditer ou supprimer un parc.';
+        return 'Aide — Parcs : les parcs regroupent plusieurs bassins et escargotières. Créez, éditez ou supprimez un parc ici.';
       case 'escargotieres':
-        return 'Les escargotières sont les unités de production. Gérez les paramètres et suivez les mesures.';
+        return 'Aide — Escargotières : unités de production. Gérez les paramètres et suivez les mesures.';
       case 'cohortes':
-        return "Les cohortes représentent des lots d'animaux suivis dans le temps. Ajoutez la date, le parc associé et la composition.";
+        return "Aide — Cohortes : lots d'animaux suivis dans le temps. Ajoutez la date, le parc associé et la composition.";
       default:
         return '';
     }

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { getHelpForPath } from '@/lib/helpMessages';
 
 interface HelpButtonProps {
   pageName?: string; // can be a pathname like '/profile'
@@ -8,39 +9,13 @@ interface HelpButtonProps {
   overrideMessage?: string;
 }
 
-const messages: Record<string, string> = {
-  profile: "Page de gestion de votre profil. Modifiez vos informations personnelles, téléchargez une photo, et cliquez sur Enregistrer pour sauvegarder.",
-  bassins: "Gestion des bassins piscicoles. Créez, modifiez ou supprimez vos bassins. Assignez des cohortes de poissons et suivez leur évolution.",
-  'cohortes-escargots': "Gestion des cohortes d'escargots : suivez les lots, les entrées/sorties et l'état des parcelles.",
-  'cohortes-poissons': "Gestion des cohortes de poissons : surveillez la croissance, effectuez des traitements et planifiez les transferts.",
-  commandes: "Page des commandes : créez et suivez les commandes fournisseurs et clients.",
-  ventes: "Gestion des ventes : enregistrez de nouvelles ventes, suivez les statuts et exportez les rapports.",
-  collaborators: "Liste des collaborateurs : invitez de nouveaux membres, définissez des rôles et gérez les accès.",
-  analytics: "Tableau de bord analytique : consultez les indicateurs clés et filtrez par période.",
-  'admin/config': "Configuration administrateur : paramétrez les options globales et gérez les rôles et autorisations.",
-};
-
-function resolveKey(path?: string) {
-  if (!path) return 'default';
-  const p = path.toLowerCase();
-  if (p.startsWith('/profile')) return 'profile';
-  if (p.includes('bassin') || p.includes('bassins')) return 'bassins';
-  if (p.includes('cohortes') && p.includes('escargot')) return 'cohortes-escargots';
-  if (p.includes('cohortes') && p.includes('poisson')) return 'cohortes-poissons';
-  if (p.includes('commandes')) return 'commandes';
-  if (p.includes('ventes')) return 'ventes';
-  if (p.includes('collaborator') || p.includes('collaborators')) return 'collaborators';
-  if (p.includes('analytics')) return 'analytics';
-  if (p.includes('admin') && p.includes('config')) return 'admin/config';
-  return 'default';
-}
+// message resolution is centralized in src/lib/helpMessages.ts
 
 const HelpButton: React.FC<HelpButtonProps> = ({ pageName, position, overrideMessage }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const key = resolveKey(pageName);
-  const defaultMessage = messages[key] ?? "Besoin d'aide ? Cliquez ici pour des conseils rapides sur cette page.";
+  const defaultMessage = getHelpForPath(pageName);
   // Prefer explicit overrideMessage, then a page-level data attribute (for pages that set it), then defaults
   const pageLevel = typeof document !== 'undefined' ? (document.body?.dataset?.pageHelp as string | undefined) : undefined;
   const message = overrideMessage ?? pageLevel ?? defaultMessage;

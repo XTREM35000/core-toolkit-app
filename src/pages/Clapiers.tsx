@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { getHelpForPath } from '@/lib/helpMessages';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import ClapiersList from '../components/cuniculture/ClapiersList';
 import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
@@ -6,6 +7,14 @@ import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
 
 const Clapiers = () => {
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.dataset.pageHelp = getHelpForPath('/clapiers');
+    }
+    return () => {
+      if (typeof document !== 'undefined') delete document.body.dataset.pageHelp;
+    };
+  }, []);
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto py-6">

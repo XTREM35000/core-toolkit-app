@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { InitStatus } from '@/types';
 
 export const useAppInitialization = () => {
@@ -20,9 +21,8 @@ export const useAppInitialization = () => {
       let hasAdmin = false;
 
       try {
-  const { data: superRes, error: superErr } = await (supabase as any).rpc('has_super_admin') as any;
+        const { data: superRes, error: superErr } = await supabase.rpc('has_super_admin');
         if (!superErr && superRes !== undefined) {
-          // supabase.rpc returns value in `data` for single scalar functions
           hasSuperAdmin = Boolean(superRes);
         }
       } catch (rpcErr) {
@@ -31,7 +31,7 @@ export const useAppInitialization = () => {
       }
 
       try {
-  const { data: adminRes, error: adminErr } = await (supabase as any).rpc('exists_admin') as any;
+        const { data: adminRes, error: adminErr } = await supabase.rpc('exists_admin');
         if (!adminErr && adminRes !== undefined) {
           hasAdmin = Boolean(adminRes);
         }
@@ -47,7 +47,7 @@ export const useAppInitialization = () => {
             .from('profiles')
             .select('id')
             .eq('role', 'super_admin')
-            .limit(1) as any;
+            .limit(1);
           hasSuperAdmin = (profilesWithSuper?.length ?? 0) > 0;
         } catch (err) {
           // ignore and keep false
@@ -56,10 +56,10 @@ export const useAppInitialization = () => {
         if (!hasSuperAdmin) {
           try {
             const { data: superAdmin } = await supabase
-              .from('user_roles' as any)
+              .from('user_roles')
               .select('id')
               .eq('role', 'super_admin')
-              .limit(1) as any;
+              .limit(1);
 
             hasSuperAdmin = (superAdmin?.length ?? 0) > 0;
           } catch (err) {
@@ -71,10 +71,10 @@ export const useAppInitialization = () => {
       if (!hasAdmin) {
         try {
           const { data: admin } = await supabase
-            .from('user_roles' as any)
+            .from('user_roles')
             .select('id')
             .eq('role', 'admin')
-            .limit(1) as any;
+            .limit(1);
 
           hasAdmin = (admin?.length ?? 0) > 0;
         } catch (err) {

@@ -32,10 +32,10 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <WhatsAppModal isOpen={isOpen} onClose={() => onClose()} hideHeader size="xl">
+    <>
       <div className="bg-white rounded-t-3xl shadow-2xl w-full max-w-3xl mx-auto overflow-visible">
         <ModalHeader
-          title="Bienvenue sur AquaHelix Manager Pro"
+          title="Bienvenue sur MultiFarm SaaS Manager Pro"
           subtitle="Plateforme de gestion piscicole et hélicicole"
           icon={Code}
           onClose={onClose}
@@ -43,7 +43,7 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
         <div className="bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-t-2xl text-white shadow-2xl">
           <div className="flex flex-col items-center justify-center pt-6 pb-4">
             <AnimatedLogo size={56} mainColor="text-white" secondaryColor="text-green-300" waterDrop className="mb-2" />
-            <h2 className="text-2xl font-bold mb-1">Bienvenue sur AquaHelix Manager Pro</h2>
+            <h2 className="text-2xl font-bold mb-1">Bienvenue sur MultiFarm SaaS Manager Pro</h2>
             <p className="text-xs opacity-90 mb-2">Gestion complète pour élevages piscicoles et hélicicoles</p>
           </div>
         </div>
@@ -99,6 +99,6 @@ export const DeveloperModal = ({ isOpen, onClose }: DeveloperModalProps) => {
           </div>
         </div>
       </div>
-    </WhatsAppModal>
+    </>
   );
 };

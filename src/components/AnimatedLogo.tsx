@@ -78,7 +78,7 @@ export function AnimatedLogo({
       >
         <motion.img
           src={logoImage}
-          alt="AquaHelix Manager Pro"
+          alt="MultiFarm SaaS Manager Pro"
           style={{ width: size, height: size }}
           className="drop-shadow-lg"
           animate={{

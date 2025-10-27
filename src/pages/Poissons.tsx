@@ -27,6 +27,29 @@ const Poissons = ({ initialSection }: { initialSection?: string } = {}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sync page-level help message for the global HelpButton to read
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.dataset.pageHelp = getHelpText(active) || '';
+    }
+    return () => {
+      if (typeof document !== 'undefined') delete document.body.dataset.pageHelp;
+    };
+  }, [active]);
+
+  const getHelpText = (sectionId: string) => {
+    switch (sectionId) {
+      case 'cohortes':
+        return "Aide — Cohortes (poissons) : surveillez la croissance, enregistrez traitements et planifiez les transferts.";
+      case 'bassins':
+        return "Aide — Bassins : créez, éditez ou supprimez des bassins. Assignez des cohortes et suivez les paramètres clés.";
+      case 'especes':
+        return "Aide — Espèces : gérez les espèces, ajoutez des informations scientifiques et catégorisez vos stocks.";
+      default:
+        return "Aide — Poissons : accédez aux cohortes, bassins et espèces. Utilisez les sections pour naviguer entre les listes.";
+    }
+  };
+
   const scrollTo = (id: string) => {
     const el = sectionsRef.current[id];
     if (!el) return;

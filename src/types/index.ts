@@ -4,6 +4,8 @@ export type SubscriptionStatus = 'active' | 'inactive' | 'trial' | 'cancelled';
 
 export type ThemeName = 'whatsapp' | 'apple';
 
+import type { Json } from '@/integrations/supabase/types';
+
 export interface Profile {
   id: string;
   email: string;
@@ -12,7 +14,8 @@ export interface Profile {
   phone?: string | null;
   role?: string | null;
   roles?: AppRole[]; // Roles from user_roles table (secure)
-  permissions: any; // Json type from Supabase
+  // permissions come from the database as a Json value; keep it typed instead of `any`
+  permissions: Json | null;
   tenant_id: string | null;
   is_active: boolean;
   created_at: string;

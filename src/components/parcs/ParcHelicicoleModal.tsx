@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Modal } from '@/components/ui/modal';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
+import { ModalHeader } from '@/components/workflow/shared/ModalHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,31 +43,38 @@ const ParcHelicicoleModal = ({ open, onOpenChange, parc, onSaved }: any) => {
   };
 
   return (
-    <Modal open={open} onOpenChange={onOpenChange} title={parc ? 'Éditer Parc' : 'Nouveau Parc'}>
-      <div className="p-6 bg-white">
-        <Card className="p-4">
-          {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm">Nom</label>
-              <Input ref={firstRef} value={form.nom} onChange={(e: any) => setForm({ ...form, nom: e.target.value })} />
+    <WhatsAppModal isOpen={open} onClose={() => onOpenChange(false)} hideHeader className="max-w-xl">
+      <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
+        <ModalHeader
+          title={parc ? 'Éditer Parc' : 'Nouveau Parc'}
+          subtitle={parc ? 'Modifier les informations du parc' : 'Créer un nouveau parc hélicicole'}
+          onClose={() => onOpenChange(false)}
+        />
+        <div className="p-6">
+          <Card className="p-4">
+            {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm">Nom</label>
+                <Input ref={firstRef} value={form.nom} onChange={(e: any) => setForm({ ...form, nom: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-sm">Localisation</label>
+                <Input value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm">Localisation</label>
-              <Input value={form.location} onChange={(e: any) => setForm({ ...form, location: e.target.value })} />
+
+            <div className="mt-4 flex items-center justify-end gap-3">
+              {parc?.id && <Button variant="ghost" className="mr-auto text-red-600 hover:bg-red-50" onClick={() => setConfirmOpen(true)}>Supprimer</Button>}
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+              <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : parc ? 'Enregistrer' : 'Créer'}</Button>
             </div>
-          </div>
+          </Card>
 
-          <div className="mt-4 flex items-center justify-end gap-3">
-            {parc?.id && <Button variant="ghost" className="mr-auto text-red-600 hover:bg-red-50" onClick={() => setConfirmOpen(true)}>Supprimer</Button>}
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
-            <Button onClick={handleSave} disabled={loading}>{loading ? 'Enregistrement...' : parc ? 'Enregistrer' : 'Créer'}</Button>
-          </div>
-        </Card>
-
-        <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Supprimer le parc" description="Voulez-vous vraiment supprimer ce parc ? Cette action est irréversible." onConfirm={handleDelete} />
+          <ConfirmModal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Supprimer le parc" description="Voulez-vous vraiment supprimer ce parc ? Cette action est irréversible." onConfirm={handleDelete} />
+        </div>
       </div>
-    </Modal>
+    </WhatsAppModal>
   );
 };
 
