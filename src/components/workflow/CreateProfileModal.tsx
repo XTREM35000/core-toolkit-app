@@ -101,24 +101,30 @@ const CreateProfileModal = ({ isOpen, onClose, role = 'client', initialName = ''
     <WhatsAppModal isOpen={modalOpen} onClose={() => onClose?.()} hideHeader className="max-w-md">
       <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
         <ModalHeader title={`Créer ${role === 'supplier' ? 'Fournisseur' : 'Client'}`} subtitle="Créer rapidement un contact" headerLogo={<AnimatedLogo size={36} />} onClose={() => onClose?.()} />
-        <div className="p-6">
-          <Card className="p-4">
-            <form onSubmit={handleCreate}>
+        <div className="p-6 bg-white">
+          <Card className="p-4 border-0 shadow-lg">
+            <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-sm">Nom complet</label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 focus:border-transparent" />
               </div>
               <div>
-                <label className="block text-sm">Email</label>
-                <EmailInput value={email} onChange={(value: string) => setEmail(value)} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <EmailInput value={email} onChange={(value: string) => setEmail(value)} className="w-full" />
               </div>
               <div>
-                <label className="block text-sm">Téléphone</label>
-                <PhoneInput value={phone} onChange={(value: string) => setPhone(value)} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                <PhoneInput value={phone} onChange={(value: string) => setPhone(value)} className="w-full" />
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => onClose?.()}>Annuler</Button>
-                <Button type="submit" disabled={loading}>{loading ? 'Création...' : 'Créer'}</Button>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Avatar</label>
+                <AvatarUpload value={avatar} onChange={(f) => setAvatar(f)} label="Photo (optionnel)" />
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                <Button variant="ghost" onClick={() => onClose?.()} className="border border-gray-300 hover:bg-gray-50">Annuler</Button>
+                <Button type="submit" disabled={loading} className="bg-gradient-to-r from-sky-500 to-sky-600 text-white shadow-lg">{loading ? 'Création...' : existing?.id ? 'Enregistrer' : 'Créer'}</Button>
               </div>
             </form>
           </Card>

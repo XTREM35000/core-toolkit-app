@@ -1,5 +1,6 @@
 
 import { useState, FormEvent } from 'react';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import { ModalHeader } from './shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
@@ -59,30 +60,43 @@ const EncaissementModal = ({ isOpen, open, onClose, onOpenChange, venteId, onSav
   return (
     <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} hideHeader className="max-w-md">
       <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
-        <ModalHeader title="Encaissement" subtitle="Enregistrer un paiement client" headerLogo={<AnimatedLogo size={36} />} onClose={() => setOpen(false)} />
-        <div className="p-6">
-          <Card className="p-4">
-            <form onSubmit={handleSubmit} className="space-y-3">
+        <ModalHeader title="Encaissement" subtitle="Enregistrer un paiement client" headerLogo={<AnimatedLogo size={36} mainColor="text-white" secondaryColor="text-indigo-300" />} onClose={() => setOpen(false)} />
+
+        <div className="p-6 bg-white">
+          <Card className="p-4 border-0 shadow-lg">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm">Montant</label>
-                <Input type="number" value={amount?.toString() ?? ''} onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : '')} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Montant</label>
+                <Input type="number" value={amount?.toString() ?? ''} onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
               </div>
               <div>
-                <label className="block text-sm">Méthode</label>
-                <select value={method} onChange={(e) => setMethod(e.target.value)} className="w-full border rounded px-2 py-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Méthode</label>
+                <select value={method} onChange={(e) => setMethod(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                   <option>Espèces</option>
                   <option>Virement</option>
                   <option>Chèque</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm">Date</label>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
               </div>
 
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
-                <Button onClick={handleSubmit} disabled={loading}>{loading ? 'Enregistrement...' : 'Enregistrer paiement'}</Button>
+              <div className="mt-4 flex items-center justify-end gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => setOpen(false)}
+                  className="border border-gray-300 hover:bg-gray-50"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-200/50"
+                >
+                  {loading ? 'Enregistrement...' : 'Enregistrer paiement'}
+                </Button>
               </div>
             </form>
           </Card>

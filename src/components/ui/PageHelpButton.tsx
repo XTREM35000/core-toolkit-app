@@ -5,16 +5,17 @@ import { getHelpForPath } from '@/lib/helpMessages';
 
 interface Props {
   pageId?: string;
+  tooltip?: string;
 }
 
 // For contextual help we prefer the centralized helper
 
-const PageHelpButton: React.FC<Props> = ({ pageId }) => {
+const PageHelpButton: React.FC<Props> = ({ pageId, tooltip }) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const pageLevel = typeof document !== 'undefined' ? (document.body?.dataset?.pageHelp as string | undefined) : undefined;
-  const message = pageLevel ?? getHelpForPath(pageId) ?? "Besoin d'aide ? Cliquez pour obtenir des conseils rapides sur cette page.";
+  const message = tooltip ?? pageLevel ?? getHelpForPath(pageId) ?? "Besoin d'aide ? Cliquez pour obtenir des conseils rapides sur cette page.";
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

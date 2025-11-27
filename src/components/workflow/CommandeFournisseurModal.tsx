@@ -90,41 +90,45 @@ const CommandeFournisseurModal = ({ isOpen, open, onClose, onOpenChange, onSaved
           onClose={() => setOpen(false)}
         />
 
-        <div className="p-6">
-          <Card className="p-4">
-            {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
-            <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="p-6 bg-white">
+          <Card className="p-4 border-0 shadow-lg">
+            {error && (
+              <div className="text-sm text-red-600 mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm">Fournisseur</label>
                 <div className="flex gap-2 items-center">
                   <div className="flex-1">
                     <ProfileAutocomplete value={supplier} onSelect={(p) => { setSupplierId(p?.id ?? null); setSupplier(p?.full_name ?? ''); }} placeholder="Rechercher un fournisseur" onCreateSuggestion={(name) => { setOpenCreateSupplier(true); setSupplier(name); }} />
                   </div>
-                  <Button variant="ghost" onClick={() => setOpenCreateSupplier(true)}>Créer</Button>
+                  <Button variant="ghost" onClick={() => setOpenCreateSupplier(true)} className="border border-gray-200 hover:bg-gray-50">Créer</Button>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm">Quantité</label>
-                  <Input value={quantity?.toString() ?? ''} onChange={(e) => setQuantity(e.target.value ? Number(e.target.value) : '')} type="number" />
+                  <Input value={quantity?.toString() ?? ''} onChange={(e) => setQuantity(e.target.value ? Number(e.target.value) : '')} type="number" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" />
                 </div>
                 <div>
                   <label className="block text-sm">Prix unitaire</label>
-                  <Input value={unitPrice?.toString() ?? ''} onChange={(e) => setUnitPrice(e.target.value ? Number(e.target.value) : '')} type="number" />
+                  <Input value={unitPrice?.toString() ?? ''} onChange={(e) => setUnitPrice(e.target.value ? Number(e.target.value) : '')} type="number" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm">Date attendue</label>
-                <Input type="date" value={expectedAt} onChange={(e) => setExpectedAt(e.target.value)} />
+                <Input type="date" value={expectedAt} onChange={(e) => setExpectedAt(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-transparent" />
               </div>
               <div>
                 <label className="block text-sm">Notes</label>
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full border rounded px-2 py-1" />
+                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 min-h-[80px] focus:ring-2 focus:ring-yellow-500 focus:border-transparent" />
               </div>
 
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
-                <Button type="submit" disabled={loading}>{loading ? 'Enregistrement...' : 'Créer la commande'}</Button>
+              <div className="flex items-center justify-end gap-3">
+                <Button variant="ghost" onClick={() => setOpen(false)} className="border border-gray-300 hover:bg-gray-50">Annuler</Button>
+                <Button type="submit" disabled={loading} className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg shadow-yellow-200/50">{loading ? 'Enregistrement...' : 'Créer la commande'}</Button>
               </div>
             </form>
           </Card>

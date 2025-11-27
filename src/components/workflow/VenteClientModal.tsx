@@ -3,6 +3,7 @@ import { ModalHeader } from './shared/ModalHeader';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { WhatsAppModal } from '@/components/ui/whatsapp-modal';
 import ProfileAutocomplete from '@/components/ui/ProfileAutocomplete';
 import CreateProfileModal from '@/components/workflow/CreateProfileModal';
 import { Button } from '@/components/ui/button';
@@ -61,27 +62,27 @@ const VenteClientModal = ({ isOpen, open, onClose, onOpenChange, onSaved }: Prop
       <WhatsAppModal isOpen={modalOpen} onClose={() => setOpen(false)} hideHeader className="max-w-xl">
         <div className="bg-white rounded-t-3xl shadow-2xl w-full mx-auto overflow-visible">
           <ModalHeader title="Nouvelle vente" subtitle="Saisir la commande client" headerLogo={<AnimatedLogo size={32} />} onClose={() => setOpen(false)} />
-          <div className="p-4 bg-white">
-            <Card className="p-3">
-              <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="p-6 bg-white">
+            <Card className="p-4 border-0 shadow-lg">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm">Client</label>
                   <div className="flex gap-2 items-center">
                     <div className="flex-1">
                       <ProfileAutocomplete value={clientName} onSelect={(p) => { setClientId(p?.id ?? null); setClientName(p?.full_name ?? ''); }} placeholder="Rechercher un client" onCreateSuggestion={(name) => { setOpenCreateClient(true); setClientName(name); }} />
                     </div>
-                    <Button variant="ghost" onClick={() => setOpenCreateClient(true)}>Créer</Button>
+                    <Button variant="ghost" onClick={() => setOpenCreateClient(true)} className="border border-gray-200 hover:bg-gray-50">Créer</Button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm">Quantité</label>
-                    <Input type="number" value={quantity?.toString() ?? ''} onChange={(e) => setQuantity(e.target.value ? Number(e.target.value) : '')} />
+                    <Input type="number" value={quantity?.toString() ?? ''} onChange={(e) => setQuantity(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
                   </div>
                   <div>
                     <label className="block text-sm">Prix unitaire</label>
-                    <Input type="number" value={unitPrice?.toString() ?? ''} onChange={(e) => setUnitPrice(e.target.value ? Number(e.target.value) : '')} />
+                    <Input type="number" value={unitPrice?.toString() ?? ''} onChange={(e) => setUnitPrice(e.target.value ? Number(e.target.value) : '')} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
                   </div>
                 </div>
 
@@ -90,9 +91,21 @@ const VenteClientModal = ({ isOpen, open, onClose, onOpenChange, onSaved }: Prop
                   <textarea className="w-full border rounded px-2 py-1 min-h-[64px]" value={notes} onChange={(e) => setNotes(e.target.value)} />
                 </div>
 
-                <div className="mt-4 flex justify-end gap-2">
-                  <Button variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
-                  <Button onClick={handleSubmit} disabled={loading}>{loading ? 'Enregistrement...' : 'Enregistrer'}</Button>
+                <div className="mt-4 flex items-center justify-end gap-3">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setOpen(false)}
+                    className="border border-gray-300 hover:bg-gray-50"
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-200/50"
+                  >
+                    {loading ? 'Enregistrement...' : 'Enregistrer'}
+                  </Button>
                 </div>
               </form>
             </Card>
